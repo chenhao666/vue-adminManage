@@ -1,0 +1,331 @@
+@charset "utf-8";
+html,body,dl,dt,dd,div,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td { margin:0; padding:0; }
+html,body{
+	width: 100%;
+	height: 100%;
+	min-width: 1279px;
+	position: relative;
+	font-family:"Microsoft YaHei",Arial,Helvetica,sans-serif,"SimSun" !important;
+}
+em,i{
+	font-style: normal;
+}
+a{
+	text-decoration: none;
+}
+li{ list-style: none outside none;}
+.clear{ clear:both;}
+@font-face {font-family: "iconfont";
+  src: url('../fonts/iconfont.eot?t=1493098109966'); 
+  src: url('../fonts/iconfont.eot?t=1493098109966#iefix') format('embedded-opentype'), 
+  url('../fonts/iconfont.woff?t=1493098109966') format('woff'), 
+  url('../fonts/iconfont.ttf?t=1493098109966') format('truetype'), 
+  url('../fonts/iconfont.svg?t=1493098109966#iconfont') format('svg'); 
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-shouqi:before { content: "\e60e"; }
+
+.icon-youqi:before { content: "\e60d"; }
+
+.icon-designer:before { content: "\e612"; }
+
+.icon-tongji:before { content: "\e61e"; }
+
+.icon-anzhuang:before { content: "\e60f"; }
+
+.icon-tupianguanli:before { content: "\e60b"; }
+
+.icon-jiantouarrow496:before { content: "\e6b4"; }
+
+.icon-crm11:before { content: "\e642"; }
+
+.icon-pinglunguanli:before { content: "\e63b"; }
+
+.icon-nimu-copy:before { content: "\e60a"; }
+
+.icon-zixunzhuanhuan:before { content: "\e62a"; }
+
+.icon-jungongyanshou:before { content: "\e638"; }
+
+.icon-yonghuming:before { content: "\e60c"; }
+
+.icon-ai214:before { content: "\e6ca"; }
+
+.icon-orderManage:before { content: "\e618"; }
+
+.icon-mima:before { content: "\e6b2"; }
+
+.icon-bianji:before { content: "\e67f"; }
+
+.icon-huiyuan:before { content: "\e629"; }
+
+.icon-manager:before { content: "\e605"; }
+
+.icon-index:before { content: "\e603"; }
+
+.icon-chanpinguanli:before { content: "\e613"; }
+
+.icon-xitongguanli:before { content: "\e61d"; }
+
+.icon-delivery:before { content: "\e607"; }
+
+.icon-shanchu:before { content: "\e615"; }
+
+.icon-search:before { content: "\e601"; }
+
+.icon-customer:before { content: "\e602"; }
+
+.icon-shuidian:before { content: "\e67e"; }
+
+.icon-collapse-right:before { content: "\e600"; }
+
+.icon-gongdikaifang:before { content: "\e604"; }
+
+
+.iconfont{
+	vertical-align: middle;
+    margin-right: 5px;
+    width: 24px;
+    text-align: center;
+    font-size: 20px;
+}
+
+/*样式调整*/
+.el-table__body-wrapper{
+	overflow: hidden !important;
+}
+table,table td,table th{
+	text-align: center !important;
+}
+.el-dialog .el-dialog__footer{
+	text-align: center !important;
+	border-top: 1px solid #ccc;
+}
+/*滚动条样式*/
+::-webkit-scrollbar {
+	width: 10px;
+	height:10px;
+}
+ ::-webkit-scrollbar-track {
+	background-color:#ccc;
+}
+ ::-webkit-scrollbar-thumb {
+	border-radius: 8px;
+	background-color: #999;
+	-webkit-border-radius: 2em;
+	-moz-border-radius: 2em;
+	border-radius:2em;
+	cursor: pointer;
+}
+.inlineBlock{
+	display: inline-block;
+}
+.role_list .el-range-editor .el-range__close-icon{
+	width: 10px !important;
+}
+
+.curPageCss{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	float: right;
+}
+/*页面样式单独调整*/
+
+.fontWeight .el-breadcrumb__inner{
+	font-weight: 700 !important;
+}
+.el-breadcrumb__inner, .el-breadcrumb__inner a{
+ 	font-weight: 400;
+}
+.el-menu-item,.el-submenu__title{
+  	padding-left: 35px !important;
+}
+.el-menu-item-group .el-menu-item{
+	padding-left: 64px !important;
+}
+.el-menu--collapse .el-submenu__title{
+  	padding-left: 20px !important;
+}
+.el-card__header{
+	border-bottom: none !important;
+}
+
+.box-card .el-card__body .el-form{
+	margin-top:30px;
+}
+.el-card__header{
+	padding: 30px 40px;
+}
+.el-card__body{
+	padding: 0px 40px;
+}
+.line{
+	width: 100%;
+	padding: 0px 20px;
+	box-sizing: border-box;
+	border-bottom: 1px solid #E4E4E4;
+	height: 0px;
+}
+.el-form-item{
+	margin-bottom: 30px;
+}
+.el-button{
+	padding: 12px 0px;
+	width: 100px;
+}
+.el-button--mini, .el-button--mini.is-round{
+	width: auto;
+	padding: 7px 15px;
+}
+.el-button--danger.is-disabled, .el-button--danger.is-disabled:active, .el-button--danger.is-disabled:focus, .el-button--danger.is-disabled:hover{
+	background-color: #ccc;
+	border-color:#ccc;
+}
+.el-dialog .el-form{
+	padding: 0px 60px;
+}
+.el-menu-item-group__title{
+	padding: 0px;
+}
+.el-form-item__label{
+	text-align: left;
+}
+.el-form-item__label{
+	position:relative;
+}
+.el-form-item.is-required .el-form-item__label:before{
+	position: absolute;
+	left: -10px;
+}
+.box-card{
+	width: 96%;
+	margin: 0 auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	padding-bottom: 30px;
+}
+
+.construction .el-step .el-step__title{
+	padding-left: 4px !important;
+	box-sizing: border-box;
+}
+.construction .el-tabs--card>.el-tabs__header{
+	border: none !important;
+}
+.construction .el-tabs__header{
+	margin: 0px;
+}
+.dialogHide .el-dialog{
+	background: none;
+	box-shadow: none;
+}
+
+.dialogHide .el-dialog__body{
+	background: none;
+	border: none;
+}
+.dialogHide .el-dialog__headerbtn .el-dialog__close{
+	
+	color: #ffffff;
+}
+.dialogHide .el-dialog__headerbtn{
+	top: -40px;
+	font-size: 40px;
+}
+/*客户*/
+.reservations .el-tabs__nav{
+	width: 100%;
+}
+.reservations .el-tabs--top .el-tabs__item:nth-child(2){
+	padding: 0 20px;
+}
+.reservations .el-tabs--top .el-tabs__item:last-child{
+	padding: 0 20px;
+}
+.reservations .el-tabs__nav #tab-10{
+	margin-left: 30px;
+}
+.reservations .el-tabs__active-bar{
+	width: 0px !important;
+}
+.reservations  .el-tabs__item.is-active{
+	border-bottom: 2px solid #409EFF;
+}
+.customerInfo .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover{
+	color: #606266;
+	background: none;
+}
+.dialogHide .el-dialog__header,.dialogHide .el-dialog__body{
+	padding: 0px;
+}
+.el-carousel__arrow{
+	background-color:rgba(255,255,255,.3);
+}
+.el-carousel__arrow:hover{
+	background-color:rgba(255,255,255,.5);
+}
+
+.orderList .el-tabs__item{
+	padding: 0 30px;
+}
+.orderList .el-tabs__item:nth-child(2){
+	padding-left: 13px;
+}
+.orderList .el-tabs__item:last-child{
+	padding-right: 15px;
+}
+
+
+/*通用样式*/
+/*el-tabs*/
+
+.el-tabs .el-tabs__header{
+	margin: 15px 0px 0px 0px;
+}
+/*dialog*/
+.el-dialog .el-button{
+	width: 200px;
+}
+.icon-search,.icon-crm11{
+	font-size: 12px;
+}
+.el-menu-item-group .el-menu-item{
+	position: relative;
+}
+.navItem{
+	position: absolute;
+	left: 30px;
+	top: -4px;
+}
+/*时间选择*/
+.el-date-editor .el-range-separator{
+	color: #C1C4CC;
+}
+/*loading*/
+.el-icon-loading:before{
+	font-size: 40px;
+}
+
+
+#list .el-card__body{
+		padding: 0px !important;
+	}
+	
+/*全屏*/
+.fullscreen{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	z-index: 9999;
+	background: rgba(0,0,0,0.5);
+}
