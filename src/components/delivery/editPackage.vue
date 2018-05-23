@@ -267,9 +267,9 @@ export default {
 	//挂载
 	mounted(){	
 		let obj=this;
-		let base64=new Base64();
+		//let Base64=new Base64();
 		if(this.$route.params.code){			
-			this.id=base64.decode(this.$route.params.code);
+			this.id=Base64.decode(this.$route.params.code);
 		}else{
 			window.history.go(-1);
 		}
@@ -363,16 +363,6 @@ export default {
 			}
     		
 		})
-		//初始化文本编辑器
-		//var editor;
-	    /*this.editor = KindEditor.create('textarea[name="content"]', {
-	       	cssPath : '/ourHouse/static/edit/plugins/code/prettify.css',
-			//uploadJson : '/ourHouse/static/edit/jsp/upload_json.jsp',
-			uploadJson:this.$store.state.localIP+'uploadJson',
-			//fileManagerJson : '/ourHouse/static/edit/jsp/file_manager_json.jsp',
-			fileManagerJson: this.$store.state.localIP+'fileManagerJson',
-	        allowFileManager : true
-	    });*/
 
 	},
 	beforeDestroy(){

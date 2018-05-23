@@ -123,9 +123,9 @@ export default {
 	//挂载
 	mounted(){	
 		//获取id
-		let base64=new Base64();
+		//let Base64=new Base64();
 		if(this.$route.params.code){			
-			this.id=base64.decode(this.$route.params.code);
+			this.id=Base64.decode(this.$route.params.code);
 		}else{
 			window.history.go(-1);
 		}

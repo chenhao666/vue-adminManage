@@ -9,8 +9,8 @@ module.exports = {
 
     // Paths
     assetsSubDirectory: 'static',
-    //assetsPublicPath: '/',
-    assetsPublicPath: '/ourHouse/',//修改为服务器路径
+    assetsPublicPath: '/',
+    //assetsPublicPath: '/ourHouse/',//修改为服务器路径
     proxyTable: {},
 
     // Various Dev Server settings
@@ -56,8 +56,8 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    //assetsPublicPath: '/',
-    assetsPublicPath: '/ourHouse/',//修改为服务器路径
+    assetsPublicPath: '/',
+    //assetsPublicPath: '/ourHouse/',//修改为服务器路径
 
     /**
      * Source Maps

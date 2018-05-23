@@ -100,9 +100,9 @@ export default {
 	methods:{
 		handleInfo(index,row){
     		//console.log(row)
-    		let base64=new Base64();
-      		let num=base64.encode(row.id.toString());
-    		this.$router.push({path:'/customer/customerInfo/'+num,query:{query:base64.encode(row.orderID.toString())}})
+    		//let Base64=new Base64();
+      		let num=Base64.encode(row.id.toString());
+    		this.$router.push({path:'/customer/customerInfo/'+num,query:{query:Base64.encode(row.orderID.toString())}})
 	  },
 	  	//分页方法
 	    handleSizeChange(val) {

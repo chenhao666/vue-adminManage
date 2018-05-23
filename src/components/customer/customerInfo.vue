@@ -359,14 +359,14 @@ export default{
 	},
 	mounted(){
 		//解析id
-		let base64=new Base64();
+		//let Base64=new Base64();
 		if(this.$route.query.query){
-			this.orderID=base64.decode(this.$route.query.query)
+			this.orderID=Base64.decode(this.$route.query.query)
 		}else{
 			window.history.go(-1);
 		}
 		let customerId=this.$route.params.code;
-		this.id=base64.decode(customerId);
+		this.id=Base64.decode(customerId);
 		//获取用户信息
 		customerInfo(this);
 		//获取城市列表

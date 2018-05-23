@@ -245,19 +245,19 @@ export default {
       	},
       	handleLook(index,row){
       		//console.log(row)
-      		//base64加密
-      		let base64=new Base64();
-      		let num=base64.encode(row.id.toString());
+      		//Base64加密
+      		//let Base64=new Base64();
+      		let num=Base64.encode(row.id.toString());
       		this.$store.commit("connectStatus",this.connectType);
-      		this.$router.push({path:"/customer/reservations/find/"+num,query:{query:base64.encode(row.orderID.toString())}})
+      		this.$router.push({path:"/customer/reservations/find/"+num,query:{query:Base64.encode(row.orderID.toString())}})
       	},
       	handleEdit(index, row) {
       		//console.log(row)
-      		//base64加密
-      		let base64=new Base64();
-      		let num=base64.encode(row.id.toString());
+      		//Base64加密
+      		//let Base64=new Base64();
+      		let num=Base64.encode(row.id.toString());
       		this.$store.commit("connectStatus",this.connectType);
-      		this.$router.push({path:"/customer/reservations/"+num,query:{query:base64.encode(row.orderID.toString())}})
+      		this.$router.push({path:"/customer/reservations/"+num,query:{query:Base64.encode(row.orderID.toString())}})
       	},
       	//分页方法
 	    handleSizeChange(val) {

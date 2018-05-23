@@ -34,9 +34,9 @@ export default {
 	//挂载
 	mounted(){
 		let obj=this;
-		let base64=new Base64();
+		//let Base64=new Base64();
 		if(this.$route.params.code){			
-			this.id=base64.decode(this.$route.params.code);
+			this.id=Base64.decode(this.$route.params.code);
 		}else{
 			window.history.go(-1);
 		}
@@ -99,8 +99,8 @@ function packageInfo(obj,callback){
 	})
 }
 function postMessage(obj){	
-	let base64=new Base64();
-	let num=base64.encode(obj.id);
+	//let Base64=new Base64();
+	let num=Base64.encode(obj.id);
 	if (window.postMessage) {
 	    var callback = function(ev) {
 	        //console ? console.log(ev) : alert(ev.data);

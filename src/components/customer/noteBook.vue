@@ -81,10 +81,10 @@
 export default{
 	name:'noteBook',
 	data () {
-		let base64=new Base64();
+		//let Base64=new Base64();
 		let orderID;
 		if(this.$route.query.query){
-			orderID=base64.decode(this.$route.query.query)
+			orderID=Base64.decode(this.$route.query.query)
 		}else{
 			window.history.go(-1);
 		}

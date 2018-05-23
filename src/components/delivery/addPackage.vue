@@ -282,22 +282,7 @@ export default {
 	      	//console.log(value.item)
 	      	//console.log(value.list);
 	      	this.cardInfo=value.list;
-	    })
-		/*programeList(this,function(res){
-			if(res.data.d.result){
-				obj.ruleForm.programmeArr=res.data.d.result;
-			}
-		});*/
-		//初始化文本编辑器
-		//var editor;
-	    /*this.editor = KindEditor.create('textarea[name="content"]', {
-	       	cssPath : '/ourHouse/static/edit/plugins/code/prettify.css',
-			//uploadJson : '/static/edit/jsp/upload_json.jsp',
-			uploadJson:this.$store.state.localIP+'uploadJson',
-			//fileManagerJson : '/static/edit/jsp/file_manager_json.jsp',
-			fileManagerJson: this.$store.state.localIP+'fileManagerJson',
-	        allowFileManager : true
-	    });*/
+	   })
 
 	},
 	beforeDestroy(){

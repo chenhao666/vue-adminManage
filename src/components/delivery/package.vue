@@ -133,13 +133,13 @@ export default {
      	handleEdit(index, row) {
 	        //console.log(index, row);
 	        //console.log(row)
-	        let base64=new Base64();
-      		let num=base64.encode(row.id.toString());
+	        //let Base64=new Base64();
+      		let num=Base64.encode(row.id.toString());
 	        this.$router.push({path:'/delivery/editHomeDesign/'+num})
       	},
       	handlePackageEdit(index, row){
-      		let base64=new Base64();
-      		let num=base64.encode(row.id.toString());
+      		//let Base64=new Base64();
+      		let num=Base64.encode(row.id.toString());
       		this.$router.push({path:'/delivery/editPackage/'+num})
       	},
 		//添加

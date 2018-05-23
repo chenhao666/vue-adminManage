@@ -89,8 +89,8 @@ export default{
 	mounted(){
 		let orderID=this.$route.params.code || '';
 		if(orderID){
-			let base64=new Base64();
-			this.orderID=base64.decode(orderID);
+			//let Base64=new Base64();
+			this.orderID=Base64.decode(orderID);
 			//console.log(orderID)
 		}
 		orderListInfo(this);

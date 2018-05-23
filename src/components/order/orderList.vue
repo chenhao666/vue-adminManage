@@ -141,36 +141,36 @@ export default {
 		//施工
 		handleConstruction(index,row){
     		//console.log(row)
-    		let base64=new Base64();
-      		let num=base64.encode(row.orderID.toString());
+    		//let Base64=new Base64();
+      		let num=Base64.encode(row.orderID.toString());
     		this.$router.push({path:'/orderManage/construction/'+num})
 	  	},
 	  	//方案
 	  	handleProgramme(index, row) {
 	  		//console.log(row)
-	  		let base64=new Base64();
-      		let num=base64.encode(row.orderID.toString());
+	  		//let Base64=new Base64();
+      		let num=Base64.encode(row.orderID.toString());
 	  		this.$router.push({path:'/orderManage/programme/'+num})
 	  	},
 	  	//详情
 	  	handleInfo(index, row) {
 	  		//console.log(row)
-	  		let base64=new Base64();
-      		let num=base64.encode(row.orderID.toString());
+	  		//let Base64=new Base64();
+      		let num=Base64.encode(row.orderID.toString());
 	  		this.$router.push({path:'/orderManage/orderInfo/'+num})
 	  	},
 	  	//物料
 	  	handleMateriel(index, row) {
 	  		//console.log(row)
-	  		let base64=new Base64();
-      		let num=base64.encode(row.orderID.toString());
+	  		//let Base64=new Base64();
+      		let num=Base64.encode(row.orderID.toString());
 	  		//this.$router.push({path:'/customer/noteBook/'+num})
 	  	},
 	  	//合同
 	  	handleContract(index, row) {
 	  		//console.log(row)
-	  		let base64=new Base64();
-      		let num=base64.encode(row.orderID.toString());
+	  		//let Base64=new Base64();
+      		let num=Base64.encode(row.orderID.toString());
 	  		//this.$router.push({path:'/customer/noteBook/'+num})
 	  	},
 	  	//分页方法

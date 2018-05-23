@@ -181,10 +181,10 @@ export default {
 			callback();
 		}
 	};
-	let base64=new Base64();
+	//let Base64=new Base64();
 	let orderID;
 	if(this.$route.query.query){
-		orderID=base64.decode(this.$route.query.query)
+		orderID=Base64.decode(this.$route.query.query)
 	}else{
 		window.history.go(-1);
 	}
@@ -246,8 +246,8 @@ export default {
   	//获取客户信息
   	customerList(this);	
   	//获取ID	
-  	let base64=new Base64();
-	this.id=base64.decode(this.$route.params.code);
+  	//let Base64=new Base64();
+	this.id=Base64.decode(this.$route.params.code);
   },
   computed:{
     	//沟通方式
@@ -397,9 +397,9 @@ export default {
 function customerList(obj){
 	const loading =openLoad(obj);	
 	//解密 获取ID
-	let base64=new Base64();
+	//let Base64=new Base64();
 	let param=obj.$route.params.code;
-	let num=base64.decode(param);
+	let num=Base64.decode(param);
 	//console.log(num)
 	obj.$ajax.post(obj.$store.state.localIP+"queryAppointInfo",{"id":num})
 		.then((response)=>{

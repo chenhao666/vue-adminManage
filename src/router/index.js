@@ -71,10 +71,10 @@ import Page404 from '@/components/error/page404'
 
 
 Vue.use(Router)
-let base64 = new Base64();
+//let Base64 = new Base64();
 export default new Router({
   mode:'history',
-  base: '/ourHouse/',
+  //base: '/ourHouse/',
   routes: [
     {
       path: '/',
@@ -85,7 +85,7 @@ export default new Router({
       		sessionStorage.setItem('nav','1')
       	}
       	//判断是否登录  未登录则跳转到登录页面
-      	if(!sessionStorage.getItem(base64.encode('loginFlag'))){
+      	if(!sessionStorage.getItem(Base64.encode('loginFlag'))){
       		next({path:'/login'});
       	}else{
       		next();

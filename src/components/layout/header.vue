@@ -35,9 +35,9 @@ export default {
 		          message: '退出成功！',
 		          type: 'success'
 		    });
-		    let base64=new Base64();
-        	sessionStorage.removeItem(base64.encode('username'));
-	      	sessionStorage.removeItem(base64.encode('loginFlag'));
+		    //let Base64=new Base64();
+        	sessionStorage.removeItem(Base64.encode('username'));
+	      	sessionStorage.removeItem(Base64.encode('loginFlag'));
 	      	this.$router.push('/login');
         }
       }
@@ -80,6 +80,11 @@ export default {
 	    box-sizing: border-box;
 	    border-bottom: 2px solid transparent;
 	    color: #ffffff;
+	}
+	.el-submenu{
+		float: left;
+		position: relative;
+		height: 60px;
 	}
 	.el-menu--horizontal{
 		border-bottom: 1px solid rgba(230,230,230,0.5);

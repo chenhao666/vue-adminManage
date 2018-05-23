@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import '../../../static/js/base64.js'
+import '../../../static/js/Base64.js'
 export default{
 	name:'login',
 	data () {
@@ -72,28 +72,28 @@ export default{
 					          type: 'success'
 					    });
 					    //Base64加密
-					    let base64 = new Base64();  
+					    //let Base64 = new Base64();  
 				       //登录成功存储sessionStorage
-						sessionStorage.setItem(base64.encode('username'),base64.encode(this.username));
-						sessionStorage.setItem(base64.encode('userCode'),base64.encode(response.data.empInfo.id.toString()));
-						sessionStorage.setItem(base64.encode('roleName'),base64.encode(response.data.empInfo.roleName));
-						sessionStorage.setItem(base64.encode('loginFlag'),base64.encode("true"));
+						sessionStorage.setItem(Base64.encode('username'),Base64.encode(this.username));
+						sessionStorage.setItem(Base64.encode('userCode'),Base64.encode(response.data.empInfo.id.toString()));
+						sessionStorage.setItem(Base64.encode('roleName'),Base64.encode(response.data.empInfo.roleName));
+						sessionStorage.setItem(Base64.encode('loginFlag'),Base64.encode("true"));
 						//设置权限
 						
-						let base64Power=base64.encode(JSON.stringify(response.data.allMsg));
+						let Base64Power=Base64.encode(JSON.stringify(response.data.allMsg));
 						//console.log(JSON.stringify(response.data.allMsg))
-						sessionStorage.setItem(base64.encode('userPower'),base64Power);
+						sessionStorage.setItem(Base64.encode('userPower'),Base64Power);
 						
 						//城市信息
 						sessionStorage.setItem('cityID',response.data.empInfo.cityID);
 						sessionStorage.setItem('cityName',response.data.empInfo.city);
 						//酷家乐accessToken
 						if(response.data.accessToken){							
-							sessionStorage.setItem(base64.encode('token'),response.data.accessToken);
+							sessionStorage.setItem(Base64.encode('token'),response.data.accessToken);
 						}
 						//设计师
 						if(response.data.empInfo.appuid){							
-							sessionStorage.setItem(base64.encode('appuid'),base64.encode(response.data.empInfo.appuid.toString()));
+							sessionStorage.setItem(Base64.encode('appuid'),Base64.encode(response.data.empInfo.appuid.toString()));
 						}
 						this.$store.commit("loginFlag");
 						//this.$router.push({path:'/'});
