@@ -5,7 +5,7 @@
 <script>
 	export default {
 		name:'customerServer',
-		data:(){
+		data(){
 			return {
 				
 			}

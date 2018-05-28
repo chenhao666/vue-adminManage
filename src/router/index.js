@@ -64,7 +64,8 @@ import DeliveryEditHomeDesign from '@/components/delivery/editHomeDesign'
 import AddDeliveryPackage from '@/components/delivery/addPackage'
 //信息发布-编辑套餐
 import EditDeliveryPackage from '@/components/delivery/editPackage'
-
+//客服
+import CustomerService from '@/components/customerService/customerService'
 
 //404页面
 import Page404 from '@/components/error/page404'
@@ -223,6 +224,10 @@ export default new Router({
       		path:'delivery/editPackage/:code',
       		name:'信息发布-编辑套餐',
       		component:EditDeliveryPackage		
+      	},{
+      		path:'customerService/servicePersonal',
+      		name:'客服',
+      		component:CustomerService		
       	}	
       ]
     },

@@ -20,8 +20,6 @@ import VueDND from 'awe-dnd'
 //引用环信聊天
 import webIM from 'easemob-websdk';
 //引用相关配置
-import './commJs/webim.config.js';
-
 import './commJs/webim.base.config.js';
 
 Vue.use(VueDND)
