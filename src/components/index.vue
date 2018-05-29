@@ -21,6 +21,75 @@ export default {
   		overFlow:'overflow-y: auto;',
   		contentL:'padding-left: 200px'	
   	}
+  },created(){
+  	var that=this;
+  	//登录环信
+		if(sessionStorage.getItem(Base64.encode('IMUser')) && sessionStorage.getItem(Base64.encode('IMPsw'))){
+		  this.$imoption.user=Base64.decode(sessionStorage.getItem(Base64.encode('IMUser')));
+			this.$imoption.pwd=Base64.decode(sessionStorage.getItem(Base64.encode('IMPsw')));
+			this.$imconn.open(this.$imoption);
+		}
+  	//设置监听
+  	this.$imconn.listen({
+  		//登录监听
+  			onOpened: function ( message ) {          //连接成功回调
+		        // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
+		        // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
+		        // 则无需调用conn.setPresence();
+		        //console.log(message)
+		        console.log("连接成功");
+		    }, 
+		    //接收文本消息
+		    onTextMessage: function ( message ) {
+		    	console.log(message);
+		    	that.$store.commit("friendList",message);
+		    	that.$notify.info({
+	          title: '消息',
+	          message: '您有新的消息',
+	          duration:2000,
+	          onClick:function(){
+	          	that.$router.push({path:'/customerService/servicePersonal'})
+	          }
+	       });
+		    },
+		    //收到表情消息
+		    onEmojiMessage: function (message) {
+		        // 当为WebIM添加了Emoji属性后，若发送的消息含WebIM.Emoji里特定的字符串，connection就会自动将
+		        // 这些字符串和其它文字按顺序组合成一个数组，每一个数组元素的结构为{type: 'emoji(或者txt)', data:''}
+		        // 当type='emoji'时，data表示表情图像的路径，当type='txt'时，data表示文本消息
+		        //console.log('Emoji');
+		        that.$store.commit("friendList",message);
+		        that.$notify.info({
+		          title: '消息',
+		          message: '您有新的消息',
+		          duration:2000,
+		          onClick:function(){
+		          	that.$router.push({path:'/customerService/servicePersonal'})
+		          }
+		       	});
+		        var data = message.data;
+		        for(var i = 0 , l = data.length ; i < l ; i++){
+		            console.log(data[i]);
+		        }
+		    },   
+		    //接收图片监听
+		    onPictureMessage: function (message) {
+		    	that.$store.commit("friendList",message);
+		    	that.$notify.info({
+	          title: '消息',
+	          message: '您有新的消息',
+	          duration:2000,
+	          onClick:function(){
+	          	that.$router.push({path:'/customerService/servicePersonal'})
+	          }
+	       	});
+				  console.log("Location of Picture is ", message.url);
+				}, 
+				//关闭连接
+				onClosed: function ( message ) {
+					console.log("连接断开")
+				}
+		});
   },
   methods: {
   	collapseP (flag) {

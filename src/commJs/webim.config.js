@@ -5,23 +5,19 @@
  * In this way , others won't be influenced by this config while git pull.
  *
  */
-import WebIM from 'easemob-websdk';
-
+require('easemob-websdk'); 
 WebIM.config = {
     /*
      * XMPP server
      */
-    //xmppURL: 'im-api.easemob.com',
     xmppURL: 'im-api.easemob.com',
     /*
      * Backend REST API URL
      */
-    //apiURL: (location.protocol === 'https:' ? 'https:' : 'http:') + '//a1.easemob.com',
-    apiURL: 'http://a1.easemob.com',
+    apiURL: (location.protocol === 'https:' ? 'https:' : 'http:') + '//a1.easemob.com',
     /*
      * Application AppKey
      */
-    //appkey: 'easemob-demo#chatdemoui',
     appkey: '1107180411146383#wojiali',
 
     /*

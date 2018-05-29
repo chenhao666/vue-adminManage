@@ -57,6 +57,8 @@ li{ list-style: none outside none;}
 
 .icon-customerService:before { content: "\e63a"; }
 
+.icon-biaoqing:before { content: "\e644"; }
+
 .icon-yonghuming:before { content: "\e60c"; }
 
 .icon-ai214:before { content: "\e6ca"; }
@@ -91,7 +93,7 @@ li{ list-style: none outside none;}
 
 .icon-gongdikaifang:before { content: "\e604"; }
 
-
+.icon-tupian:before { content: "\e650"; }
 
 
 .iconfont{
@@ -351,4 +353,9 @@ table,table td,table th{
 	left: 0px;
 	z-index: 9999;
 	background: rgba(0,0,0,0.5);
+}
+/*独立样式*/
+.sendMsg .el-textarea__inner{
+	border-radius: 0px;
+	border: none;
 }

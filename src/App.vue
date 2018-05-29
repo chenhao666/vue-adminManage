@@ -5,9 +5,16 @@
 </template>
 
 <script>
+import './commJs/webim.base.config.js';
 export default {
   name: 'app',
+  data(){
+  	return{
+  		
+  	}
+  }
 }
+
 </script>
 
 <style>

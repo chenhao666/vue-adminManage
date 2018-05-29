@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+
 //引入UI样式
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -13,15 +14,36 @@ import $ from 'jquery'
 import '../static/js/jquery.particleground.min.js'
 //引入axios
 import Axios from 'axios'
-//引入状态管理器
-import store from './store.js'
 //拖动排序
 import VueDND from 'awe-dnd'
 //引用环信聊天
-import webIM from 'easemob-websdk';
-//引用相关配置
+let WebIM=require('easemob-websdk'); 
 import './commJs/webim.base.config.js';
-
+//引入状态管理器
+import store from './store.js'
+//创建连接
+var conn = new WebIM.connection({
+    isMultiLoginSessions: WebIM.config.isMultiLoginSessions,
+    https: typeof WebIM.config.https === 'boolean' ? WebIM.config.https : location.protocol === 'https:',
+    url: WebIM.config.xmppURL,
+    heartBeatWait: WebIM.config.heartBeatWait,
+    autoReconnectNumMax: WebIM.config.autoReconnectNumMax,
+    autoReconnectInterval: WebIM.config.autoReconnectInterval,
+    apiUrl: WebIM.config.apiURL,
+    isAutoLogin: true
+});
+//用户登录
+const options={ 
+	apiUrl: WebIM.config.apiURL,
+	user:null,
+	pwd: null,
+	appKey: WebIM.config.appkey
+}
+//修改原型链
+Vue.prototype.$webim=WebIM;
+Vue.prototype.$imconn=conn;
+Vue.prototype.$imoption=options;
+//使用拖拽
 Vue.use(VueDND)
 //修改原型链
 Vue.prototype.$ajax = Axios
@@ -49,7 +71,6 @@ Date.prototype.Format = function (fmt) { //author: meizz
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

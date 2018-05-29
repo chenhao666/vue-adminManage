@@ -1,6 +1,5 @@
-//引用环信聊天
-import WebIM from 'easemob-websdk';
-import './WebIM.config.js';
+//引用配置信息
+require('./WebIM.config.js');
 //引用表情图片文件
 WebIM.Emoji = {
     path: '../static/img/faces/'  /*表情包路径*/
@@ -42,30 +41,3 @@ WebIM.Emoji = {
 	        '[(D)]': 'ee_35.png'
 	    }
 };
-//创建连接
-var conn = new WebIM.connection({
-    isMultiLoginSessions: WebIM.config.isMultiLoginSessions,
-    https: typeof WebIM.config.https === 'boolean' ? WebIM.config.https : location.protocol === 'https:',
-    url: WebIM.config.xmppURL,
-    heartBeatWait: WebIM.config.heartBeatWait,
-    autoReconnectNumMax: WebIM.config.autoReconnectNumMax,
-    autoReconnectInterval: WebIM.config.autoReconnectInterval,
-    apiUrl: WebIM.config.apiURL,
-    isAutoLogin: true
-});
-//登录信息
-var options = { 
-  apiUrl: WebIM.config.apiURL,
-  user: '123456',
-  pwd: '123456',
-  appKey: WebIM.config.appkey
-};
-conn.open(options);
-conn.listen({
-    onOpened: function ( message ) {          //连接成功回调
-        // 如果isAutoLogin设置为false，那么必须手动设置上线，否则无法收消息
-        // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
-        // 则无需调用conn.setPresence();       
-        console.log(message)
-    },  
-})

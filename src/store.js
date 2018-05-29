@@ -49,7 +49,9 @@ const state={
 	accessToken:'',
 	localIP:'http://192.168.2.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
-	status:1
+	status:1,
+	//及时聊天对象数组
+	friendList:sessionStorage.getItem('chat') || []
 }
 stateValue(state);
 //触发状态
@@ -60,13 +62,62 @@ const mutations={
 	},
 	connectStatus(state,data){
 		state.status=data;
+	},
+	//存储聊天对象
+	friendList(state,data){
+		var flag=0;
+		var list;
+		var name=data.from;
+		if(sessionStorage.getItem('chat')){
+			list=JSON.parse(sessionStorage.getItem('chat'));
+		}else{
+			list=[];
+		}
+		if(list.length>0){
+			for(var i=0;i<list.length;i++){
+				if(list[i].name==name){
+					let info={
+						name:name,
+						info:data.data
+					}
+					list[i].msg.push(info);
+					list[i].num+=1;
+					flag=1;
+				}
+			}
+			if(!flag){
+				var info={
+					name:name,
+					id:data.id,
+					msg:[{name:name,info:data.data}],
+					num:1
+				}
+				list.push(info);
+			}
+		}else{
+			var info={
+				name:name,
+				id:data.id,
+				msg:[{name:name,info:data.data}],
+				num:1
+			}
+			list.push(info);
+		}
+		sessionStorage.setItem('chat',JSON.stringify(list));
+		state.friendList=sessionStorage.getItem('chat');
+	},
+	//修改消息数量
+	changeNum(state,index){
+		var list=JSON.parse(sessionStorage.getItem('chat'));
+		list[index].num=0;
+		sessionStorage.setItem('chat',JSON.stringify(list));
+		state.friendList=sessionStorage.getItem('chat');
 	}
 }
 
 const actives={
 	
 }
-
 
 export default new Vuex.Store({
 	state,

@@ -95,6 +95,9 @@ export default{
 						if(response.data.empInfo.appuid){							
 							sessionStorage.setItem(Base64.encode('appuid'),Base64.encode(response.data.empInfo.appuid.toString()));
 						}
+						//存储环信信息
+						sessionStorage.setItem(Base64.encode('IMUser'),Base64.encode('chenhao'));
+						sessionStorage.setItem(Base64.encode('IMPsw'),Base64.encode('123456'));
 						this.$store.commit("loginFlag");
 						//this.$router.push({path:'/'});
 				    }else{
