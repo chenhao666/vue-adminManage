@@ -96,9 +96,35 @@ export default{
 							sessionStorage.setItem(Base64.encode('appuid'),Base64.encode(response.data.empInfo.appuid.toString()));
 						}
 						//存储环信信息
-						sessionStorage.setItem(Base64.encode('IMUser'),Base64.encode('chenhao'));
-						sessionStorage.setItem(Base64.encode('IMPsw'),Base64.encode('123456'));
-						this.$store.commit("loginFlag");
+						if(response.data.hxUserName){	
+							var that=this;
+							friendList(that,response.data.hxUserName,function(res){
+								//console.log(res)
+								var listUser=res.data.uList;
+								var listArr=[];
+								//console.log(listUser)
+								if(listUser.length>0){
+									for(var i=0;i<listUser.length;i++){
+										var info={
+											name:listUser[i].userName,
+											msg:{},
+											num:0
+										}
+										listArr.push(info);
+									}
+									//console.log(listArr)
+									sessionStorage.setItem('chat',JSON.stringify(listArr));
+								}else{
+									sessionStorage.setItem('chat',JSON.stringify(listArr));
+								}
+								sessionStorage.setItem(Base64.encode('IMUser'),Base64.encode(response.data.hxUserName));
+								sessionStorage.setItem(Base64.encode('IMPsw'),Base64.encode(response.data.hxPassWord));
+								that.$store.commit("loginFlag");
+							})
+							
+						}else{							
+							this.$store.commit("loginFlag");
+						}
 						//this.$router.push({path:'/'});
 				    }else{
 				    	this.$message.error(response.data.retMsg);
@@ -124,6 +150,18 @@ function openLoad(obj){
       background: 'rgba(0, 0, 0, 0.6)'
     });
     return loading;
+}
+//获取环信好友列表
+function  friendList(that,data,callback){
+	that.$ajax.post(that.$store.state.localIP+'dialogueList', {
+		"empName":data,
+	})
+	.then((response)=>{
+		callback(response);
+	})
+	.catch((error)=>{
+        that.$message.error('环信登录失败~~');
+    })
 }
 </script>
 

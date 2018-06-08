@@ -19,6 +19,8 @@ import VueDND from 'awe-dnd'
 //引用环信聊天
 let WebIM=require('easemob-websdk'); 
 import './commJs/webim.base.config.js';
+//引入七牛
+import * as qiniu from 'qiniu-js'
 //引入状态管理器
 import store from './store.js'
 //创建连接

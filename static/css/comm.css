@@ -43,6 +43,8 @@ li{ list-style: none outside none;}
 
 .icon-tupianguanli:before { content: "\e60b"; }
 
+.icon-lishijilu-copy-copy:before { content: "\e622"; }
+
 .icon-jiantouarrow496:before { content: "\e6b4"; }
 
 .icon-crm11:before { content: "\e642"; }
@@ -94,7 +96,6 @@ li{ list-style: none outside none;}
 .icon-gongdikaifang:before { content: "\e604"; }
 
 .icon-tupian:before { content: "\e650"; }
-
 
 .iconfont{
 	vertical-align: middle;
@@ -308,7 +309,14 @@ table,table td,table th{
 	padding-right: 15px;
 }
 
-
+/*客服*/
+.customerServer .userMsg img{
+	width: 20px !important;
+	height: 20px !important;
+}
+.emoji{
+	transform: translateY(10px);
+}
 /*通用样式*/
 /*el-tabs*/
 
@@ -330,6 +338,8 @@ table,table td,table th{
 	left: 30px;
 	top: -4px;
 }
+
+
 /*时间选择*/
 .el-date-editor .el-range-separator{
 	color: #C1C4CC;
@@ -358,4 +368,9 @@ table,table td,table th{
 .sendMsg .el-textarea__inner{
 	border-radius: 0px;
 	border: none;
+}
+.customerServer .el-upload--picture-card{
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
 }

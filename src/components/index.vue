@@ -21,7 +21,7 @@ export default {
   		overFlow:'overflow-y: auto;',
   		contentL:'padding-left: 200px'	
   	}
-  },created(){
+  },mounted(){
   	var that=this;
   	//登录环信
 		if(sessionStorage.getItem(Base64.encode('IMUser')) && sessionStorage.getItem(Base64.encode('IMPsw'))){
@@ -41,7 +41,7 @@ export default {
 		    }, 
 		    //接收文本消息
 		    onTextMessage: function ( message ) {
-		    	console.log(message);
+		    	//console.log(message);
 		    	that.$store.commit("friendList",message);
 		    	that.$notify.info({
 	          title: '消息',
@@ -58,7 +58,7 @@ export default {
 		        // 这些字符串和其它文字按顺序组合成一个数组，每一个数组元素的结构为{type: 'emoji(或者txt)', data:''}
 		        // 当type='emoji'时，data表示表情图像的路径，当type='txt'时，data表示文本消息
 		        //console.log('Emoji');
-		        that.$store.commit("friendList",message);
+		        that.$store.commit("friendEmojiMessage",message);
 		        that.$notify.info({
 		          title: '消息',
 		          message: '您有新的消息',
@@ -68,6 +68,7 @@ export default {
 		          }
 		       	});
 		        var data = message.data;
+		        //console.log(message)
 		        for(var i = 0 , l = data.length ; i < l ; i++){
 		            console.log(data[i]);
 		        }
