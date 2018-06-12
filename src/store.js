@@ -84,7 +84,7 @@ const mutations={
 		}else{
 			list=[];
 		}
-		
+		data.data=data.data.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
 		//console.log(list)
 		if(list.length>0){
 			for(let i=0;i<list.length;i++){
@@ -95,7 +95,7 @@ const mutations={
 					}
 					var msgArr=list[i].msg;
 					for(var j in msgArr){
-						if(parseInt(j/60000)==time){
+						if(Math.abs(parseInt(j/60000)-time)<4){
 							timeFlag=1;
 							msgArr[j].push(info);
 						}
@@ -149,8 +149,11 @@ const mutations={
 		    }
 		}
 		dataEmoji+="<div class='clear'></div>";
-		//console.log(dataEmoji)
-		var flag=0;
+		//console.log(data.data)
+		var timestamp = Date.parse(new Date());
+		var time=parseInt(timestamp/60000);
+		var flag=0;//标记
+		var timeFlag=0;//时间标记
 		var list;
 		var name=data.ext.account;
 		if(sessionStorage.getItem('chat')){
@@ -158,6 +161,8 @@ const mutations={
 		}else{
 			list=[];
 		}
+		dataEmoji=dataEmoji.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
+		//console.log(list)
 		if(list.length>0){
 			for(let i=0;i<list.length;i++){
 				if(list[i].name==name){
@@ -165,7 +170,18 @@ const mutations={
 						name:name,
 						info:dataEmoji
 					}
-					list[i].msg.push(info);
+					var msgArr=list[i].msg;
+					for(var j in msgArr){
+						if(Math.abs(parseInt(j/60000)-time)<4){
+							timeFlag=1;
+							msgArr[j].push(info);
+						}
+					}
+					if(!timeFlag){
+						msgArr[timestamp]=[info];
+					}
+					list[i].msg=msgArr;
+					list[i].lastMsg=dataEmoji;
 					list[i].num+=1;
 					let dataMsg=list[i];
 					list.splice(i,1);
@@ -176,19 +192,21 @@ const mutations={
 			if(!flag){
 				var info={
 					name:name,
-					id:data.id,
-					msg:[{name:name,info:dataEmoji}],
+					msg:{},
+					lastMsg:dataEmoji,
 					num:1
 				}
+				info.msg[timestamp]=[{name:name,info:dataEmoji}];
 				list.unshift(info);
 			}
 		}else{
 			var info={
 				name:name,
-				id:data.id,
-				msg:[{name:name,info:dataEmoji}],
+				msg:{},
+				lastMsg:dataEmoji,
 				num:1
 			}
+			info.msg[timestamp]=[{name:name,info:dataEmoji}];
 			list.unshift(info);
 		}
 		sessionStorage.setItem('chat',JSON.stringify(list));

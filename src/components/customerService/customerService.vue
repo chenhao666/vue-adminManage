@@ -128,6 +128,7 @@
 				loadingFlag:false,//加载中
 				uploadPicUrl:'',//上传图片
 				inputFlag:true,
+				scrollTop:0,//初始top值
 				imgObj:{}//图片信息
 			}
 		},
@@ -326,12 +327,29 @@
 			    immediate:true,
 			    deep: true
 			},
-			/*nowChat() {
-			     this.$nextTick(() => {
-			       var container = this.$el.querySelector("#chatContainer");
-			       container.scrollTop = container.scrollHeight;
-			     })
-			}*/
+			nowChat() {
+			    this.$nextTick(() => {
+			       	var container = this.$el.querySelector("#chatContainer");
+			       	//console.log(container.scrollTop)
+			       	//console.log(this.scrollTop)
+			       	//console.log(container.scrollHeight)
+			       	//console.log(container.clientHeight)
+			       	//console.log(Math.abs(container.scrollHeight-container.scrollTop-container.clientHeight))
+			       	//判断滚动条距离底部的距离
+			       	if(Math.abs(this.scrollTop-container.scrollTop-container.clientHeight)<20){
+				       	container.scrollTop = container.scrollHeight;
+			       	}else{
+			       		if(this.scrollTop==0 && container.scrollTop==0){
+				       		container.scrollTop=0;
+				       	}else{
+				       		if(container.scrollTop<20){
+			       				container.scrollTop=container.scrollHeight-this.scrollTop;
+			       			}	
+				       	} 		
+			       	}
+			       	this.scrollTop=container.scrollHeight;
+			    })
+			}
         }
 	}
 	//打开loading
@@ -374,6 +392,7 @@
 		        	//使用正则替换原有表情符号
 		        	dataMsg=dataMsg.replace(i,"<img src='"+that.expressionPath+expressionList[i]+"' style='vertical-align:middle;'>");
 		        }
+		        dataMsg=dataMsg.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
 		        //console.log(dataMsg)
 		        var info={
 		        	name:Base64.decode(sessionStorage.getItem(Base64.encode('IMUser'))),
@@ -384,7 +403,7 @@
 		        var msgArr=list[num].msg;
 		        var timeFlag=0;//时间标记
 		        for(var i in msgArr){
-		        	if(parseInt(i/60000)==timeTarget){
+		        	if(Math.abs(parseInt(i/60000)-timeTarget)<4){
 		        		msgArr[i].push(info);
 		        		timeFlag=1;
 		        	}
@@ -441,7 +460,7 @@
 		        var msgArr=list[num].msg;
 		        var timeFlag=0;//时间标记
 		        for(var i in msgArr){
-		        	if(parseInt(i/60000)==timeTarget){
+		        	if(Math.abs(parseInt(i/60000)-timeTarget)<4){
 		        		msgArr[i].push(info);
 		        		timeFlag=1;
 		        	}
@@ -459,10 +478,10 @@
 		        that.desc="";
 		        sessionStorage.setItem('chat',JSON.stringify(list));
 		        //跳转到底部
-				that.$nextTick(() => {
+				/*that.$nextTick(() => {
 			       var container = that.$el.querySelector("#chatContainer");
 			       container.scrollTop = container.scrollHeight;
-			    })
+			    })*/
 			}else{
 				that.$message.error('消息发送失败！');
 			}
@@ -489,13 +508,20 @@
 					if(list[i].type==2){
 						list[i].msg='<a href="'+list[i].msg+'" target="_blank"><img src='+list[i].msg+' width="80"></a>'
 					}
-					var time=parseInt(list[i].createTime/1000);
+					//替换图片表情
+					var  expressionList=that.expressionList;
+					for(var x in expressionList){
+			        	//使用正则替换原有表情符号
+			        	list[i].msg=list[i].msg.replace(x,"<img src='"+that.expressionPath+expressionList[x]+"' style='vertical-align:middle;'>");
+			        }
+					list[i].msg=list[i].msg.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
+					var time=parseInt(list[i].createTime/60000);
 					let info={
 						name:list[i].froms,
 						info:list[i].msg
 					}
 					for(var j in msgArr){	
-						if(time==parseInt(j/1000)){
+						if(Math.abs(time-parseInt(j/60000))<4){
 							timeFlag=1;
 							msgArr[j].unshift(info);
 						}
@@ -659,6 +685,8 @@
 	}
 	.sendMsg .el-textarea{
 		font-size: 18px;
+		word-break: break-all;
+		white-space:normal; 
 	}
 	.btn_group{
 		width: 100%;
