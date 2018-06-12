@@ -127,7 +127,8 @@
 				selectIndex:0,//选中聊天的idnex
 				loadingFlag:false,//加载中
 				uploadPicUrl:'',//上传图片
-				inputFlag:true
+				inputFlag:true,
+				imgObj:{}//图片信息
 			}
 		},
 		mounted(){
@@ -256,7 +257,17 @@
 		        	if(response.data.retCode==0){
 		        		var qiniutoken=response.data.token;
 		        		formData.append('token',qiniutoken)
-          				this.uploading(formData)
+		        		//获取图片宽高
+		        		var imgSrc = window.URL.createObjectURL(file);
+						const image = new Image();
+						image.src = imgSrc;
+						image.onload = () => {
+						    this.imgObj={
+						    	width:image.width,
+						    	height:image.height
+						    }
+						    this.uploading(formData)
+						};	
 		        	}else{
 		        		this.$message.error('图片发送失败！');
 		        	}
@@ -407,6 +418,8 @@
 			"target": [that.chatTitle],
 			"msg":that.uploadPicUrl,
 			"userType":1,
+			"width":that.imgObj.width,
+			"height":that.imgObj.height,
 			"type":2//文本1 图片2
 		}).then((response)=>{
 			//console.log(response)
