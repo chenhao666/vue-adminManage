@@ -20,7 +20,7 @@
 						<li class="empty" v-show="friendList.length>0?false:true">暂无消息</li>
 						<li v-for="(item,index) in friendList" :key='index' @click="selectChat(index)">
 							<div class="left">
-								<img src="../../assets/defaultPhoto.png" alt="" />
+								<img :src="item.pic || require('../../assets/defaultPhoto.png')" alt="" />
 							</div>
 							<div class="right">
 								<div class="userName">
@@ -539,9 +539,11 @@
 				sessionStorage.setItem('chat',JSON.stringify(that.friendList));
 				that.loadingFlag=false;
 			}else{
+				that.loadingFlag=false;
 				that.$message.error('查询历史记录失败！');
 			}
 		}).catch((error)=>{
+			that.loadingFlag=false;
 			console.log(error);
 			that.$message.error('查询历史记录失败！');
 		})

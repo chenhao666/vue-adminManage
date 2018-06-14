@@ -108,6 +108,7 @@ export default{
 										var info={
 											name:listUser[i].userName,
 											msg:{},
+											pic:listUser[i].headPortrait,
 											num:0
 										}
 										listArr.push(info);

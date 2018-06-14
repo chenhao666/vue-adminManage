@@ -70,7 +70,9 @@ const mutations={
 	friendList(state,data){
 		//console.log(data)
 		if(data.ext.type==2){
-			data.data='<a href="'+data.data+'" target="_blank"><img src='+data.data+' width="80"></a>';
+			data.data='<a href="'+data.ext.imageUrl+'" target="_blank"><img src='+data.ext.imageUrl+' width="80"></a>';
+		}else{
+			data.data=data.data.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
 		}
 		//console.log(data.data)
 		var timestamp = Date.parse(new Date());
@@ -84,7 +86,7 @@ const mutations={
 		}else{
 			list=[];
 		}
-		data.data=data.data.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
+		
 		//console.log(list)
 		if(list.length>0){
 			for(let i=0;i<list.length;i++){
