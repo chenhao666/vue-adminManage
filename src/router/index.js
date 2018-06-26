@@ -66,7 +66,16 @@ import AddDeliveryPackage from '@/components/delivery/addPackage'
 import EditDeliveryPackage from '@/components/delivery/editPackage'
 //客服
 import CustomerService from '@/components/customerService/customerService'
-
+//用户管理-轮播图
+import BannerManage from '@/components/userManage/bannerManage'
+//用户管理-楼盘登记
+import FloorRegister from '@/components/userManage/floorRegister'
+//用户管理-品牌管理
+import BrandManage from '@/components/userManage/BrandManage'
+//用户管理-风格管理
+import StyleManage from '@/components/userManage/styleManage'
+//用户管理-折扣管理
+import DiscountManage from '@/components/userManage/discountManage'
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -228,7 +237,27 @@ export default new Router({
       		path:'customerService/servicePersonal',
       		name:'客服',
       		component:CustomerService		
-      	}	
+      	},{
+      		path:'userManage/bannerManage',
+      		name:'用户管理-轮播图',
+      		component:BannerManage		
+      	},{
+      		path:'userManage/floorRegister',
+      		name:'用户管理-楼盘登记',
+      		component:FloorRegister		
+      	},{
+      		path:'userManage/brandManage',
+      		name:'用户管理-品牌管理',
+      		component:BrandManage		
+      	},{
+      		path:'userManage/styleManage',
+      		name:'用户管理-品牌管理',
+      		component:StyleManage		
+      	},{
+      		path:'userManage/discountManage',
+      		name:'用户管理-折扣管理',
+      		component:DiscountManage		
+      	}
       ]
     },
     {

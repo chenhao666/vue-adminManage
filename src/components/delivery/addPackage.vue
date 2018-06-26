@@ -34,16 +34,14 @@
 					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="楼盘名：">
-								<el-select v-model="ruleForm.home" placeholder="请选择楼盘" @change="selectHouse">
-									<el-option v-for="(item,key) in ruleForm.homeNameArr" :key="key"  :label="item.houseName" :value="item.houseId+','+item.houseName"></el-option>
+								<el-select v-model="ruleForm.home" placeholder="请选择楼盘">
+									<el-option v-for="(item,key) in ruleForm.homeNameArr" :key="key"  :label="item.houseName" :value="item.id+','+item.houseName"></el-option>
 								</el-select>
 							</el-form-item>
 						</el-col>
 						<el-col :span="12">
 							<el-form-item label="户型：">
-								<el-select v-model="ruleForm.apartmentLayout" placeholder="请选择户型" @change="selectApartmentLayout">
-									<el-option v-for="(item,key) in ruleForm.apartmentLayoutArr" :key="key"  :label="item.houseTypeName" :value="item.houseTypeId+','+item.houseTypeName"></el-option>
-								</el-select>
+								<el-input v-model="ruleForm.apartmentLayout" :maxlength="50" :disabled="true"></el-input>
 							</el-form-item>
 						</el-col>
 					</el-row>
@@ -52,9 +50,7 @@
 					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="面积：">
-								<el-select v-model="ruleForm.homeArea" placeholder="请选择面积">
-									<el-option v-for="(item,key) in ruleForm.homeAreaArr" :key="key"  :label="item.houseArea+'㎡'" :value="item.houseAreaId+','+item.houseArea"></el-option>
-								</el-select>
+								<el-input v-model="ruleForm.homeArea" :maxlength="50" :disabled="true"></el-input>
 							</el-form-item>
 						</el-col>
 						
@@ -68,25 +64,33 @@
 					
 					<el-row :gutter="20">
 						<el-col :span="12">
+							<el-form-item label="品牌选择：">
+								<el-select v-model="ruleForm.selectBrand" placeholder="请选择品牌">
+									<el-option v-for="(item,key) in brandList" :key="key" :label="item.brandName" :value="item.brandId+','+item.brandName"></el-option>
+								</el-select>
+							</el-form-item>
+						</el-col>
+						
+						<el-col :span="12">
 							<el-form-item label="套餐名称：">
 								<el-input v-model="ruleForm.name" :maxlength="20"></el-input>
 							</el-form-item>
 						</el-col>
-						
+
+					</el-row>
+					
+					<el-row :gutter="20">	
 						<el-col :span="12">
 							<el-form-item label="套餐简介：">
 								<el-input v-model="ruleForm.introduction" :maxlength="100"></el-input>
 							</el-form-item>
 						</el-col>
 						
-					</el-row>
-					
-					<el-row :gutter="20">					
-						<el-col :span="12">
+						<!--<el-col :span="12">
 							<el-form-item label="套餐价格：">
 								<el-input v-model="ruleForm.price" :maxlength="10"></el-input>
 							</el-form-item>
-						</el-col>
+						</el-col>-->
 						
 					</el-row>
 					
@@ -109,9 +113,7 @@
 						<el-col :span="24">
 							<el-form-item label="风格选择：">
 								<el-select v-model="ruleForm.selectStyle" placeholder="请选择风格">
-									<el-option label="北欧" value="1,北欧"></el-option>
-									<el-option label="港式" value="2,港式"></el-option>
-									<el-option label="现代" value="3,现代"></el-option>
+									<el-option v-for="(item,key) in styleList" :key="key" :label="item.styleName" :value="item.styleId+','+item.styleName"></el-option>
 								</el-select>
 							</el-form-item>
 						</el-col>
@@ -183,6 +185,8 @@
 			  			<el-select v-model="form.areaType" placeholder="请选择类型" @change="inputFlag=1">
 							<el-option label="客厅" value="1,客厅"></el-option>
 							<el-option label="厨房" value="2,厨房"></el-option>
+							<el-option label="卧室" value="3,卧室"></el-option>
+							<el-option label="卫生间" value="4,卫生间"></el-option>
 						</el-select>
 			  		</el-form-item>
 			  		<el-form-item label="图片上传：">
@@ -194,7 +198,10 @@
 						  :file-list="fileList"
 						  :on-error="uploadError"
 						  :on-exceed="onExceed"
+						  :on-change="beforeUpload"
 						  :on-success="handlePictureCardPreview"
+						  ref="upload"
+						  :auto-upload="false"
 						  :on-remove="handleRemove">
 						  <i class="el-icon-plus"></i>
 						</el-upload>
@@ -226,25 +233,23 @@ export default {
 			cardInfo:[],//描述卡片信息
 			cardKey:'',//卡片id
 			dialogFlag:0,//弹窗状态
-			uploadData:{
-				'type':'houseImg'
-			},
-			uploadPic:this.$store.state.localIP+'imgUpload',//图片上传
+			styleList:[],//风格列表
+			brandList:[],//品牌列表
+			uploadData:{'token':''},
+			uploadPic:"http://up.qiniu.com/",//图片上传
 			ruleForm:{
-				listingId:'',//清单ID
+				//listingId:'',//清单ID
 				//programmeArr:[],//方案列表
-				programmeID:this.$route.params.code,//选中方案
+				programmeID:'',//选中方案
 				programmeName:'',//方案名
 				modelType:'',//样板类型
 				homeNameArr:[],
 				home:'',//楼盘信息
-				apartmentLayoutArr:[],//户型数组
 				apartmentLayout:'',//户型信息
-				homeAreaArr:[],//面积数组
 				homeArea:'',//面积
 				roamPic:'',//漫游图
 				name:'',//套餐名称
-				price:'',//套餐价格
+				//price:'',//套餐价格
 				title:'',//标题
 				introduction:'',//简介
 				picArr:[],//渲染图数组
@@ -252,6 +257,7 @@ export default {
 				selectBtn:false,//重新选择
 				picShow:'',//渲染图展示
 				selectStyle:'',//风格
+				selectBrand:'',//选择品牌
 				desc:'',//套餐描述
 				//content:''//内容
 			},
@@ -266,6 +272,8 @@ export default {
 	//挂载
 	mounted(){	
 		let obj=this;
+		//获取方案ID
+		this.ruleForm.programmeID=this.$route.params.code;
 		//获取方案信息
 		programeInfo(this,function(res){
 			//console.log(res)
@@ -273,6 +281,8 @@ export default {
 				obj.ruleForm.programmeName=res.data.d.name;
 				//方案列表
 				renderpic(obj);
+				styleList(obj);//风格
+				brandList(obj);//品牌
 			}else{
 				obj.$message.error(res.data.m);
 			}
@@ -298,33 +308,7 @@ export default {
 			//获取渲染图
 			renderpic(this);
 		},*/
-		//选中楼盘
-		selectHouse(value){
-			//清楚原始信息
-			this.ruleForm.apartmentLayout='';
-			this.ruleForm.homeArea='';
-			//console.log(value)
-			let valArr=value.split(',');
-			let data={
-				'houseName':valArr[1]
-			}
-			apartmentInfo(this,data);
-			//'houseTypeName':obj.ruleForm.apartmentLayout
-		},
-		//选择户型
-		selectApartmentLayout(value){
-			//清楚原始信息
-			this.ruleForm.homeArea='';
-			
-			let homeArr=this.ruleForm.home.split(',');
-			//console.log(value)
-			let valArr=value.split(',');
-			let data={
-				'houseName':homeArr[1],
-				'houseTypeName':valArr[1]
-			}
-			apartmentInfo(this,data);
-		},
+	
 		//重新选择
 		reSelect(){
 			this.ruleForm.selectBtn=false;
@@ -353,6 +337,7 @@ export default {
 				desc:'',//区域描述
 				picurl:''
       		}
+      		this.fileList=[];
       	},
 	    handleClose(done) {
 	      	if(this.inputFlag){
@@ -375,18 +360,36 @@ export default {
 	    handleRemove(file, fileList) {
         	//console.log(file, fileList);
       	},
+      	beforeUpload(file,fileList){
+      		//console.log(fileList)
+      		const loading =openLoad(this);
+      		this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
+	       .then((response)=>{
+		       	//console.log(response);
+		       	loading.close();
+		       	if(response.data.retCode==0){
+		       		var qiniutoken=response.data.token;
+		       		this.uploadData.token=response.data.token;
+		       		this.$refs.upload.submit();
+		       		//console.log(this.uploadData)
+		       	}else{
+		       		loading.close();
+		       		this.$message.error('获取token失败！');
+		       	}
+	       })
+	       .catch((error)=>{
+		       	console.log(error)
+		       	loading.close();
+				this.$message.error('获取token失败！');
+			})
+      	},
 	    handlePictureCardPreview(response, file, fileList) {
-	    	if(response.retCode==0){
-	    		this.$message({
-					message: '图片上传成功!',
-					type: 'success'
-				});
-		        this.form.picurl = response.url;
-	    	}else{
-	    		this.$message.error(response.retMsg);
-	    	}
-	        //console.log(response, file, fileList)
-	        //this.lookPic = true;
+	    	this.$message({
+				message: '图片上传成功!',
+				type: 'success'
+			});
+			this.form.picurl = this.$store.state.qiniuUrl+response.key;
+	    	//console.log(response)
 	    },
 	    uploadError(err, file, fileList){
 	    	this.$message.error("图片上传失败");
@@ -461,11 +464,13 @@ export default {
 					//楼盘
 					let homeArr=this.ruleForm.home.split(',');
 					//户型
-					let apartmentLayoutArr=this.ruleForm.apartmentLayout.split(',');
-		            //面积
-		            let homeAreaArr=this.ruleForm.homeArea.split(',');
-		            //风格
-		            let styleArr=this.ruleForm.selectStyle.split(',');
+					let apartmentLayout=this.ruleForm.apartmentLayout;
+			        //面积
+			        let homeArea=this.ruleForm.homeArea;
+			        //风格
+			        let styleArr=this.ruleForm.selectStyle.split(',');
+			        //品牌
+			        let brandArr=this.ruleForm.selectBrand.split(',');
 		            let data={
 		            	'designId':this.ruleForm.programmeID,
 		            	'designName':this.ruleForm.programmeName,
@@ -473,21 +478,21 @@ export default {
 		            	'templateTypeName':modelTypeArr[1],
 		            	'houseId':homeArr[0],
 		            	'houseName':homeArr[1],
-		            	'houseTypeId':apartmentLayoutArr[0],
-		            	'houseTypeName':apartmentLayoutArr[1],
-		            	'houseAreaId':homeAreaArr[0],
-		            	'houseArea':homeAreaArr[1],
+		            	'houseTypeName':apartmentLayout,
+		            	'houseArea':homeArea,
 		            	'threeDurl':this.ruleForm.roamPic,
 		            	'comboName':this.ruleForm.name,
-		            	'comboPrice':this.ruleForm.price,
+		            	//'comboPrice':this.ruleForm.price,
 		            	'styleId':styleArr[0],
 		            	'styleName':styleArr[1],
+		            	"brandId":brandArr[0],
+		            	"brandName":brandArr[1],
 		            	'title':this.ruleForm.title,
 		            	'intro':this.ruleForm.introduction,
 		            	'details':this.ruleForm.desc,
 		            	'coverPic':this.ruleForm.selectPic,
 		            	'tempInfo':this.cardInfo,
-		            	'listingId':this.ruleForm.listingId,
+		            	//'listingId':this.ruleForm.listingId,
 		            	'isUsed':0
 		            }
 		            addPackage(this,data);
@@ -506,11 +511,13 @@ export default {
 				//楼盘
 				let homeArr=this.ruleForm.home.split(',');
 				//户型
-				let apartmentLayoutArr=this.ruleForm.apartmentLayout.split(',');
-	            //面积
-	            let homeAreaArr=this.ruleForm.homeArea.split(',');
-	            //风格
-	            let styleArr=this.ruleForm.selectStyle.split(',');
+				let apartmentLayout=this.ruleForm.apartmentLayout;
+			    //面积
+			    let homeArea=this.ruleForm.homeArea;
+			    //风格
+			    let styleArr=this.ruleForm.selectStyle.split(',');
+			    //品牌
+			    let brandArr=this.ruleForm.selectBrand.split(',');
 	            let data={
 	            	'designId':this.ruleForm.programmeID,
 	            	'designName':this.ruleForm.programmeName,
@@ -518,21 +525,21 @@ export default {
 	            	'templateTypeName':modelTypeArr[1],
 	            	'houseId':homeArr[0],
 	            	'houseName':homeArr[1],
-	            	'houseTypeId':apartmentLayoutArr[0],
-	            	'houseTypeName':apartmentLayoutArr[1],
-	            	'houseAreaId':homeAreaArr[0],
-	            	'houseArea':homeAreaArr[1],
+	            	'houseTypeName':apartmentLayout,
+	            	'houseArea':homeArea,
 	            	'threeDurl':this.ruleForm.roamPic,
 	            	'comboName':this.ruleForm.name,
-	            	'comboPrice':this.ruleForm.price,
+	            	//'comboPrice':this.ruleForm.price,
 	            	'styleId':styleArr[0],
 	            	'styleName':styleArr[1],
+	            	"brandId":brandArr[0],
+		            "brandName":brandArr[1],
 	            	'title':this.ruleForm.title,
 	            	'intro':this.ruleForm.introduction,
 	            	'details':this.ruleForm.desc,
 	            	'coverPic':this.ruleForm.selectPic,
 	            	'tempInfo':this.cardInfo,
-	            	'listingId':this.ruleForm.listingId,
+	            	//'listingId':this.ruleForm.listingId,
 	            	'isUsed':1
 	            }
 	            addPackage(this,data);
@@ -567,6 +574,9 @@ function programeInfo(obj,callback){
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
+		//console.log(res)
+		obj.ruleForm.apartmentLayout=res.data.d.specName;
+		obj.ruleForm.homeArea=res.data.d.srcArea;
 		loading.close();
 		callback(res);
 	})
@@ -576,7 +586,38 @@ function programeInfo(obj,callback){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-
+//获取风格列表
+function styleList(obj){
+	obj.$ajax.post(obj.$store.state.localIP+'selectStyleInfo')
+	.then(res=>{
+		//console.log(res)
+		if(res.data.retCode==0){
+			obj.styleList=res.data.styleInfoList;
+		}else{
+			obj.$message.error("获取风格列表失败！");
+		}
+	})
+	.catch(error=>{
+		console.log(error);
+		obj.$message.error("获取风格列表失败！");
+	})
+}
+//获取品牌列表
+function brandList(obj){
+	obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+	.then(res=>{
+		//console.log(res)
+		if(res.data.retCode==0){
+			obj.brandList=res.data.brandList;
+		}else{
+			obj.$message.error("获取品牌列表失败！");
+		}
+	})
+	.catch(error=>{
+		console.log(error);
+		obj.$message.error("获取品牌列表失败！");
+	})
+}
 //获取方案渲染图列表
 function renderpic(obj){
 	const loading=obj.$loading({
@@ -662,6 +703,7 @@ function roamPic(obj,picArr){
 			obj.ruleForm.roamPic=res.data.d || "";
 		}else{
 			obj.$message.error("全屋漫游图生成失败~~");
+			roamPic(obj,picArr);
 		}
 		homeInfo(obj);
 	})
@@ -701,21 +743,15 @@ function homeInfo(obj){
       	fullscreen:false,
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
-    });
-	let data={
-		'houseName':obj.ruleForm.homeName,
-		'houseTypeName':obj.ruleForm.apartmentLayout
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryHouseName',data)
+   });
+	obj.$ajax.post(obj.$store.state.localIP+'selectHouses')
 	.then(response=>{
 		//console.log(response);
 		loading.close();
-		//初始化清单
-		orderList(obj);
 		if(response.data.retCode==0){
-          	obj.ruleForm.homeNameArr=response.data.houseModels;
+          	obj.ruleForm.homeNameArr=response.data.housesList;
         }else{
-           obj.$message.error(response.data.retMsg);
+           	obj.$message.error(response.data.retMsg);
         }
 	})
 	.catch((error)=>{
@@ -724,7 +760,7 @@ function homeInfo(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-//筛选户型信息
+/*//筛选户型信息
 function apartmentInfo(obj,data){
 	let loading=obj.$loading({
        	lock: true,
@@ -752,10 +788,10 @@ function apartmentInfo(obj,data){
 		console.log(error);
 		obj.$message.error("网络连接错误~~");
 	})
-}
+}*/
 //清单操作
 //初始化清单
-function initOrder(obj,callback){
+/*function initOrder(obj,callback){
 	const loading =openLoad(obj);
 	let data={
 		'url':'https://openapi.kujiale.com/v2/listing/init',
@@ -835,7 +871,7 @@ function orderList(obj){
 			})
 	    },1000)
 	});
-}
+}*/
 </script>
 
 <style scoped>

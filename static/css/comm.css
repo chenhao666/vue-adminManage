@@ -83,6 +83,8 @@ li{ list-style: none outside none;}
 
 .icon-delivery:before { content: "\e607"; }
 
+.icon-userManage:before { content: "\e617"; }
+
 .icon-shanchu:before { content: "\e615"; }
 
 .icon-search:before { content: "\e601"; }
