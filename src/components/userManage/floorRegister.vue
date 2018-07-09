@@ -150,7 +150,6 @@
 		        formLoading:true,//弹窗数据加载
 		        ruleForm:formInit(),
 		        //表单验证
-		        //表单验证
 		        rules:{
 		        	name:[
 		        		{ required: true, message: '请输入楼盘名称', trigger: 'blur' }

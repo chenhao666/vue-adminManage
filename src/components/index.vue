@@ -37,11 +37,13 @@ export default {
 		        // 手动上线指的是调用conn.setPresence(); 如果conn初始化时已将isAutoLogin设置为true
 		        // 则无需调用conn.setPresence();
 		        //console.log(message)
+		        //设置心跳
+		        //that.$imconn.heartBeat(that.$imconn);
 		        console.log("连接成功");
 		    }, 
 		    //接收文本消息
 		    onTextMessage: function ( message ) {
-		    	//console.log(message);
+		    	console.log(message);
 		    	that.$store.commit("friendList",message);
 		    	that.$notify.info({
 	          title: '消息',
@@ -69,9 +71,9 @@ export default {
 		       	});
 		        var data = message.data;
 		        //console.log(message)
-		        for(var i = 0 , l = data.length ; i < l ; i++){
+		        /*for(var i = 0 , l = data.length ; i < l ; i++){
 		            console.log(data[i]);
-		        }
+		        }*/
 		    },   
 		    //接收图片监听
 		    onPictureMessage: function (message) {
@@ -88,7 +90,15 @@ export default {
 				}, 
 				//关闭连接
 				onClosed: function ( message ) {
-					console.log("连接断开")
+					console.log("连接断开");
+					/*that.$message.error("连接断开！");
+					that.$router.push({path:'/login'})*/
+					//登录环信
+					if(sessionStorage.getItem(Base64.encode('IMUser')) && sessionStorage.getItem(Base64.encode('IMPsw'))){
+					  that.$imoption.user=Base64.decode(sessionStorage.getItem(Base64.encode('IMUser')));
+						that.$imoption.pwd=Base64.decode(sessionStorage.getItem(Base64.encode('IMPsw')));
+						that.$imconn.open(that.$imoption);
+					}
 				}
 		});
   },

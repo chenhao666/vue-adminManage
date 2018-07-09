@@ -129,17 +129,24 @@
 				uploadPicUrl:'',//上传图片
 				inputFlag:true,
 				scrollTop:0,//初始top值
-				imgObj:{}//图片信息
+				imgObj:{},//图片信息
+				chatUserType:1,//聊天对象类型
 			}
 		},
 		mounted(){
 			//console.log(this.$store.state.friendList)
 			//console.log(this.expressionList)
-			
+			/*console.log(this.$route.fullPath)
+			if(this.$route.fullPath=="/designer/chat"){
+				this.chatUserType=3;
+			}*/
 		},
 		computed: { 
             listenFriend() {  
                 return this.$store.state.friendList;  
+            },
+            listenRoute(){
+            	return this.$route.fullPath;
             }
         }, 
 		methods:{
@@ -327,6 +334,19 @@
 			    immediate:true,
 			    deep: true
 			},
+			listenRoute:{
+			    handler(newName, oldName){
+			    	//console.log(newName,1,oldName)
+			     	if(newName==="/designer/chat"){
+						this.chatUserType=3;
+					}else{
+						this.chatUserType=1;
+					}
+					//console.log(this.chatUserType)
+			    },
+			    immediate:true,
+			    deep: true
+			},
 			nowChat() {
 			    this.$nextTick(() => {
 			       	var container = this.$el.querySelector("#chatContainer");
@@ -375,7 +395,7 @@
 			"from":Base64.decode(sessionStorage.getItem(Base64.encode('IMUser'))),
 			"target": [that.chatTitle],
 			"msg":that.desc,
-			"userType":1,
+			"userType":that.chatUserType,
 			"type":1//文本1 图片2
 		}).then((response)=>{
 			//console.log(response)
@@ -436,7 +456,7 @@
 			"from":Base64.decode(sessionStorage.getItem(Base64.encode('IMUser'))),
 			"target": [that.chatTitle],
 			"msg":that.uploadPicUrl,
-			"userType":1,
+			"userType":that.chatUserType,
 			"width":that.imgObj.width,
 			"height":that.imgObj.height,
 			"type":2//文本1 图片2

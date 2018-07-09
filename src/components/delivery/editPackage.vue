@@ -258,6 +258,7 @@ export default {
 				selectStyle:'',//风格
 				selectBrand:'',//选择品牌
 				desc:'',//套餐描述
+				planPic:'',//户型图Url
 				//content:''//内容
 			},
 			form:{
@@ -554,6 +555,7 @@ export default {
 		            'details':this.ruleForm.desc,
 		            'coverPic':this.ruleForm.selectPic,
 		            'tempInfo':this.cardInfo,
+		            "houseModelUrl":this.ruleForm.planPic,
 		            //'listingId':this.ruleForm.listingId,
 		            'isUsed':0
 	            }
@@ -602,6 +604,7 @@ export default {
 		            	'details':this.ruleForm.desc,
 		            	'coverPic':this.ruleForm.selectPic,
 		            	'tempInfo':this.cardInfo,
+		            	"houseModelUrl":this.ruleForm.planPic,
 		            	//'listingId':this.ruleForm.listingId,
 		            	'isUsed':1
 		            }
@@ -641,6 +644,7 @@ function programeInfo(obj){
 		loading.close();
 		obj.ruleForm.apartmentLayout=res.data.d.specName;
 		obj.ruleForm.homeArea=res.data.d.srcArea;
+		obj.ruleForm.planPic=res.data.d.planPic;
 		//callback(res);
 		styleList(obj);//风格
 		brandList(obj);//品牌

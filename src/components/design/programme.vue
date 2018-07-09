@@ -41,9 +41,9 @@
 					</el-table-column>
 					<el-table-column label="操作">
 						<template slot-scope="scope">
-							<!--<el-button
+							<el-button
 					          size="mini"
-					          @click="handleSend(scope.$index, scope.row)">发送方案</el-button>-->
+					          @click="handleSend(scope.$index, scope.row)">发送方案</el-button>
 							<el-button
 					          size="mini"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -79,18 +79,45 @@
 			:append-to-body="true" 
 			:close-on-click-modal="false" 
 			:before-close="handleClose">
-			<!--表单开始-->:disabled
+			<!--表单开始-->
 			<el-form  ref="ruleForm" :model="ruleForm" :rules="rules" label-width="85px">
-				<el-form-item label="方案名称" prop="name">
-					<el-input v-model="ruleForm.name" @change="inputFlag=1"></el-input>
+				<el-form-item label="方案名称：" prop="name">
+					<el-input disabled v-model="ruleForm.name" @change="inputFlag=1"></el-input>
 				</el-form-item>
-				<el-form-item label="手机号" prop="mobile">
-					<el-input v-model="ruleForm.mobile" @change="inputFlag=1"></el-input>
+				<el-form-item label="选择风格：" prop="styleName">
+					<el-select v-model="ruleForm.styleName" placeholder="请选择" @change="inputFlag=1">
+					    <el-option
+					      v-for="(item,index) in ruleForm.styleList"
+					      :key="index"
+					      :label="item.styleName"
+					      :value="item.styleName">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="选择品牌：" prop="brand">
+					<el-select v-model="ruleForm.brand" placeholder="请选择" @change="inputFlag=1">
+					    <el-option
+					      v-for="(item,index) in ruleForm.brandList"
+					      :key="index"
+					      :label="item.brandName"
+					      :value="item.brandName">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="选择用户：" prop="mobile">
+					<el-select v-model="ruleForm.user" placeholder="请选择" @change="inputFlag=1">
+					    <el-option
+					      v-for="(item,index) in ruleForm.userList"
+					      :key="index"
+					      :label="item.userName"
+					      :value="item.userName">
+					    </el-option>
+					</el-select>
 				</el-form-item>
 			</el-form>
 			<!--表单结束-->
 			<span slot="footer" class="dialog-footer">
-				<el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+				<el-button type="primary" :disabled="ruleForm.disabled" @click="submitForm('ruleForm')">确 定</el-button>
 			</span>
 		</el-dialog>
 	</div>
@@ -101,14 +128,14 @@ export default {
 	name:'homeDesign',
 	data(){
 		//手机号码验证
-		let checkMobile=(rule, value, callback)=>{
+		/*let checkMobile=(rule, value, callback)=>{
 			let Ptest=/^1[34578]{1}\d{9}$/;
 			if(!Ptest.test(value)){
 				callback(new Error('请输入正确的手机格式'))
 			}else{
 				callback();
 			}
-		};
+		};*/
 		return{
 			dialogVisible:false,//弹窗
 			inputFlag:0,//弹窗状态
@@ -118,14 +145,27 @@ export default {
 	        pageTotal:0,//页数总数
 	        ruleForm:{	 
 	        	name:'',//方案名称
-	        	mobile:'',//用户手机号
+	        	user:'',//用户
 	        	pic:'',//户型图
+	        	userList:[],//用户表
 	        	threeDpic:'',//3D全景图
+	        	brandList:[],//品牌列表
+	        	styleList:[],//风格列表
+	        	styleName:'',//风格
+	        	brand:'',//品牌
+	        	programmeId:'',//选中品牌ID
+	        	disabled:true
 	        },
 	        //表单验证
 	        rules:{
-	        	mobile:[
-	        		{  required: true, validator: checkMobile, trigger: 'blur' }
+	        	user:[
+	        		{ required: true, message: '请选择用户', trigger: 'blur' }
+	        	],
+	        	brand:[
+	        		{ required: true, message: '请选择品牌', trigger: 'blur' }
+	        	],
+	        	styleName:[
+	        		{ required: true, message: '请选择风格', trigger: 'blur' }
 	        	]
 	        },
 		}
@@ -146,14 +186,52 @@ export default {
 		//发送方案
 		handleSend(index, row){
 			//console.log(row)
-			renderpic(this,row.designId);
-			//this.dialogVisible=true;
+			this.dialogVisible=true;
+			var that=this;
+			this.ruleForm.name=row.name;
+			this.ruleForm.programmeId=row.designId;
+			this.ruleForm.pic=row.planPic;
+			userList(this,function(res){
+				//console.log(res)
+				renderpic(that,row.designId);
+				brandList(that);
+				styleList(that)
+				that.ruleForm.userList=res.data.uRelations;
+			})
 		},
 		 //表单提交
    		submitForm(formName) {
 	        this.$refs[formName].validate((valid) => {
 	          if (valid) {
-	          	
+	          	const loading =openLoad(this);
+	          	this.$ajax.post(this.$store.state.localIP+'sendUserProgram',{
+	          		userName:this.ruleForm.user,
+	          		brandName:this.ruleForm.brand,
+	          		desigName:this.ruleForm.name,
+	          		designInfoId:this.ruleForm.programmeId,
+	          		houseModelUrl:this.ruleForm.pic,
+	          		threeDurl:this.ruleForm.threeDpic,
+	          		styleName:this.ruleForm.styleName
+	          	})
+				.then(res=>{
+					//console.log(res)
+					loading.close();
+					if(res.data.retCode==0){
+						this.$message({
+							message: '方案发送成功!',
+							type: 'success'
+						});
+						this.dialogVisible=false;
+						this.ruleForm.disabled=true;
+					}else{
+						this.$message.error("方案发送失败！");
+					}
+				})
+				.catch((error)=>{
+					loading.close();
+					console.log(error);
+					this.$message.error("网络连接错误~~");
+				})
 	          } else {
 	            this.$message.error('表单提交失败！');
 	            return false;
@@ -275,15 +353,21 @@ function programeList(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-//获取方案渲染图列表
-function renderpic(obj,designId){
-	const loading =openLoad(obj);
+///获取方案渲染图列表
+function renderpic(obj,programmeID){
+	const loading=obj.$loading({
+       	lock: true,
+      	text: '渲染图生成中',
+      	fullscreen:false,
+      	spinner: 'el-icon-loading',
+      	background: 'rgba(0, 0, 0, 0.6)'
+   });
 	let data={
 		'url':'https://openapi.kujiale.com/v2/renderpic/list',
 		'KujiaLe':{
-			'design_id':designId,
+			'design_id':programmeID,
 			'start':0,
-			'num':10
+			'num':50
 		},
 		'params':'',
 		'method':'get'
@@ -291,7 +375,70 @@ function renderpic(obj,designId){
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
 		loading.close();
+		if(res.data.c==0){
+			obj.$message({
+				message: '渲染图获取成功!',
+				type: 'success'
+			});
+			roamPic(obj,res.data.d.result);
+			//console.log(obj.ruleForm.picArr)
+		}else{
+			obj.$message.error("获取渲染图列表出错~~");
+		}
+	})
+	.catch((error)=>{
+		loading.close();
+		console.log(error);
+		obj.$message.error("网络连接错误~~");
+	})
+}
+//生成全屋漫游图
+function roamPic(obj,picArr){
+	let loading=obj.$loading({
+       	lock: true,
+      	text: '漫游图生成中',
+      	fullscreen:false,
+      	spinner: 'el-icon-loading',
+      	background: 'rgba(0, 0, 0, 0.6)'
+    });
+    let picIdArr=[];
+    for(let i=0;i<picArr.length;i++){
+    	if(picArr[i].picType==1){    		
+    		picIdArr.push(picArr[i].picId);
+    	}
+    }
+    //console.log(picIdArr)
+    if(picIdArr.length==0){
+    	setTimeout(function(){
+    		loading.close();
+    		obj.$message.error("自动生成3d漫游图失败,请先渲染全景图再生成3D漫游图");
+    	},500)
+    	return;
+    }
+    let data={
+		'url':'https://openapi.kujiale.com/v2/renderpic/pano',
+		'KujiaLe':{
+			'picIds':picIdArr,
+			'override':true
+		},
+		'params':'',
+		'method':'post'
+	}
+	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
+	.then(res=>{
+		loading.close();
 		//console.log(res)
+		if(res.data.c==0){
+			obj.$message({
+				message: '全屋漫游图生成成功!',
+				type: 'success'
+			});
+			obj.ruleForm.threeDpic=res.data.d || "";
+			obj.ruleForm.disabled=false
+		}else{
+			obj.$message.error("全屋漫游图生成失败~~");
+			roamPic(obj,picArr)
+		}
 	})
 	.catch((error)=>{
 		loading.close();
@@ -414,6 +561,57 @@ function dropProgramme(obj,programmeId){
 		loading.close();
 		console.log(error);
 		obj.$message.error("网络连接错误~~");
+	})
+}
+//获取用户列表
+function userList(obj,callback){
+	const loading =openLoad(obj);
+	obj.$ajax.post(obj.$store.state.localIP+'queryDesignUser',{personName:Base64.decode(sessionStorage.getItem(Base64.encode('username')))})
+	.then(res=>{
+		loading.close();
+		//console.log(res)
+		if(res.data.retCode==0){
+			callback(res)
+		}else{
+			obj.$message.error("获取用户列表失败！");
+		}
+	})
+	.catch((error)=>{
+		loading.close();
+		console.log(error);
+		obj.$message.error("网络连接错误~~");
+	})
+}
+//获取风格列表
+function styleList(obj){
+	obj.$ajax.post(obj.$store.state.localIP+'selectStyleInfo')
+	.then(res=>{
+		//console.log(res)
+		if(res.data.retCode==0){
+			obj.ruleForm.styleList=res.data.styleInfoList;
+		}else{
+			obj.$message.error("获取风格列表失败！");
+		}
+	})
+	.catch(error=>{
+		console.log(error);
+		obj.$message.error("获取风格列表失败！");
+	})
+}
+//获取品牌列表
+function brandList(obj){
+	obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+	.then(res=>{
+		//console.log(res)
+		if(res.data.retCode==0){
+			obj.ruleForm.brandList=res.data.brandList;
+		}else{
+			obj.$message.error("获取品牌列表失败！");
+		}
+	})
+	.catch(error=>{
+		console.log(error);
+		obj.$message.error("获取品牌列表失败！");
 	})
 }
 </script>

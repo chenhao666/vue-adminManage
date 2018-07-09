@@ -28,11 +28,23 @@
 				</el-table-column>-->
 				<el-table-column prop="desigName" label="套餐名" width="200" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="packageName" label="包名" width="150">
+				<el-table-column prop="packageName" label="包名" width="100">
 				</el-table-column>
-				<el-table-column prop="city" label="城市" width="150">
+				<el-table-column prop="city" label="城市" width="100">
 				</el-table-column>
-				<el-table-column prop="discount" label="折扣" width="150">
+				<el-table-column prop="discount" label="折扣" width="100">
+				</el-table-column>
+				<el-table-column prop="startTime" label="开始时间" width="150">
+					<template slot-scope="props">
+						<div>{{ timeFomit(props.row.startTime)[0] }}</div>
+						<div>{{ timeFomit(props.row.startTime)[1] }}</div>
+					</template>
+				</el-table-column>
+				<el-table-column prop="endTime" label="结束时间" width="150">
+					<template slot-scope="props">
+						<div>{{ timeFomit(props.row.endTime)[0] }}</div>
+						<div>{{ timeFomit(props.row.endTime)[1] }}</div>
+					</template>
 				</el-table-column>
 				<el-table-column label="操作">
 			      <template slot-scope="scope">
@@ -95,6 +107,18 @@
 			  	<el-form-item label="折扣：" prop='discount'>
 					<el-input v-model="ruleForm.discount" maxlength="3"    @change="inputFlag=1"></el-input>
 				</el-form-item>
+				
+				<el-form-item label="时效：" prop='timeRange'>
+					<el-date-picker
+				      v-model="ruleForm.timeRange"
+				      type="datetimerange"
+				      value-format="yyyy-MM-dd HH:mm:ss"
+				      range-separator="至"
+				      start-placeholder="开始日期"
+				      end-placeholder="结束日期">
+				    </el-date-picker>
+				</el-form-item>
+				
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -137,6 +161,9 @@
 		        	],
 		        	package:[
 		        		{ required: true, message: '请选择包', trigger: 'blur' }
+		        	],
+		        	timeRange:[
+		        		{ required: true, message: '请选择时效', trigger: 'blur' }
 		        	]
 		        }
 			}
@@ -191,8 +218,8 @@
 				          type: 'info',
 				          message: '已取消删除'
 				        });          
-			      });
-			  }
+			      	});
+			  	}
 		    },
 		    //分页方法
 		    handleSizeChange(val) {
@@ -217,6 +244,10 @@
 					that.ruleForm.programme=row.designId+','+row.desigName;
 					that.ruleForm.package=row.packageId+','+row.packageName;
 					that.ruleForm.discount=row.discount;
+					if(row.startTime && row.endTime){
+						that.ruleForm.timeRange.push(row.startTime);
+						that.ruleForm.timeRange.push(row.endTime);
+					}
 					if(row.city==row.province){
 	        			that.ruleForm.selectedOptions.push(row.city)
 	        		}else{
@@ -272,6 +303,13 @@
 		    	this.inputFlag=1;
 		     	//console.log(value);
 		    },
+		    //时间格式化
+		    timeFomit(timeDate){
+		    	//console.log(timeDate)
+		    	let time=(new Date(timeDate)).Format("yyyy-MM-dd hh:mm:ss");
+		    	let timeArr=time.split(' ');
+		    	return timeArr;
+		    },
 		    //提交表单
 		    submitForm(formName) {
 		      	this.$refs[formName].validate((valid) => {
@@ -280,6 +318,7 @@
          				let packageArr=this.ruleForm.package.split(",");
          				let len=this.ruleForm.selectedOptions.length;
          				let programmeArr=this.ruleForm.programme.split(",");
+         				//console.log(this.ruleForm.timeRange)
 			        	let data={
 			        		packageId:packageArr[0],
 			        		packageName:packageArr[1],   //商品包名
@@ -287,7 +326,9 @@
 						    city:this.ruleForm.selectedOptions[len-1],//城市
 						    discount:this.ruleForm.discount,   //折扣力度
 						    designId:programmeArr[0],     //设计方案id
-						    desigName:programmeArr[1]    //方案名称 
+						    desigName:programmeArr[1],    //方案名称 
+						    startTime:this.ruleForm.timeRange[0],
+						    endTime:this.ruleForm.timeRange[1]
 			        	}
 			        	if(this.dialogFlag!=0){
 			        		data.id=this.dialogFlag;
@@ -340,6 +381,7 @@
 		    discount:'',//折扣
 		    options:cityData.cityData,//城市数据
         	selectedOptions: [],//所在城市
+        	timeRange:[],//有效范围
          	disabled:false//按钮禁用
 	    }
 		return data;

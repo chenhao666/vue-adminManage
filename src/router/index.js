@@ -76,6 +76,11 @@ import BrandManage from '@/components/userManage/BrandManage'
 import StyleManage from '@/components/userManage/styleManage'
 //用户管理-折扣管理
 import DiscountManage from '@/components/userManage/discountManage'
+//用户管理-订单管理
+import UserOrder from '@/components/userManage/userOrder'
+//用户管理-订单管理-订单详情
+import userOrderInfo from '@/components/userManage/orderInfo'
+
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -202,6 +207,10 @@ export default new Router({
       		name:'设计师-设计方案',
       		component:DesignProgramme		
       	},{
+      		path:'designer/chat',
+      		name:'设计师-及时通讯',
+      		component:CustomerService		
+      	},{
       		path:'delivery/raiders',
       		name:'信息发布-装修攻略',
       		component:Raiders		
@@ -257,6 +266,14 @@ export default new Router({
       		path:'userManage/discountManage',
       		name:'用户管理-折扣管理',
       		component:DiscountManage		
+      	},{
+      		path:'userManage/userOrder',
+      		name:'用户管理-订单管理',
+      		component:UserOrder		
+      	},{
+      		path:'userManage/userOrder/:code',
+      		name:'用户管理-订单管理-订单详情',
+      		component:userOrderInfo		
       	}
       ]
     },
