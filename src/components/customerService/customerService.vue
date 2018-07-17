@@ -290,7 +290,7 @@
 			},
 			//上传七牛
 			uploading (formData) {   // 定义在data里的uploading函数
-	         	this.$ajax.post('http://up.qiniu.com/',formData)
+	         	this.$ajax.post('https://up.qiniu.com/',formData)
 	          	.then(response => {
 	            	//console.log(response,1)  // 这个key是你上传图片成功后七牛返回给你的图片key
 	            	var key = this.$store.state.qiniuUrl+response.data.key

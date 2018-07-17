@@ -236,7 +236,7 @@ export default {
 			styleList:[],//风格列表
 			brandList:[],//品牌列表
 			uploadData:{'token':''},
-			uploadPic:"http://up.qiniu.com/",//图片上传
+			uploadPic:"https://up.qiniu.com/",//图片上传
 			ruleForm:{
 				//listingId:'',//清单ID
 				//programmeArr:[],//方案列表

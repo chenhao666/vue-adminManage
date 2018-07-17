@@ -72,7 +72,7 @@
 				
 				<el-form-item label="封面图：" prop='pic'>
 					<el-upload
-					  action="http://up.qiniu.com/"
+					  action="https://up.qiniu.com/"
 					  list-type="picture-card"
 					  :file-list="ruleForm.fileList"
 					  :on-success="uploadSuccess"

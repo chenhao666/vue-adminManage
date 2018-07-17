@@ -36,7 +36,7 @@ export default {
 		          type: 'success'
 		    });
 		    //let Base64=new Base64();
-		    this.$imconn.close();
+		    /*this.$imconn.close();*/
         	sessionStorage.removeItem(Base64.encode('username'));
 	      	sessionStorage.removeItem(Base64.encode('loginFlag'));
 	      	this.$router.push('/login');

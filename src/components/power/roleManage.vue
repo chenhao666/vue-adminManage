@@ -82,6 +82,7 @@
 					  :data="form.powers"
 					  show-checkbox
 					  node-key="id"
+					  :check-strictly="checkStrictly"
 					  v-model="form.checkedPower"
 					  @check-change="powerChange"
 					  ref="tree"
@@ -115,6 +116,7 @@ export default {
 	        dialogTitle:'提示',
 	        dialogMark:0,//弹窗标记
 	        inputFlag:0,//输入框是否有修改
+	        checkStrictly:false,//是否遵循父子不关联
 	        form:formInit(),
 	        defaultProps: {
 		        children: 'children',
@@ -169,6 +171,7 @@ export default {
       },
       //编辑
       handleEdit(index, row) {
+      	this.checkStrictly=true;
         //console.log(index, row);
         this.dialogTitle="编辑角色";
         this.dialogVisible = true;//打开弹窗
@@ -185,6 +188,7 @@ export default {
         	checkP.pop()
         	//console.log(checkP)
         	obj.form.checkedPower=checkP;
+        	obj.checkStrictly=false;
         })
       },
       //删除
@@ -278,7 +282,13 @@ export default {
       	let treeArr=this.$refs.tree.getCheckedNodes();
       	for(let i=0;i<treeArr.length;i++){
       		powerArr.push(treeArr[i].id);
+      		if(treeArr[i].parentID){      			
+      			if(powerArr.indexOf(treeArr[i].parentID)==-1){
+      				powerArr.push(treeArr[i].parentID);
+      			}
+      		}
       	}
+      	//console.log(powerArr)
         this.$refs[formName].validate((valid) => {
           if (valid) {
           	//按钮禁用
