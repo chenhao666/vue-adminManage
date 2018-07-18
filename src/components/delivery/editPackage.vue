@@ -182,8 +182,15 @@
 			  			<el-select v-model="form.areaType" placeholder="请选择类型" @change="inputFlag=1">
 							<el-option label="客厅" value="1,客厅"></el-option>
 							<el-option label="厨房" value="2,厨房"></el-option>
-							<el-option label="卧室" value="3,卧室"></el-option>
-							<el-option label="卫生间" value="4,卫生间"></el-option>
+							<el-option label="主卧" value="3,主卧"></el-option>
+							<el-option label="次卧" value="4,次卧"></el-option>
+							<el-option label="餐厅" value="5,餐厅"></el-option>
+							<el-option label="儿童房" value="6,儿童房"></el-option>
+							<el-option label="老人房" value="7,老人房"></el-option>
+							<el-option label="书房" value="8,书房"></el-option>
+							<el-option label="主卫" value="9,主卫"></el-option>
+							<el-option label="次卫" value="10,次卫"></el-option>
+							<el-option label="阳台" value="11,阳台"></el-option>
 						</el-select>
 			  		</el-form-item>
 			  		<el-form-item label="图片上传：">
