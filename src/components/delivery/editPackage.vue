@@ -55,8 +55,8 @@
 						</el-col>
 						
 						<el-col :span="12">
-							<el-form-item label="标题：">
-								<el-input v-model="ruleForm.title" :maxlength="50"></el-input>
+							<el-form-item label="户型名称：">
+								<el-input v-model="ruleForm.houseModel" :maxlength="50"></el-input>
 							</el-form-item>
 						</el-col>
 						
@@ -256,7 +256,7 @@ export default {
 				roamPic:'',//漫游图
 				name:'',//套餐名称
 				//price:'',//套餐价格
-				title:'',//标题
+				houseModel:'',//标题
 				introduction:'',//简介
 				picArr:[],//渲染图数组
 				selectPic:"",//选中渲染图
@@ -314,7 +314,7 @@ export default {
 				//套餐价格
 				//obj.ruleForm.price=list[0].comboPrice || "";
 				//标题
-				obj.ruleForm.title=list[0].title || "";
+				obj.ruleForm.houseModel=list[0].houseModel || "";
 				//简介
 				obj.ruleForm.introduction=list[0].intro || "";
 				//选中渲染图
@@ -557,7 +557,7 @@ export default {
 		            'styleName':styleArr[1],
 		            "brandId":brandArr[0],
 		            "brandName":brandArr[1],
-		            'title':this.ruleForm.title,
+		            'houseModel':this.ruleForm.houseModel,
 		            'intro':this.ruleForm.introduction,
 		            'details':this.ruleForm.desc,
 		            'coverPic':this.ruleForm.selectPic,
@@ -606,7 +606,7 @@ export default {
 		            	'styleName':styleArr[1],
 		            	"brandId":brandArr[0],
 		            	"brandName":brandArr[1],
-		            	'title':this.ruleForm.title,
+		            	'houseModel':this.ruleForm.houseModel,
 		            	'intro':this.ruleForm.introduction,
 		            	'details':this.ruleForm.desc,
 		            	'coverPic':this.ruleForm.selectPic,
