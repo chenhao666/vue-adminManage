@@ -313,6 +313,16 @@
 				  message: '删除成功!',
 				  type: 'success'
 				});
+				var list=data.brandId.toString();
+				if(list.indexOf(',')>-1){
+					var listArr=list.split(',');
+					obj.pageTotal-=listArr.length;
+				}else{
+					obj.pageTotal-=1;
+				}
+				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
+					obj.currentPage-=1;
+				}
 				brandList(obj);
 			}else{
 				obj.$message.error('删除失败！');

@@ -75,6 +75,8 @@ li{ list-style: none outside none;}
 
 .icon-manager:before { content: "\e605"; }
 
+.icon-commodityManage:before { content: "\e606"; }
+
 .icon-index:before { content: "\e603"; }
 
 .icon-chanpinguanli:before { content: "\e613"; }

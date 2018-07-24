@@ -462,6 +462,16 @@ function delRole(obj,data){
 		          message: '删除成功!',
 		          type: 'success'
 		       });
+		       var list=data.id.toString();
+				if(list.indexOf(',')>-1){
+					var listArr=list.split(',');
+					obj.pageTotal-=listArr.length;
+				}else{
+					obj.pageTotal-=1;
+				}
+				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
+					obj.currentPage-=1;
+				}
 		       	//重新请求数据列表
 		       	axiosRoleList(obj);
 		    }else{

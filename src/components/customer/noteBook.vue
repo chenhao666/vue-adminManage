@@ -142,7 +142,11 @@ export default{
 							this.$message({
 					            type: 'success',
 					            message: '删除成功'
-					        });
+					       });
+							obj.pageTotal-=1;
+							if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
+								obj.currentPage-=1;
+							}
 							nodeList(this);
 						}else{
 							this.$message.error(response.data.retMsg);

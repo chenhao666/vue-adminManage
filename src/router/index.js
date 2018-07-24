@@ -80,6 +80,10 @@ import DiscountManage from '@/components/userManage/discountManage'
 import UserOrder from '@/components/userManage/userOrder'
 //用户管理-订单管理-订单详情
 import userOrderInfo from '@/components/userManage/orderInfo'
+//用户管理-商品管理
+import CommodityEntry from '@/components/commodityManage/commodityEntry'
+//用户管理-套餐包管理
+import CommodityPackage from '@/components/commodityManage/commodityPackage'
 
 //404页面
 import Page404 from '@/components/error/page404'
@@ -274,6 +278,14 @@ export default new Router({
       		path:'userManage/userOrder/:code',
       		name:'用户管理-订单管理-订单详情',
       		component:userOrderInfo		
+      	},{
+      		path:'commodityManage/commodityEntry',
+      		name:'商品管理-商品录入',
+      		component:CommodityEntry		
+      	},{
+      		path:'commodityManage/commodityPackage',
+      		name:'商品管理-商品套餐包管理',
+      		component:CommodityPackage		
       	}
       ]
     },

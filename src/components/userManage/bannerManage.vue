@@ -450,6 +450,10 @@
 				  	message: '操作成功!',
 				  	type: 'success'
 				});
+				obj.pageTotal-=1;
+				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
+					obj.currentPage-=1;
+				}
 				bannerList(obj);
 			}else{
 				obj.$message.error('操作失败！');
@@ -490,6 +494,7 @@
 	}
 	//新增banner
 	function addBanner(obj,data){
+		obj.ruleForm.picChange=0;
 		obj.$ajax.post(obj.$store.state.localIP+"saveBanner",data)
 		.then(response=>{
 			//console.log(response)

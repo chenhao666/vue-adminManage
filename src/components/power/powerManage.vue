@@ -183,10 +183,13 @@ export default {
 	      	let editData=obj.tableData;
 	      	//console.log(editData)
 	      	let parentIdArr=[];
+	      	//console.log(editData[index].parentID)
 	      	if(editData[index].parentID){
-	      		let parentId=editData[index].parentID;
+	      		parentIdArr.push(editData[index].parentID);
+	      		parentIdArr.push(editData[index].id);
 	      		/*遍历*/
-	      		for(let i=0;i<editData.length;i++){
+	      		/*let parentId=editData[index].parentID;*/
+	      		/*for(let i=0;i<editData.length;i++){
 	      			if(editData[i].id==parentId){
 	      				if(editData[i].parentID){
 	      					parentIdArr.push(editData[i].parentID);
@@ -197,10 +200,12 @@ export default {
 			      			obj.form.parentNode=parentIdArr;
 			      		}		
 	      			}
-	      		}
+	      		}*/
 	      	}else{
-	      		obj.form.parentNode=[""]
+	      		parentIdArr.push(editData[index].id);
+	      		//obj.form.parentNode=[""]
 	      	}
+	      	obj.form.parentNode=parentIdArr;
 	      	//console.log(obj.form.parentNode)
 	      	obj.form.name=editData[index].functionName;
 	      	obj.form.nodeName=editData[index].fitField;
@@ -454,6 +459,16 @@ function delPower(obj,data){
 		          message: '删除成功!',
 		          type: 'success'
 		       });
+		       var list=data.id.toString();
+				if(list.indexOf(',')>-1){
+					var listArr=list.split(',');
+					obj.pageTotal-=listArr.length;
+				}else{
+					obj.pageTotal-=1;
+				}
+				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
+					obj.currentPage-=1;
+				}
 		       	//重新请求数据列表
 		       	axiosPowerList(obj);
 		    }else{
