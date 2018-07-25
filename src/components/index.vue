@@ -77,6 +77,7 @@ export default {
 		    },   
 		    //接收图片监听
 		    onPictureMessage: function (message) {
+		    	//console.log(message);
 		    	that.$store.commit("friendList",message);
 		    	that.$notify.info({
 	          title: '消息',
