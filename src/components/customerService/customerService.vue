@@ -2,7 +2,7 @@
 	<div class="customerServer">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  <el-breadcrumb-item>客服</el-breadcrumb-item>
+		  <el-breadcrumb-item>{{ chatUserName }}</el-breadcrumb-item>
 		  <el-breadcrumb-item class="fontWeight">即时通讯</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -131,6 +131,7 @@
 				scrollTop:0,//初始top值
 				imgObj:{},//图片信息
 				chatUserType:1,//聊天对象类型
+				chatUserName:'客服'
 			}
 		},
 		mounted(){
@@ -339,8 +340,10 @@
 			    	//console.log(newName,1,oldName)
 			     	if(newName==="/designer/chat"){
 						this.chatUserType=3;
+						this.chatUserName='设计师'
 					}else{
 						this.chatUserType=1;
+						this.chatUserName='客服'
 					}
 					//console.log(this.chatUserType)
 			    },

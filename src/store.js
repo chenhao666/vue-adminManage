@@ -71,6 +71,8 @@ const mutations={
 		//console.log(data)
 		if(data.ext.type==2){
 			data.data='<a href="'+data.ext.imageUrl+'" target="_blank"><img src='+data.ext.imageUrl+' width="80"></a>';
+		}else if(data.ext.type==3){
+			data.data='<audio src='+data.ext.voiceUrl+' controls width="200" height="50"></audio>';
 		}else{
 			data.data=data.data.replace(/((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/,"<a target='_black' href='$&'>$&</a>");
 		}

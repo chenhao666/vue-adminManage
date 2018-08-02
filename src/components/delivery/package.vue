@@ -81,6 +81,7 @@ export default {
 	data(){
 		return{
 			tableData:[],
+			multipleSelection: [],
 			currentPage: 1,//分页当前页数
 	        pageSize:10,//分页默认每页条数
 	        pageTotal:0,//页数总数
@@ -148,15 +149,15 @@ export default {
 	    },
 	    //发布
 	    releasePackage(){
-	    	//console.log(this.multipleSelection);
+	    	console.log(this.multipleSelection);
 	      	if(this.multipleSelection.length==0){
 	      		this.$message({
 		          	showClose: true,
-		          	message: '请选择要发布的攻略！',
+		          	message: '请选择要发布的套餐！',
 		          	type: 'warning'
 		        });
 	      	}else{
-	      		this.$confirm('确定发布所选攻略吗?', '提示', {
+	      		this.$confirm('确定发布所选套餐吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
@@ -185,11 +186,11 @@ export default {
 	      	if(this.multipleSelection.length==0){
 	      		 this.$message({
 		          	showClose: true,
-		          	message: '请选择要撤回的攻略！',
+		          	message: '请选择要撤回的套餐！',
 		          	type: 'warning'
 		        });
 	      	}else{
-	      		this.$confirm('确定撤回所选攻略吗?', '提示', {
+	      		this.$confirm('确定撤回所选套餐吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
@@ -222,7 +223,7 @@ export default {
 		          	type: 'warning'
 		        });
 	      	}else{
-	      		this.$confirm('确定删除所选攻略吗?', '提示', {
+	      		this.$confirm('确定删除所选套餐吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'

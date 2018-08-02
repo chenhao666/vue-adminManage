@@ -141,7 +141,7 @@
 			        	type: 'warning'
 			      });
 		    	}else{
-			    	this.$confirm('确定删除当前用户吗?', '提示', {
+			    	this.$confirm('确定删除当前品牌吗?', '提示', {
 			        confirmButtonText: '确定',
 			        cancelButtonText: '取消',
 			        type: 'warning'
@@ -189,7 +189,7 @@
       		},
 	     	//删除
 	      	handleDelete(index, row) {
-	      		this.$confirm('确定删除当前楼盘吗?', '提示', {
+	      		this.$confirm('确定删除当前品牌吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'

@@ -3,13 +3,13 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">用户管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">品牌管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">风格管理</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>品牌管理</span>
+				<span>风格管理</span>
 			</div>
 			<div class="line"></div>
 			
@@ -141,7 +141,7 @@
 			        	type: 'warning'
 			      });
 		    	}else{
-			    	this.$confirm('确定删除当前用户吗?', '提示', {
+			    	this.$confirm('确定删除当前风格吗?', '提示', {
 			        confirmButtonText: '确定',
 			        cancelButtonText: '取消',
 			        type: 'warning'
@@ -189,7 +189,7 @@
       		},
 	     	//删除
 	      	handleDelete(index, row) {
-	      		this.$confirm('确定删除当前楼盘吗?', '提示', {
+	      		this.$confirm('确定删除当前风格吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
