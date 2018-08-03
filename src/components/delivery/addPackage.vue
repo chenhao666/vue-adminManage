@@ -584,7 +584,7 @@ function programeInfo(obj,callback){
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
-		console.log(res)
+		//console.log(res)
 		obj.ruleForm.apartmentLayout=res.data.d.specName;
 		obj.ruleForm.homeArea=res.data.d.srcArea;
 		obj.ruleForm.planPic=res.data.d.planPic;
@@ -673,48 +673,38 @@ function renderpic(obj){
 function roamPic(obj,picArr){
 	let loading=obj.$loading({
        	lock: true,
-      	text: '漫游图生成中',
+      	text: '漫游图获取中',
       	fullscreen:false,
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
-    });
-    let picIdArr=[];
-    for(let i=0;i<picArr.length;i++){
-    	if(picArr[i].picType==1){    		
-    		picIdArr.push(picArr[i].picId);
-    	}
-    }
-    //console.log(picIdArr)
-    if(picIdArr.length==0){
-    	setTimeout(function(){
-    		loading.close();
-    		obj.$message.error("自动生成3d漫游图失败,请先渲染全景图再生成3D漫游图");
-    		homeInfo(obj);
-    	},500)
-    	return;
-    }
+   });
     let data={
 		'url':'https://openapi.kujiale.com/v2/renderpic/pano',
 		'KujiaLe':{
-			'picIds':picIdArr,
-			'override':true
+			'start':0,
+			'num':50,
+			'appuid':hex_md5(obj.$store.state.userCode)
 		},
 		'params':'',
-		'method':'post'
+		'method':'get',
+		'appuid':obj.$store.state.userCode
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
 		loading.close();
-		//console.log(res)
+		console.log(res)
 		if(res.data.c==0){
 			obj.$message({
-				message: '全屋漫游图生成成功!',
+				message: '获取全屋漫游图成功!',
 				type: 'success'
 			});
-			obj.ruleForm.roamPic=res.data.d || "";
+			if(res.data.d){
+				if(res.data.d.result.length>0){
+					obj.ruleForm.roamPic=res.data.d.result[res.data.d.result.length-1];
+				}
+			}
 		}else{
-			obj.$message.error("全屋漫游图生成失败~~");
-			roamPic(obj,picArr);
+			obj.$message.error("获取全屋漫游图失败~~");
 		}
 		homeInfo(obj);
 	})
@@ -771,118 +761,6 @@ function homeInfo(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-/*//筛选户型信息
-function apartmentInfo(obj,data){
-	let loading=obj.$loading({
-       	lock: true,
-      	text: '获取房屋信息',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	obj.$ajax.post(obj.$store.state.localIP+'queryHouseInfo',data)
-	.then(response=>{
-		//console.log(response);
-		loading.close();
-		if(response.data.retCode==0){
-			if(data.houseTypeName){
-				obj.ruleForm.homeAreaArr=response.data.houseModels;
-			}else{				
-				obj.ruleForm.apartmentLayoutArr=response.data.houseModels;
-			}
-        }else{
-           obj.$message.error(response.data.retMsg);
-        }
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}*/
-//清单操作
-//初始化清单
-/*function initOrder(obj,callback){
-	const loading =openLoad(obj);
-	let data={
-		'url':'https://openapi.kujiale.com/v2/listing/init',
-		'KujiaLe':{
-			'design_id':obj.ruleForm.programmeID
-		},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		loading.close();
-		if(res.data.d){			
-			let orderId=res.data.d;
-			obj.$message({
-		        message: '清单初始化成功!',
-		        type: 'success'
-		    });
-			callback(orderId)
-		}else{
-			obj.$message.error("清单初始化失败!");
-		}
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//获取清单
-function orderList(obj){
-	initOrder(obj,function(orderId){
-		const loading=obj.$loading({
-	      	lock: true,
-	      	text: '清单生成中',
-	      	fullscreen:false,
-	      	spinner: 'el-icon-loading',
-	      	background: 'rgba(0, 0, 0, 0.6)'
-	    });
-	    let timer=setInterval(function(){
-	    	let data={
-				'url':'https://openapi.kujiale.com/v2/listing/'+orderId+'/state',
-				'KujiaLe':{},
-				'params':'',
-				'method':'get'
-			}
-			obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-			.then(res=>{
-				loading.close();
-				//console.log(res,2)
-				if(res.data.d==3){
-					obj.$message({
-				        message: '清单生成成功!',
-				        type: 'success'
-				    });
-					clearInterval(timer);
-					let data={
-						'url':'https://openapi.kujiale.com/v2/listing/'+orderId+'/sync',
-						'KujiaLe':{
-							'appuid':obj.$store.state.userCode
-						},
-						'params':'',
-						'method':'post'
-					}
-					obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-					.then(res=>{
-						//console.log(res,1);
-						if(res.data.c==0){
-							obj.$message({
-						        message: '清单同步成功!',
-						        type: 'success'
-						    });
-							obj.ruleForm.listingId=orderId;	
-						}
-					})
-				}
-			})
-	    },1000)
-	});
-}*/
 </script>
 
 <style scoped>

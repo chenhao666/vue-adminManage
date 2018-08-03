@@ -741,52 +741,42 @@ function renderpic(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-//生成全屋漫游图
+///生成全屋漫游图
 function roamPic(obj,picArr){
 	let loading=obj.$loading({
        	lock: true,
-      	text: '漫游图生成中',
+      	text: '漫游图获取中',
       	fullscreen:false,
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
-    });
-    let picIdArr=[];
-    for(let i=0;i<picArr.length;i++){
-    	if(picArr[i].picType==1){    		
-    		picIdArr.push(picArr[i].picId);
-    	}
-    }
-    //console.log(picIdArr)
-    if(picIdArr.length==0){
-    	setTimeout(function(){
-    		loading.close();
-    		obj.$message.error("自动生成3d漫游图失败,请先渲染全景图再生成3D漫游图");
-    		homeInfo(obj);
-    	},500)
-    	return;
-    }
+   });
     let data={
 		'url':'https://openapi.kujiale.com/v2/renderpic/pano',
 		'KujiaLe':{
-			'picIds':picIdArr,
-			'override':true
+			'start':0,
+			'num':50,
+			'appuid':hex_md5(obj.$store.state.userCode)
 		},
 		'params':'',
-		'method':'post'
+		'method':'get',
+		'appuid':obj.$store.state.userCode
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
 		loading.close();
-		//console.log(res)
+		console.log(res)
 		if(res.data.c==0){
 			obj.$message({
-				message: '全屋漫游图生成成功!',
+				message: '获取全屋漫游图成功!',
 				type: 'success'
 			});
-			obj.ruleForm.roamPic=res.data.d || "";
+			if(res.data.d){
+				if(res.data.d.result.length>0){
+					obj.ruleForm.roamPic=res.data.d.result[res.data.d.result.length-1];
+				}
+			}
 		}else{
-			obj.$message.error("全屋漫游图生成失败~~");
-			roamPic(obj,picArr)
+			obj.$message.error("获取全屋漫游图失败~~");
 		}
 		homeInfo(obj);
 	})
