@@ -16,7 +16,7 @@
 			<!--批量操作-->
 			<div class="editBtn">
 				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addStyle" type="primary"><span class="iconfont icon-crm11"></span>添加品牌</el-button>
+				<el-button @click="addStyle" type="primary"><span class="iconfont icon-crm11"></span>添加风格</el-button>
 				<div class="clear"></div>
 			</div>
 			
@@ -72,7 +72,7 @@
 			  <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="85px">
 				
 			  	<el-form-item label="风格" prop="name">
-			  		<el-input v-model="ruleForm.name"  @change="inputFlag=1"></el-input>
+			  		<el-input v-model="ruleForm.name" maxlength='20'  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
@@ -288,7 +288,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.styleInfoList;
 				obj.pageTotal=response.data.countNum;
 			}else{
@@ -308,7 +308,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  message: '删除成功!',
 				  type: 'success'

@@ -134,6 +134,15 @@
 	export default {
 		name:'discountManage',
 		data () {
+			//折扣验证
+			let checkDiscount=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				if(this.ruleForm.discount!=parseFloat(this.ruleForm.discount) || this.ruleForm.discount.indexOf('-')>-1){
+					callback(new Error('请输入正确的折扣！'))
+				}else{
+					callback();
+				}
+			};
 			return {
 				tableData:[],
 				multipleSelection: [],//多选
@@ -157,7 +166,7 @@
 		        		{ required: true, message: '请选择方案', trigger: 'blur' }
 		        	],
 		        	discount:[
-		        		{ required: true, message: '请输入折扣信息', trigger: 'blur' }
+		        		{  required: true, validator: checkDiscount, trigger: 'blur' }
 		        	],
 		        	package:[
 		        		{ required: true, message: '请选择包', trigger: 'blur' }
@@ -463,7 +472,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.distcountList;
 				obj.pageTotal=response.data.countNum;
 			}else{
@@ -481,7 +490,7 @@
 		obj.$ajax.post(obj.$store.state.localIP+"deleteDiscount",data)
 		.then(response=>{
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  message: '操作成功!',
 				  type: 'success'

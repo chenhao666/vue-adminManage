@@ -104,7 +104,7 @@
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="商品编码" prop="goodsCode">
-			  		<el-input v-model="ruleForm.goodsCode"  @change="inputFlag=1"></el-input>
+			  		<el-input v-model="ruleForm.goodsCode" :disabled="ruleForm.inputDisabled"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="商品型号" prop="model">
@@ -112,7 +112,7 @@
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="商品价格" prop="unitPrice">
-			  		<el-input v-model="ruleForm.unitPrice"  @change="inputFlag=1"></el-input>
+			  		<el-input v-model="ruleForm.unitPrice"  @change="inputFlag=1" ></el-input>
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="商品规格" prop="specifications">
@@ -146,6 +146,8 @@
 					  :on-error="uploadError"
 					  :on-change="changePic"
 					  :data="ruleForm.uploadData"
+					  limit="9"
+					  :on-exceed="onExceed"
 					  :auto-upload="false">
 					  <i class="el-icon-plus"></i>
 					</el-upload>
@@ -169,6 +171,17 @@
 				//console.log(this.ruleForm.fileList)
 				if(this.ruleForm.fileList.length==0){
 					callback(new Error('请上传商品图！'))
+				}else{
+					callback();
+				}
+			};
+			//价格验证
+			let checkPrice=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				var unitPrice=this.ruleForm.unitPrice;
+				//console.log(unitPrice)
+				if(unitPrice!=parseFloat(unitPrice) || unitPrice.toString().indexOf('-')>-1){
+					callback(new Error('请输入正确的价格！'))
 				}else{
 					callback();
 				}
@@ -198,7 +211,7 @@
 		        		{ required: true, message: '请输入商品型号', trigger: 'blur' }
 		        	],
 		        	unitPrice:[
-		        		{ required: true, message: '请输入商品价格', trigger: 'blur' }
+		        		{  required: true, validator: checkPrice, trigger: 'blur' }
 		        	],
 		        	specifications:[
 		        		{ required: true, message: '请输入商品规格', trigger: 'blur' }
@@ -251,7 +264,7 @@
 			        	type: 'warning'
 			      });
 		    	}else{
-			    	this.$confirm('确定删除当前用户吗?', '提示', {
+			    	this.$confirm('确定删除当前商品吗?', '提示', {
 			        confirmButtonText: '确定',
 			        cancelButtonText: '取消',
 			        type: 'warning'
@@ -271,6 +284,12 @@
 			      });
 			  }
 		    },
+		    onExceed(){
+		    	this.$message({
+					message: '最多只允许上传9张',
+					type: 'warning'
+				});
+		    },
 		    //分页方法
 		    handleSizeChange(val) {
 		      //console.log(`每页 ${val} 条`);
@@ -282,10 +301,10 @@
 		      this.currentPage=val;
 		      goodsList(this);
 		    },
-		    //添加分类
+		    //添加商品
 		    addClass(){
 		    	this.ruleForm=formInit();
-		      	this.dialogTitle="添加分类";
+		      	this.dialogTitle="添加商品";
 		      	this.dialogVisible = true;//打开弹窗
 		      	this.dialogFlag=0;
 		      	brandList(this,function(){});
@@ -294,7 +313,8 @@
       		handleEdit(index, row) {
       			//console.log(row)
 				this.ruleForm=formInit();
-		      	this.dialogTitle="编辑分类";
+				this.ruleForm.inputDisabled=true;
+		      	this.dialogTitle="编辑商品";
 		      	this.dialogVisible = true;//打开弹窗
 		      	this.dialogFlag=row.id;
 		      	var that=this;
@@ -325,7 +345,7 @@
       		},
 	     	//删除
 	      	handleDelete(index, row) {
-	      		this.$confirm('确定删除当前分类吗?', '提示', {
+	      		this.$confirm('确定删除当前商品吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
@@ -342,10 +362,12 @@
 	      	//图片上传
 		    uploadSuccess(response, file, fileList){
 		    	//console.log(response)
-		    	//console.log(fileList)
+		    	//console.log(this.ruleForm.fileList)
 		    	var list=this.ruleForm.fileList;
 		    	//console.log(list)
 		    	var num=this.ruleForm.picNum;
+		    	//console.log(num)
+		    	//console.log(list[num])
 		    	list[num].url=this.$store.state.qiniuUrl+response.key;
 		    	num++;
 		    	this.ruleForm.picNum=num;
@@ -385,6 +407,7 @@
 		    removePic(file, fileList){
 		    	this.ruleForm.fileList=[];
 		    	this.ruleForm.fileList=fileList;
+		    	this.ruleForm.picNum=this.ruleForm.picNum-1;
 		    },
 		    //上传失败
 		    uploadError(err, file, fileList){
@@ -399,6 +422,7 @@
 			        	const loading =openLoad(this,"Loading...");
 			        	//console.log(this.ruleForm.picChange)
 			        	if(this.ruleForm.picChange){
+			        		console.log(2)
 			        		this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
 					        .then((response)=>{
 					        	//console.log(response);
@@ -423,6 +447,7 @@
 								this.$message.error('获取token失败！');
 							})
 			        	}else{
+			        		console.log(1)
 			        		loading.close();
 			        		var list=this.ruleForm.fileList;
 			        		var coverPic='';
@@ -506,6 +531,7 @@
 		        picChange:0,
 		        uploadData:{'token':''},//上传图片附带的token
 		        picNum:0,//标记
+		        inputDisabled:false,//表单禁用
 		        disabled:false
 	        }
 		return data;
@@ -523,7 +549,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.goodsInfomations;
 				obj.pageTotal=response.data.countNum;
 			}else{
@@ -543,7 +569,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  message: '删除成功!',
 				  type: 'success'
@@ -615,7 +641,6 @@
 	}
 	//新增商品
 	function addGoods(obj,data){
-		obj.ruleForm.picChange=0;
 		//console.log(data)
 		if(obj.dialogFlag!=0){
 			data.id=obj.dialogFlag;
@@ -624,7 +649,7 @@
 		.then(response=>{
 			//console.log(response)
 			obj.ruleForm.disabled=false;
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  message: '操作成功!',
 				  type: 'success'
@@ -633,10 +658,12 @@
 				obj.dialogFlag=0;
 				goodsList(obj);
 			}else{
-				obj.$message.error('新增商品失败！');
+				obj.ruleForm.picChange=0;
+				obj.$message.error(response.data.retMsg);
 			}
 		})
 		.catch((error)=>{
+			obj.ruleForm.picChange=0;
 			obj.ruleForm.disabled=false;
 	        console.log(error)
 			obj.$message.error('新增商品失败！');

@@ -153,7 +153,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.goodsOrderList;
 				obj.pageTotal=response.data.coutNum;
 			}else{

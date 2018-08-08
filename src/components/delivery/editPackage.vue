@@ -591,6 +591,7 @@ export default {
 		            let brandArr=this.ruleForm.selectBrand.split(',');
 		            
 		            let data={
+		            	'id':this.id,
 		            	'designId':this.ruleForm.programmeID,
 		            	'designName':this.ruleForm.programmeName,
 		            	'templateTypeId':modelTypeArr[0],

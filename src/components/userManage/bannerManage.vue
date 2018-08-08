@@ -132,7 +132,7 @@
 			let checkPic=(rule, value, callback)=>{
 				//console.log(this.ruleForm.fileList)
 				if(this.ruleForm.fileList.length==0){
-					callback(new Error('请选择楼盘封面！'))
+					callback(new Error('请选择banner图！'))
 				}else{
 					callback();
 				}
@@ -400,7 +400,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.banners;
 				obj.pageTotal=response.data.countNum;
 			}else{
@@ -420,7 +420,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  	message: '操作成功!',
 				  	type: 'success'
@@ -445,7 +445,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  	message: '操作成功!',
 				  	type: 'success'
@@ -498,7 +498,7 @@
 		obj.$ajax.post(obj.$store.state.localIP+"saveBanner",data)
 		.then(response=>{
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.ruleForm.disabled=false;
 				obj.$message({
 				  message: '操作成功!',
@@ -526,7 +526,7 @@
 			obj.formLoading=false;
 			obj.ruleForm.disabled=false;
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.ruleForm.packageArr=response.data.designInfos;
 				callback();
 			}else{

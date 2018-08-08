@@ -27,7 +27,7 @@
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="houseName" label="楼盘名" width="150">
+				<el-table-column prop="houseName" label="楼盘名" maxlength='20' width="150">
 				</el-table-column>
 				<el-table-column prop="city" label="城市" width="150">
 				</el-table-column>
@@ -398,7 +398,7 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.tableData=response.data.housesList;
 				obj.pageTotal=response.data.countNum;
 			}else{
@@ -416,7 +416,7 @@
 		obj.$ajax.post(obj.$store.state.localIP+"saveHouses",data)
 		.then(response=>{
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.ruleForm.disabled=false;
 				obj.$message({
 				  message: '操作成功!',
@@ -455,7 +455,7 @@
 		obj.$ajax.post(obj.$store.state.localIP+"deleteHouses",data)
 		.then(response=>{
 			//console.log(response)
-			if(response.data.retMsg==0){
+			if(response.data.retCode==0){
 				obj.$message({
 				  message: '操作成功!',
 				  type: 'success'
