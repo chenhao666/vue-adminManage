@@ -705,35 +705,27 @@ function renderpic(obj){
       	background: 'rgba(0, 0, 0, 0.6)'
    });
 	let data={
-		'url':'https://openapi.kujiale.com/v2/renderpic/list',
+		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
 		'KujiaLe':{
-			'design_id':obj.ruleForm.programmeID,
-			'start':0,
-			'num':50
+			'designId':obj.ruleForm.programmeID
 		},
 		'params':'',
 		'method':'get'
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
+		//console.log(res)
 		loading.close();
 		if(res.data.c==0){
 			obj.$message({
-				message: '渲染图获取成功!',
+				message: '获取方案详情成功!',
 				type: 'success'
 			});
-			obj.ruleForm.picArr=res.data.d.result;
-			let list=obj.ruleForm.picArr;
-			//console.log(obj.ruleForm.picArr)
-			for(let i=0;i<list.length;i++){
-				if(list[i].img==obj.ruleForm.selectPic){
-					obj.ruleForm.picShow=i;
-				}
-			}
-			roamPic(obj,res.data.d.result);
+			var fpid=res.data.d.planId;
+			roamPic(obj,fpid);
 			//console.log(obj.ruleForm.picArr)
 		}else{
-			obj.$message.error("获取渲染图列表出错~~");
+			obj.$message.error("获取方案详情失败~~");
 		}
 	})
 	.catch((error)=>{
@@ -742,8 +734,8 @@ function renderpic(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-///生成全屋漫游图
-function roamPic(obj,picArr){
+//生成全屋漫游图
+function roamPic(obj,fpid){
 	let loading=obj.$loading({
        	lock: true,
       	text: '漫游图获取中',
@@ -765,7 +757,7 @@ function roamPic(obj,picArr){
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
 		loading.close();
-		console.log(res)
+		//console.log(res)
 		if(res.data.c==0){
 			obj.$message({
 				message: '获取全屋漫游图成功!',
@@ -773,7 +765,13 @@ function roamPic(obj,picArr){
 			});
 			if(res.data.d){
 				if(res.data.d.result.length>0){
-					obj.ruleForm.roamPic=res.data.d.result[res.data.d.result.length-1];
+					var index=res.data.d.result.indexOf('https://yun.kujiale.com/design/'+fpid+'/show');
+					if(index>-1){
+						obj.ruleForm.roamPic=res.data.d.result[index];
+						//console.log(obj.ruleForm.roamPic)
+					}else{
+						obj.$message.error("暂未生成全景图！");	
+					}
 				}
 			}
 		}else{

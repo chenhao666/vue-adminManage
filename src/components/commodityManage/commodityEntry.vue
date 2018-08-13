@@ -146,7 +146,7 @@
 					  :on-error="uploadError"
 					  :on-change="changePic"
 					  :data="ruleForm.uploadData"
-					  limit="9"
+					  :limit="9"
 					  :on-exceed="onExceed"
 					  :auto-upload="false">
 					  <i class="el-icon-plus"></i>
@@ -407,7 +407,7 @@
 		    removePic(file, fileList){
 		    	this.ruleForm.fileList=[];
 		    	this.ruleForm.fileList=fileList;
-		    	this.ruleForm.picNum=this.ruleForm.picNum-1;
+		    	this.ruleForm.picNum=0;
 		    },
 		    //上传失败
 		    uploadError(err, file, fileList){
@@ -422,7 +422,7 @@
 			        	const loading =openLoad(this,"Loading...");
 			        	//console.log(this.ruleForm.picChange)
 			        	if(this.ruleForm.picChange){
-			        		console.log(2)
+			        		//console.log(2)
 			        		this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
 					        .then((response)=>{
 					        	//console.log(response);
@@ -447,7 +447,7 @@
 								this.$message.error('获取token失败！');
 							})
 			        	}else{
-			        		console.log(1)
+			        		//console.log(1)
 			        		loading.close();
 			        		var list=this.ruleForm.fileList;
 			        		var coverPic='';
@@ -499,6 +499,7 @@
 		    },
 		    //搜索
 		    searchUser(){
+		    	this.currentPage=1;
 		    	goodsList(this);
 		    }
 		}

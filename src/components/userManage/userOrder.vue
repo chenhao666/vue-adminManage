@@ -126,6 +126,7 @@
 		    },
 		    //搜索订单
 		    searchOrder(){
+		    	this.currentPage=1;
 		    	orderList(this);
 		    }
 		}

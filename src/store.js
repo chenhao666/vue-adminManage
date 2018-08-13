@@ -53,7 +53,7 @@ const state={
 	status:1,
 	//及时聊天对象数组
 	friendList:sessionStorage.getItem('chat') || [],
-	qiniuUrl:'http://p9mugwb52.bkt.clouddn.com/'
+	qiniuUrl:'http://images.wojiali.cn/'
 }
 stateValue(state);
 //触发状态
