@@ -67,6 +67,8 @@ li{ list-style: none outside none;}
 
 .icon-orderManage:before { content: "\e618"; }
 
+.icon-uparrow-top:before { content: "\e62b"; }
+
 .icon-mima:before { content: "\e6b2"; }
 
 .icon-bianji:before { content: "\e67f"; }
@@ -100,6 +102,8 @@ li{ list-style: none outside none;}
 .icon-gongdikaifang:before { content: "\e604"; }
 
 .icon-tupian:before { content: "\e650"; }
+
+.icon-uparrow-bottom:before { content: "\e6cb"; }
 
 .iconfont{
 	vertical-align: middle;

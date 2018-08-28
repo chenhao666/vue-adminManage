@@ -554,13 +554,13 @@
 				obj.tableData=response.data.goodsInfomations;
 				obj.pageTotal=response.data.countNum;
 			}else{
-				obj.$message.error('获取品牌列表失败！');
+				obj.$message.error('获取商品列表失败！');
 			}
 		})
 		.catch((error)=>{
 			loading.close();
 	        console.log(error)
-			obj.$message.error('获取品牌列表失败！');
+			obj.$message.error('获取商品列表失败！');
 		})
 	}
 	//删除商品

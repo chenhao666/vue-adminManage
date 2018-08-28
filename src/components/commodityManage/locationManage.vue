@@ -3,13 +3,13 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">商品管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">商品套餐包</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">位置管理</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>商品套餐包</span>
+				<span>位置管理</span>
 			</div>
 			<div class="line"></div>
 			
@@ -17,19 +17,19 @@
 			<div class="editBtn">
 				<!--<el-button type="primary" class="iconBox"><span class="iconfont icon-uparrow-top"></span></el-button>
 				<el-button type="primary" class="iconBox"><span class="iconfont icon-uparrow-bottom"></span></el-button>-->
-				<el-button @click="addClass" type="primary"><span class="iconfont icon-crm11"></span>添加分类</el-button>
+				<el-button @click="addClass" type="primary"><span class="iconfont icon-crm11"></span>添加位置</el-button>
 				<div class="clear"></div>
 			</div>
 			
 			<!--商品套餐包-->
 			<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark">
-				<el-table-column prop="packgeName" label="分类">
+				<el-table-column prop="typeName" label="位置">
 				</el-table-column>
-				<el-table-column prop="packgeName" label="必选">
+				<!--<el-table-column prop="typeName" label="默认选择">
 					<template slot-scope="props">
 						<div>{{ props.row.isCheck ? '是' : '否' }}</div>
 					</template>
-				</el-table-column>
+				</el-table-column>-->
 				<el-table-column label="操作">
 			      <template slot-scope="scope">
 			      	<el-button
@@ -77,13 +77,8 @@
 			  <!--表单开始-->
 			  <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="85px">
 				
-			  	<el-form-item label="分类名称" prop="name">
+			  	<el-form-item label="位置名称" prop="name">
 			  		<el-input v-model="ruleForm.name"  @change="inputFlag=1"></el-input>
-			  	</el-form-item>
-			  	
-			  	<el-form-item label="默认必选" @change="inputFlag=1">
-			  		<el-radio v-model="ruleForm.radio" label="1">是</el-radio>
-  					<el-radio v-model="ruleForm.radio" label="0">否</el-radio>
 			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
@@ -113,7 +108,7 @@
 		        ruleForm:formInit(),
 		        rules:{
 		        	name:[
-		        		{ required: true, message: '请输入分类名称', trigger: 'blur' }
+		        		{ required: true, message: '请输入位置名称', trigger: 'blur' }
 		        	]
 		        }
 			}
@@ -136,17 +131,10 @@
 		      this.currentPage=val;
 		      pachageList(this);
 		    },
-		    //添加分类
-		    addClass(){
-		    	this.ruleForm=formInit();
-		      	this.dialogTitle="添加分类";
-		      	this.dialogVisible = true;//打开弹窗
-		      	this.dialogFlag=0;
-		    },
 		    //上移
 		    handleEditTop(index, row) {
 		    	const loading =openLoad(this,"Loading...");
-		    	this.$ajax.post(this.$store.state.localIP+'updatePackSpace',{packageId:row.packageId})
+		    	this.$ajax.post(this.$store.state.localIP+'updateSpace',{id:row.id})
 			   	.then((response)=>{
 			   		loading.close();
 			   		if(response.data.retCode==0){
@@ -165,23 +153,29 @@
 			   		this.$message.error('网络错误~~！');
 			   	})
 		    },
+		    //添加位置
+		    addClass(){
+		    	this.ruleForm=formInit();
+		      	this.dialogTitle="添加位置";
+		      	this.dialogVisible = true;//打开弹窗
+		      	this.dialogFlag=0;
+		    },
 		    //编辑
       		handleEdit(index, row) {
 				this.ruleForm=formInit();
-		      	this.dialogTitle="编辑分类";
+		      	this.dialogTitle="编辑位置";
 		      	this.dialogVisible = true;//打开弹窗
-		      	this.dialogFlag=row.packageId;
-		      	this.ruleForm.name=row.packgeName;
-		      	this.ruleForm.radio=row.isCheck.toString();
+		      	this.dialogFlag=row.id;
+		      	this.ruleForm.name=row.typeName;
       		},
 	     	//删除
 	      	handleDelete(index, row) {
-	      		this.$confirm('确定删除当前分类吗?', '提示', {
+	      		this.$confirm('确定删除当前位置吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
 		        }).then(() => {
-		          let data={"packageId":row.packageId};
+		          let data={"id":row.id};
 		          delPackage(this,data);
 		        }).catch(() => {
 		          this.$message({
@@ -196,13 +190,12 @@
 			        if (valid) {
 			        	const loading =openLoad(this,"Loading...");
 			        	var data={
-			        		packgeName:this.ruleForm.name,
-			        		isCheck:this.ruleForm.radio
+			        		typeName:this.ruleForm.name
 			        	}
 			        	if(this.dialogFlag!=0){
-			        		data.packageId=this.dialogFlag;
+			        		data.id=this.dialogFlag;
 			        	}
-			        	this.$ajax.post(this.$store.state.localIP+'saveGoodspackage',data)
+			        	this.$ajax.post(this.$store.state.localIP+'saveSpace',data)
 			        	.then((response)=>{
 			        		loading.close();
 			        		if(response.data.retCode==0){
@@ -261,15 +254,14 @@
 	//表单初始化
 	function formInit(){
 		let data={
-		        name: '',//分类名称
-		        radio:'0'
+		        name: ''//位置名称
 	        }
 		return data;
 	}
 	//获取包列表
 	function pachageList(obj){
 		const loading =openLoad(obj,"获取列表中...");
-		obj.$ajax.post(obj.$store.state.localIP+"queryGoodsPackage",{
+		obj.$ajax.post(obj.$store.state.localIP+"querySpaceList",{
 			"start":(obj.currentPage-1)*obj.pageSize,
 			"length":obj.pageSize
 		})
@@ -277,22 +269,22 @@
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.tableData=response.data.goodsPackages;
+				obj.tableData=response.data.spaceList;
 				obj.pageTotal=response.data.countNum;
 			}else{
-				obj.$message.error('获取分类列表失败！');
+				obj.$message.error('获取位置列表失败！');
 			}
 		})
 		.catch((error)=>{
 			loading.close();
 	        console.log(error)
-			obj.$message.error('获取分类列表失败！');
+			obj.$message.error('获取位置列表失败！');
 		})
 	}
 	//删除包
 	function delPackage(obj,data){
 		const loading =openLoad(obj,"Loading...");
-		obj.$ajax.post(obj.$store.state.localIP+"deleteGoodspackage",data)
+		obj.$ajax.post(obj.$store.state.localIP+"deleteSpace",data)
 		.then(response=>{
 			loading.close();
 			//console.log(response)
@@ -301,7 +293,7 @@
 				  message: '删除成功!',
 				  type: 'success'
 				});
-				var list=data.packageId.toString();
+				var list=data.id.toString();
 				if(list.indexOf(',')>-1){
 					var listArr=list.split(',');
 					obj.pageTotal-=listArr.length;

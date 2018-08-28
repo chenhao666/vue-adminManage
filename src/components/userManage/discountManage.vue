@@ -136,8 +136,8 @@
 		data () {
 			//折扣验证
 			let checkDiscount=(rule, value, callback)=>{
-				//console.log(this.ruleForm.fileList)
-				if(this.ruleForm.discount!=parseFloat(this.ruleForm.discount) || this.ruleForm.discount.indexOf('-')>-1){
+				console.log(this.ruleForm.discount)
+				if(this.ruleForm.discount!=parseFloat(this.ruleForm.discount) || this.ruleForm.discount.toString().indexOf('-')>-1){
 					callback(new Error('请输入正确的折扣！'))
 				}else{
 					callback();
