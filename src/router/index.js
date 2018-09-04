@@ -76,16 +76,18 @@ import BrandManage from '@/components/userManage/BrandManage'
 import StyleManage from '@/components/userManage/styleManage'
 //用户管理-折扣管理
 import DiscountManage from '@/components/userManage/discountManage'
-//用户管理-订单管理
-import UserOrder from '@/components/userManage/userOrder'
-//用户管理-订单管理-订单详情
-import userOrderInfo from '@/components/userManage/orderInfo'
+
 //商品管理-商品管理
 import CommodityEntry from '@/components/commodityManage/commodityEntry'
 //商品管理-套餐包管理
 import CommodityPackage from '@/components/commodityManage/commodityPackage'
 //商品管理-位置管理
 import LocationManage from '@/components/commodityManage/locationManage'
+
+//订单-订单管理
+import PackageOrder from '@/components/userOrder/userOrder'
+//订单-订单管理-订单详情
+import userOrderInfo from '@/components/userOrder/orderInfo'
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -272,12 +274,12 @@ export default new Router({
       		name:'用户管理-折扣管理',
       		component:DiscountManage		
       	},{
-      		path:'userManage/userOrder',
-      		name:'用户管理-订单管理',
-      		component:UserOrder		
+      		path:'userOrder/packageOrder',
+      		name:'订单-订单管理',
+      		component:PackageOrder		
       	},{
-      		path:'userManage/userOrder/:code',
-      		name:'用户管理-订单管理-订单详情',
+      		path:'userOrder/orderInfo/:code',
+      		name:'订单-订单详情',
       		component:userOrderInfo		
       	},{
       		path:'commodityManage/commodityEntry',

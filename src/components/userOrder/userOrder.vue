@@ -2,14 +2,14 @@
 	<div class="userPrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">用户管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">套餐订单</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>订单管理</span>
+				<span>套餐订单</span>
 			</div>
 			<div class="line"></div>
 			
@@ -28,16 +28,16 @@
 					<div class="clear"></div>
 				</div>
 			</div>
-			<!--品牌列表-->
+			<!--订单列表-->
 			<el-table border :data="tableData" :stripe="true" tooltip-effect="dark" >
 				<!--<el-table-column type="selection" width="55">
 				</el-table-column>-->
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="orderNo" label="订单编号" width="150" show-overflow-tooltip>
+				<el-table-column prop="orderNo" label="订单编号" width="220" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="city" label="城市" width="100">
+				<el-table-column prop="city" label="城市" width="80" show-overflow-tooltip>
 				</el-table-column>
 				<el-table-column prop="updateTime" label="创建时间" width="100">
 					<template slot-scope="props">
@@ -45,15 +45,28 @@
 						<div>{{ timeFomit(props.row.updateTime)[1] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="address" label="地址" width="150" show-overflow-tooltip>
+				<el-table-column prop="address" label="地址" min-width="100" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="linkman" label="客户" width="100">
+				<el-table-column prop="linkman" label="客户" width="80" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="totalAmout" label="金额" width="100">
+				<el-table-column prop="totalAmout" label="金额" width="80">
+					<template slot-scope="props">
+						<div>￥{{ props.row.totalAmout/100 }}</div>
+					</template>
 				</el-table-column>
-				<el-table-column prop="orderStatus" label="支付状态" width="100">
+				<el-table-column prop="alreadyAmount" label="已付" width="80">
+					<template slot-scope="props">
+						<div>￥{{ props.row.alreadyAmount/100 }}</div>
+					</template>
+				</el-table-column>
+				<el-table-column prop="orderStatus" label="支付状态" width="80" show-overflow-tooltip>
 					<template slot-scope="props">
 						<div>{{ stateList[props.row.orderStatus] }}</div>
+					</template>
+				</el-table-column>
+				<el-table-column prop="orderStatus" label="备注" width="80" show-overflow-tooltip>
+					<template slot-scope="props">
+						<div><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.row)">{{ props.row.remark ? props.row.remark : '备注' }}</a></div>
 					</template>
 				</el-table-column>
 				<el-table-column  label="操作">
@@ -77,6 +90,30 @@
 			</div>
 			<div class="clear"></div>
 		</el-card>
+		<!--dialog弹窗-->
+		<div class="edit_dialog">
+			<el-dialog
+			  title="备注"
+			  :visible.sync="dialogVisible"
+			  width="600px"
+			  :append-to-body="true"
+			  :close-on-click-modal="false"
+			  >
+			  <!--表单开始-->
+			  <el-form ref="ruleForm" :model="ruleForm" label-width="85px">
+				
+			  	<el-form-item label="备注信息">
+			  		<el-input v-model="ruleForm.desc"  @change="inputFlag=1"></el-input>
+			  	</el-form-item>
+			  	
+			  	
+			  </el-form>
+			  <!--表单结束-->
+			  <span slot="footer" class="dialog-footer">
+			    <el-button type="primary" @click="submitForm('ruleForm')" :disabled="ruleForm.disabled">确 定</el-button>
+			  </span>
+			</el-dialog>
+		</div>
 	</div>
 </template>
 
@@ -85,13 +122,18 @@
 		name:'userPrder',
 		data () {
 			return {
+				dialogVisible:false,
+				selectOrderNum:'',
 				tableData:[],
 				searchName:'',//搜索客户
 				searchNum:'',//搜索订单编号
 				currentPage: 1,//分页当前页数
 		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
-		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成']
+		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成'],
+		        ruleForm:{
+		        	desc:''
+		        }
 			}
 		},
 		mounted(){
@@ -119,16 +161,58 @@
 		    },
 		    //查看详情
 		    handleEdit(index, row){
-		    	console.log(row)
+		    	//console.log(row)
 		    	var num = Base64.encode(row.orderNo);
 		    	var state=Base64.encode(row.orderStatus);
-		    	this.$router.push({path:'/userManage/userOrder/'+num,query:{state:state}})
+		    	this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state}})
 		    },
 		    //搜索订单
 		    searchOrder(){
 		    	this.currentPage=1;
 		    	orderList(this);
-		    }
+		    },
+		    //备注
+		    descInfo(row){
+		    	this.selectOrderNum=row.orderNo;
+		    	//console.log(row);
+		    	this.ruleForm.desc=row.remark || '';
+		    	this.dialogVisible=true;
+		    },
+		     //提交表单
+		    submitForm(formName) {
+		      	this.$refs[formName].validate((valid) => {
+			        if (valid) {
+			        	this.dialogVisible=false;
+			        	const loading =openLoad(this,"Loading...");
+						this.$ajax.post(this.$store.state.localIP+"updateGoodsRemark",{
+							"remark":this.ruleForm.desc,
+							"orderNo":this.selectOrderNum
+						})
+						.then(response=>{
+							loading.close();
+							//console.log(response)
+							if(response.data.retCode==0){
+								this.$message({
+								  message: '备注成功!',
+								  type: 'success'
+								});
+								orderList(this);
+							}else{
+								this.$message.error('备注失败！');
+							}
+						})
+						.catch((error)=>{
+							loading.close();
+					        console.log(error)
+							this.$message.error('网络连接错误~~');
+						})
+			        	
+			        } else {
+			          	this.$message.error('表单提交失败！');
+			          	return false;
+			        }
+		      	});
+		    },
 		}
 	}
 	//打开loading

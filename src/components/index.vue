@@ -91,9 +91,9 @@ export default {
 				}, 
 				//关闭连接
 				onClosed: function ( message ) {
-					console.log("连接断开");
+					/*console.log("连接断开");
 					that.$message.error("即时通讯连接断开,请重新登录！");
-					that.$router.push({path:'/login'});
+					that.$router.push({path:'/login'});*/
 					//登录环信
 					/*if(sessionStorage.getItem(Base64.encode('IMUser')) && sessionStorage.getItem(Base64.encode('IMPsw'))){
 					  that.$imoption.user=Base64.decode(sessionStorage.getItem(Base64.encode('IMUser')));
@@ -126,6 +126,7 @@ export default {
 	width: 100%;
 }
 .v-aside{
+	width: 200px;
 	position: absolute;
 	height: 100%;
 	top: 0px;
@@ -133,6 +134,7 @@ export default {
 	padding-top: 61px;
 	background:#657576;
 	box-sizing: border-box;
+	overflow-x: hidden;
 }
 
 .v-content{

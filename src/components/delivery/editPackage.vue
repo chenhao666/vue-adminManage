@@ -3,13 +3,13 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  <el-breadcrumb-item>设计师</el-breadcrumb-item>
-		  <el-breadcrumb-item class="fontWeight">修改套餐模板</el-breadcrumb-item>
+		  <el-breadcrumb-item class="fontWeight">生成套餐模板</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>修改套餐模板</span>
+				<span>生成套餐模板</span>
 			</div>
 			<div class="line"></div>
 			
@@ -180,30 +180,33 @@
 							tooltip-effect="dark" 
 							style="width: 100%;" 
 							@selection-change="handleSelectionChange">
-							<el-table-column type="selection" width="55">
+							<el-table-column type="selection" width="55" :resizable="resizable" >
 							</el-table-column>
-							<!--<el-table-column prop="id" label="ID" width="50" show-overflow-tooltip>
+							<!--<el-table-column prop="id" :resizable="resizable"   label="ID" width="50" show-overflow-tooltip>
 							</el-table-column>-->
-							<el-table-column prop="packageName" label="套餐包" min-width="100" show-overflow-tooltip>
+							<el-table-column prop="packageName" :resizable="resizable"    label="套餐包" min-width="100" show-overflow-tooltip>
 							</el-table-column>
-							<el-table-column prop="typeName" label="位置" width="75">
+							<el-table-column prop="typeName" :resizable="resizable"   label="位置" width="75">
 							</el-table-column>
-							<el-table-column prop="species" label="类型" width="75">
+							<el-table-column prop="species" :resizable="resizable"   label="类型" width="75">
 							</el-table-column>
-							<el-table-column prop="title" label="图片" width="150">
+							<el-table-column prop="title" :resizable="resizable"   label="图片" width="150">
 								<template slot-scope="props">
 									<div><img :src="props.row.goodsSrc" alt="" style="width: 150px;height: auto;"/></div>
 								</template>
 							</el-table-column>
-							<el-table-column prop="goodsCode" label="编号" min-width="60">
+							<el-table-column prop="goodsCode" :resizable="resizable"   label="编号" min-width="60">
 							</el-table-column>
-							<el-table-column prop="goodsName" label="商品名称" min-width="80" show-overflow-tooltip>
+							<el-table-column prop="goodsName" :resizable="resizable"   label="商品名称" min-width="80" show-overflow-tooltip>
+								<template slot-scope="props">
+									<div><span @click="editGoods(props.row)" :class="props.row.species!='组合' ? 'hrefA' : ''">{{ props.row.goodsName }}</span></div>
+								</template>
 							</el-table-column>
-							<el-table-column prop="material" label="颜色材质" width="100" show-overflow-tooltip>
+							<el-table-column prop="material" :resizable="resizable"   label="颜色材质" width="100" show-overflow-tooltip>
 							</el-table-column>
-							<el-table-column prop="unitPrice" label="单价" width="75">
+							<el-table-column prop="unitPrice" :resizable="resizable"   label="单价" width="75">
 							</el-table-column>
-							<el-table-column prop="goodsNum" label="数量" width="60">
+							<el-table-column prop="goodsNum" :resizable="resizable"   label="数量" width="60">
 							</el-table-column>
 						</el-table>
 					</div>
@@ -222,7 +225,7 @@
 		<!--dialog弹窗-->
 		<div class="edit_dialog">
 			<el-dialog
-			  title="商品列表"
+			  title="商品"
 			  :visible.sync="addGoodsVisible"
 			  width="600px"
 			  :append-to-body="true"
@@ -242,7 +245,7 @@
 						<el-col :span="12">
 							<el-form-item label="位置：">
 								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false">
-									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.id+','+item.typeName"></el-option>
+									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.typeName"></el-option>
 								</el-select>
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].typeName : '' }}</span>
 							</el-form-item>
@@ -307,7 +310,8 @@
 				</el-form>
 				<!--表单结束-->
 				<span slot="footer" class="dialog-footer">
-			   		 <el-button type="primary" @click="addGoodsSave">确 定</el-button>
+			   		 <el-button type="primary" @click="addGoodsSave">确定</el-button>
+			   		 <el-button @click="goGoodsList" v-show="editGoodsFloag==0 ? true : false">返回</el-button>
 				</span>
 			</el-dialog>
 			
@@ -333,6 +337,11 @@
 					:stripe="true" 
 					tooltip-effect="dark" 
 					style="width: 100%;">
+					<el-table-column prop="goodsSrc" label="图片" min-width="75" show-overflow-tooltip>
+						<template slot-scope="props">
+							<img :src="props.row.goodsSrc" alt="" width="80%"/>
+						</template>
+					</el-table-column>
 					<el-table-column prop="goodsCode" label="编号" min-width="75" show-overflow-tooltip>
 					</el-table-column>
 					<el-table-column prop="goodsName" label="名称" min-width="75" show-overflow-tooltip>
@@ -387,7 +396,7 @@
 						  :on-error="uploadError"
 						  :on-change="changePic"
 						  :data="goods.uploadData"
-						  :limit="9"
+						  :limit="1"
 						  :on-exceed="goodsExceed"
 						  :auto-upload="false">
 						  <i class="el-icon-plus"></i>
@@ -422,18 +431,8 @@
 			  <!--表单开始-->
 			  	<el-form :model="form" label-width="85px" v-if='dialogVisible'>
 			  		<el-form-item label="区域类型：">
-			  			<el-select v-model="form.areaType" placeholder="请选择类型" @change="inputFlag=1">
-							<el-option label="客厅" value="1,客厅"></el-option>
-							<el-option label="厨房" value="2,厨房"></el-option>
-							<el-option label="主卧" value="3,主卧"></el-option>
-							<el-option label="次卧" value="4,次卧"></el-option>
-							<el-option label="餐厅" value="5,餐厅"></el-option>
-							<el-option label="儿童房" value="6,儿童房"></el-option>
-							<el-option label="老人房" value="7,老人房"></el-option>
-							<el-option label="书房" value="8,书房"></el-option>
-							<el-option label="主卫" value="9,主卫"></el-option>
-							<el-option label="次卫" value="10,次卫"></el-option>
-							<el-option label="阳台" value="11,阳台"></el-option>
+						<el-select v-model="form.areaType" placeholder="请选择位置"  @change="inputFlag=1">
+							<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.id+','+item.typeName"></el-option>
 						</el-select>
 			  		</el-form-item>
 			  		<el-form-item label="图片上传：">
@@ -473,6 +472,8 @@ export default {
 	data(){
 		return{
 			id:0,
+			editGoodsFloag:0,
+			resizable:false,
 			goodsSearch:'',//商品搜索
 			selectGoods:{},//选中商品
 			selectGoodsType:0,
@@ -568,11 +569,7 @@ export default {
 				obj.ruleForm.houseModel=list[0].houseModel || "";
 				//简介
 				obj.ruleForm.introduction=list[0].intro || "";
-				//选中渲染图
-				if(list[0].coverPic){					
-					obj.ruleForm.selectPic=list[0].coverPic || "";
-					obj.ruleForm.selectBtn=true;
-				}
+				
 				//风格
 				if(list[0].styleId && list[0].styleName){					
 					obj.ruleForm.selectStyle=list[0].styleId+','+list[0].styleName;
@@ -589,8 +586,10 @@ export default {
 				//获取户型和面积
 				programeInfo(obj);
 				//获取渲染图
-				renderpic(obj);//渲染图列表
+				renderpic(obj,list[0]);//渲染图列表
 				roamPicInfo(obj);
+				styleList(obj);//获取风格列表
+				brandList(obj);//获取品牌列表
 				goodsList(obj);//获取商品列表
 			}else{
 				obj.$message.error(res.data.retMsg)
@@ -633,25 +632,7 @@ export default {
 	        }
 	    },
 	    handleSelectionChange(val) {
-	    	//console.log(val)
-	    	let changeValue="";
-	    	if(val.length!=this.tableData.length){
-		    	if(val.length>0){
-		    		changeValue=val[0].typeName;
-		    		var len=val.length;
-		    		for(let i=0;i<val.length;i++){
-		    			if(val[i].typeName!=changeValue){
-		    				this.$message({
-					          	showClose: true,
-					          	message: '请选择相同空间下商品组合或者全选商品组合！',
-					          	type: 'warning'
-					       });
-					       	this.$refs.multipleTable.toggleRowSelection(val[i],false);
-		    				val.pop();
-		    			}
-		    		}
-		    	}
-	    	}
+	    	//console.log(val)	
 	        this.multipleSelection = val;
 	    },
 		//选择方案
@@ -683,6 +664,7 @@ export default {
       	},
       	//dialog弹窗
       	showDilog(){
+      		querySpaceInfo(this,function(){});
       		this.inputFlag=0;
       		this.dialogFlag=0;
 	    	this.dialogTitle="新增描述";
@@ -806,9 +788,13 @@ export default {
 				desc:'',//区域描述
 				picurl:''
 			},*/
-	    	this.form.areaType=this.cardInfo[cardKey].areaTypeId+','+this.cardInfo[cardKey].areaTypeName;
-	    	this.form.desc=this.cardInfo[cardKey].details;
-	    	this.fileList=[{name:this.cardInfo[cardKey].areaTypeName,url:this.cardInfo[cardKey].coverPic}];
+			var that=this;
+			querySpaceInfo(this,function(){
+				that.form.areaType=that.cardInfo[cardKey].areaTypeId+','+that.cardInfo[cardKey].areaTypeName;
+	    		that.form.desc=that.cardInfo[cardKey].details;
+	    		that.fileList=[{name:that.cardInfo[cardKey].areaTypeName,url:that.cardInfo[cardKey].coverPic}];
+			});
+	    	
 	    },
       	//提交
       	submitForm(formName) {
@@ -933,34 +919,48 @@ export default {
 			}
       		var list=this.multipleSelection;
 			var listAll=this.tableData;
-	
-			for(var i=0;i<listAll.length;i++){
-				if(listAll[i].indexId==list[0].indexId){
-					this.tableData.splice(i,1);
+			
+			this.$confirm('确定拆分所选组合吗?', '提示', {
+		      confirmButtonText: '确定',
+		      cancelButtonText: '取消',
+		      type: 'warning'
+		    }).then(() => {
+		    	for(var i=0;i<listAll.length;i++){
+					if(listAll[i].indexId==list[0].indexId){
+						this.tableData.splice(i,1);
+					}
+					if(listAll[i].groupId==list[0].indexId){
+						this.tableData[i].groupId='';
+						this.tableData[i].species='单品';
+					}
 				}
-				if(listAll[i].groupId==list[0].indexId){
-					this.tableData[i].groupId='';
-					this.tableData[i].species='单品';
-				}
-			}
-			var listAll=this.tableData;
-	    	for(var i=0;i<listAll.length;i++){
-	    		this.tableData[i].indexId=i;
-	    	}
+				var listAll=this.tableData;
+		    	for(var i=0;i<listAll.length;i++){
+		    		this.tableData[i].indexId=i;
+		    	}
+		    	this.$refs.multipleTable.clearSelection();
+		    }).catch(() => {
+		      	this.$message({
+		        	type: 'info',
+		        	message: '已取消操作'
+		      	});          
+		    });
+			
       	},
       	//去组合
       	goGroup(){
       		var list=this.multipleSelection;
-      		if(this.multipleSelection==0){
+      		
+      		if(list.length<=1){
       			this.$message({
 				    showClose: true,
-				    message: '请选择要组合的商品！',
+				    message: '请选择至少2个要组合的商品！',
 				    type: 'warning'
 				});
 				return;
       		}
       		for(var i=0;i<list.length;i++){
-      			if(list[i].species=="组合" || list[i].species=="商品"){
+      			if(list[i].species=="商品"){
       				this.$message({
 					    showClose: true,
 					    message: '请选择单品进行组合！',
@@ -969,13 +969,80 @@ export default {
 					return;
       			}
       		}
-      		this.goods=initGoods();
-      		this.groupVisible=true;
+      		var packageId=list[0].packageId;
+      		for(var i=0;i<list.length;i++){
+      			if(list[i].packageId!=packageId){
+      				this.$message({
+					    showClose: true,
+					    message: '请选择相同套餐包下的商品进行组合！',
+					    type: 'warning'
+					});
+					return;
+      			}
+      		}
+      		var listAll=this.tableData;
+      		var typeName=list[0].typeName;
+      		var flag=0;//标记
+      		var num=0;
+      		for(var i=0;i<list.length;i++){
+      			for(var j=0;j<listAll.length;j++){
+      				if(list[i].typeName==listAll[j].typeName && listAll[j].species!="组合" && listAll[j].packageId==packageId){
+      					num++;
+      				}
+      			}
+      			if(list[i].typeName!=typeName){
+      				flag=1;
+      			}
+      		}
+      		//console.log(num)
+      		if(flag){
+      			if(list.length!=num){
+	      			this.$message({
+					    showClose: true,
+					    message: '跨空间商品需要全选当前空间所有商品！',
+					    type: 'warning'
+					});
+					return;
+	      		}
+      		}
+      		
+      		var speciesNum=0;
+      		var speciesGroupId=0;
+      		for(var i=0;i<list.length;i++){
+      			if(list[i].species=="组合"){
+      				speciesNum+=1;
+      				speciesGroupId=list[i].indexId;
+      			}
+      		}
+      		if(speciesNum>1){
+      			this.$message({
+				    showClose: true,
+				    message: '请选择一个组合进行组合操作！',
+				    type: 'warning'
+				});
+				return;
+      		}
+      		if(speciesNum==1){
+      			for(var i=0;i<list.length;i++){
+	      			if(list[i].species=="单品"){
+	      				for(var j=0;j<listAll.length;j++){
+	      					if(list[i].indexId==listAll[j].indexId){
+	      						listAll[j].species="商品";
+	      						listAll[j].groupId=speciesGroupId;
+	      					}
+	      				}
+	      			}
+	      		}
+      			this.tableData=sortData(listAll);
+      		}else{
+      			this.goods=initGoods();
+      			this.groupVisible=true;
+      		}
       	},
       	//商品图片上传
       	goodsExceed(){
       		this.$message({
-				message: '最多只允许上传9张',
+				message: '前先删除图片在进行上传操作',
 				type: 'warning'
 			});
       	},
@@ -993,12 +1060,14 @@ export default {
 		//图片上传
 		uploadSuccess(response, file, fileList){
 			var list=this.multipleSelection;
+			//console.log(list)
 			var listAll=this.tableData;
-			var index=0;
+			var index=-1;
 			for(var i=0;i<list.length;i++){
 				for(var j=0;j<listAll.length;j++){
 					if(list[i].indexId==listAll[j].indexId){
-						if(index!=0){
+						//console.log(j)
+						if(index!=-1){
 							if(parseInt(j)<parseInt(index)){
 								index=j;
 							}
@@ -1008,7 +1077,7 @@ export default {
 					}
 				}
 			}
-			
+			//console.log(index)
 			
 			var list=this.goods.fileList;
 			var num=this.goods.picNum;
@@ -1023,6 +1092,7 @@ export default {
 	    			coverPicArr.push(list[i].url);
 	    		}
 	    		coverPic=coverPicArr.join(',');
+	
 	    		var chirld={
 	    			goodsImages:coverPic,
 	    			goodsSrc:coverPicArr[0],
@@ -1057,6 +1127,7 @@ export default {
 	    		}
 	    	
 	    		this.groupVisible=false;
+	    		this.$refs.multipleTable.clearSelection();
 	    	}
 		},
 		//图片上传
@@ -1094,12 +1165,13 @@ export default {
 		},
 		//搜索商品
 		searchGoods(){
+			this.currentPage=1;
 			goodsListAll(this)
 		},
 		//选择商品
 		selectGoodsFun(val){
 			queryGoodsPackageList(this);
-			querySpaceInfo(this)
+			querySpaceInfo(this,function(){});
 			this.addGoods=initAddGoods();
 			this.goodsListVisible=false;
 			this.addGoodsVisible=true;
@@ -1110,7 +1182,7 @@ export default {
 		//新增商品
 		addGoodsFun(){
 			this.selectGoodsType=0;
-			goodsListAll(this);
+			//goodsListAll(this);
 			this.goodsListVisible=true;
 		},
 		//替换商品
@@ -1125,10 +1197,10 @@ export default {
 				return;
 			}
 			for(var i=0;i<list.length;i++){
-      			if(list[i].species=="组合" || list[i].species=="商品"){
+      			if(list[i].species=="组合"){
       				this.$message({
 					    showClose: true,
-					    message: '请选择单品进行替换！',
+					    message: '请选择单品或者子商品进行替换！',
 					    type: 'warning'
 					});
 					return;
@@ -1136,6 +1208,11 @@ export default {
       		}
 			this.selectGoodsType=1;
 			goodsListAll(this);
+			this.goodsListVisible=true;
+		},
+		//返回
+		goGoodsList(){
+			this.addGoodsVisible =false;
 			this.goodsListVisible=true;
 		},
 		//删除商品
@@ -1157,11 +1234,20 @@ export default {
 				var listAll=this.tableData;
 				for(var i=0;i<list.length;i++){
 					for(var j=0;j<listAll.length;j++){
+						if(list[i].indexId==listAll[j].groupId){
+							list.push(listAll[j]);
+						}
+					}
+				}
+				
+				for(var i=0;i<list.length;i++){
+					for(var j=0;j<listAll.length;j++){
 						if(list[i].indexId==listAll[j].indexId){
 							this.tableData.splice(j,1);
 						}
 					}
 				}
+				
 				var listAll=this.tableData;
 		    	for(var i=0;i<listAll.length;i++){
 		    		this.tableData[i].indexId=i;
@@ -1178,51 +1264,113 @@ export default {
 			var listAll=this.tableData;
 			var child=this.selectGoods;
 			var selectList=this.multipleSelection;
-			if(this.selectGoodsType==0){
-				if(this.addGoods.selectPackage){
-					var selectPackageArr=this.addGoods.selectPackage.split(',');
-					child.packageName=selectPackageArr[1];
-					child.packageId=selectPackageArr[0];
+			if(this.editGoodsFloag==0){
+				if(this.selectGoodsType==0){
+					if(this.addGoods.selectPackage){
+						var selectPackageArr=this.addGoods.selectPackage.split(',');
+						child.packageName=selectPackageArr[1];
+						child.packageId=selectPackageArr[0];
+					}
+					if(this.addGoods.selectLocation){
+						child.typeName=this.addGoods.selectLocation;
+					}
+				}else{
+					child.packageName=selectList[0].packageName || '';
+					child.packageId=selectList[0].packageId || '';
+					child.typeName=selectList[0].typeName || '';
+					child.designId=selectList[0].designId || '';
+		    		child.roomId=selectList[0].roomId || '';
+		    		child.groupId=selectList[0].groupId || '';
+		    		child.replaceId=selectList[0].indexId;
 				}
-				if(this.addGoods.selectLocation){
-					var selectPackageArr=this.addGoods.selectLocation.split(',');
-					child.typeName=selectPackageArr[1];
+				if(this.addGoods.num){
+					child.goodsNum=this.addGoods.num;
 				}
-			}else{
-				child.packageName=selectList[0].packageName || '';
-				child.packageId=selectList[0].packageId || '';
-				child.typeName=selectList[0].typeName || '';
-				child.designId=selectList[0].designId || '';
-	    		child.roomId=selectList[0].roomId || '';
-	    		child.replaceId=selectList[0].indexId+1;
-			}
-			if(this.addGoods.num){
-				child.goodsNum=this.addGoods.num;
-			}
-			child.species='单品';
-			if(child.goodsImages.indexOf(',')>-1){
-				var arr=child.goodsImages.split(',');
-				child.goodsSrc=arr[0];
-			}else{
-				child.goodsSrc=child.goodsImages;
-			}
-			if(this.selectGoodsType==0){
-				this.tableData.push(child);
-			}else{
-				child.species="替换";
-				for(var i=0;i<listAll.length;i++){
+				child.species='单品';
+				if(child.goodsImages.indexOf(',')>-1){
+					var arr=child.goodsImages.split(',');
+					child.goodsSrc=arr[0];
+				}else{
+					child.goodsSrc=child.goodsImages;
+				}
+				if(this.selectGoodsType==0){
+					var typeFlag=0;
+					var groupId='';
+					for(var i=0;i<listAll.length;i++){
+						if(listAll[i].typeName==child.typeName){
+							if(listAll[i].groupId){
+								typeFlag=1;
+								groupId=listAll[i].groupId;
+							}else{
+								typeFlag=0;
+							}
+						}
+					}
+					if(typeFlag){
+						for(var i=0;i<listAll.length;i++){
+							if(listAll[i].groupId==groupId){
+								if(listAll[i].typeName!=child.typeName && listAll[i].packageId==child.packageId){
+									child.groupId=groupId;
+									child.species='商品';
+								}
+							}
+						}
+					}
+					this.tableData.push(child);
+				}else{
+					child.species="替换";
+					for(var i=0;i<listAll.length;i++){
+						if(listAll[i].indexId==selectList[0].indexId){
+							this.tableData.splice(i+1,0,child);
+							break;
+						}
+					}
+				}
+				//console.log(child)
+				var listAll=this.tableData;
+		    	for(var i=0;i<listAll.length;i++){
+		    		this.tableData[i].indexId=i;
+		    	}
+		   	}else{
+		   		for(var i=0;i<listAll.length;i++){
 					if(listAll[i].indexId==selectList[0].indexId){
-						this.tableData.splice(i,0,child);
+						var arr=this.addGoods.selectPackage.split(',');
+						this.tableData[i].packageId=arr[0];
+						this.tableData[i].packageName=arr[1];
+						this.tableData[i].typeName=this.addGoods.selectLocation;
+						this.tableData[i].goodsNum=this.addGoods.num;
+						this.$refs.multipleTable.toggleRowSelection(this.tableData[i],true);
 						break;
 					}
 				}
-			}
-			//console.log(child)
-			var listAll=this.tableData;
-	    	for(var i=0;i<listAll.length;i++){
-	    		this.tableData[i].indexId=i;
-	    	}
+		   		//console.log(this.tableData)
+		   		
+		   		this.editGoodsFloag=0;
+		   	}
+		   	this.$refs.multipleTable.clearSelection();
 			this.addGoodsVisible=false;
+		},
+		//编辑商品
+		editGoods(val){
+			this.editGoodsFloag=1;
+			//console.log(val)
+			queryGoodsPackageList(this);
+			querySpaceInfo(this,function(){});
+			this.multipleSelection=[val];
+			this.selectGoods=val;
+			if(val.species=='单品' || val.species=='商品'){
+				this.addGoodsVisible=true;
+				this.addGoods.selectPackage=val.packageId+','+val.packageName;
+				this.addGoods.selectLocation=val.typeName;
+				this.addGoods.num=val.goodsNum;
+			}
+			if(val.species=='替换'){
+				this.selectGoodsType=1;
+				this.addGoodsVisible=true;
+				this.addGoods.selectPackage=val.packageId+','+val.packageName;
+				this.addGoods.selectLocation=val.typeName;
+				this.addGoods.num=val.goodsNum;
+			}
 		}
     }
 }
@@ -1237,8 +1385,8 @@ function openLoad(obj){
     });
     return loading;
 }
-//获取方案信息
-function programeInfo(obj,callback){
+//获取户型和面积
+function programeInfo(obj){
 	const loading =openLoad(obj);
 	let data={
 		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
@@ -1253,7 +1401,6 @@ function programeInfo(obj,callback){
 		obj.ruleForm.homeArea=res.data.d.srcArea;
 		obj.ruleForm.planPic=res.data.d.planPic;
 		loading.close();
-		callback(res);
 	})
 	.catch((error)=>{
 		loading.close();
@@ -1294,7 +1441,7 @@ function brandList(obj){
 	})
 }
 //获取方案渲染图列表
-function renderpic(obj){
+function renderpic(obj,list){
 	const loading=obj.$loading({
        	lock: true,
       	text: '渲染图获取中',
@@ -1321,6 +1468,18 @@ function renderpic(obj){
 				type: 'success'
 			});
 			obj.ruleForm.picArr=res.data.d.result;
+			//选中渲染图
+			if(list.coverPic){					
+				var arr=obj.ruleForm.picArr;
+				obj.ruleForm.selectPic=list.coverPic || "";
+				for(var i=0;i<arr.length;i++){
+					if(arr[i].img==list.coverPic){
+						obj.ruleForm.picShow=i;
+						break;
+					}
+				}
+				obj.ruleForm.selectBtn=true;
+			}
 			//roamPic(obj,res.data.d.result);
 			//console.log(obj.ruleForm.picArr)
 		}else{
@@ -1408,7 +1567,7 @@ function roamPic(obj,fpid){
 						obj.ruleForm.roamPic=res.data.d.result[index];
 						//console.log(obj.ruleForm.roamPic)
 					}else{
-						obj.$message.error("暂未生成全景图！");	
+						obj.$message.error("获取全屋漫游图失败！");	
 					}
 				}
 			}
@@ -1481,7 +1640,7 @@ function goodsList(obj){
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
    });
-	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.ruleForm.programmeID})
+	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.ruleForm.programmeID,type:'1'})
 	.then(response=>{
 		//console.log(response);
 		var list=response.data.goodsList;
@@ -1528,8 +1687,18 @@ function goodsListAll(obj){
 		loading.close();
 		//console.log(response)
 		if(response.data.retCode==0){
-			obj.goodsData=response.data.goodsInfomations;
+			var list=response.data.goodsInfomations;
+			//console.log(list)
 			obj.pageTotal=response.data.countNum;
+			for(var i=0;i<list.length;i++){
+				if(list[i].goodsImages.indexOf(',')>-1){
+					var arr=list[i].goodsImages.split(',');
+					list[i].goodsSrc=arr[0];
+				}else{
+					list[i].goodsSrc=list[i].goodsImages;
+				}	
+			}
+			obj.goodsData=list;
 		}else{
 			obj.$message.error('获取商品列表失败！');
 		}
@@ -1571,7 +1740,7 @@ function queryGoodsPackageList(obj){
 	})
 }
 //获取位置列表
-function querySpaceInfo(obj){
+function querySpaceInfo(obj,callback){
 	//console.log(obj.currentPage)
 	const loading =openLoad(obj);
 	obj.$ajax.post(obj.$store.state.localIP+"querySpaceInfo")
@@ -1580,6 +1749,7 @@ function querySpaceInfo(obj){
 		//console.log(response)
 		if(response.data.retCode==0){
 			obj.addGoods.locationList=response.data.spaces;
+			callback();
 		}else{
 			obj.$message.error('获取位置列表失败！');
 		}
@@ -1610,6 +1780,29 @@ function packageInfo(obj,callback){
 		console.log(error);
 		obj.$message.error("网络连接错误~~");
 	})
+}
+//排序
+function sortData(list){
+	console.log(list)
+	var arr=[];
+	for(var i=0;i<list.length;i++){
+		if(list[i].groupId){
+			console.log(1)
+			for(var j=0;j<arr.length;j++){
+				if(arr[j].indexId==list[i].groupId){
+					arr.splice(j,0,list[i]);
+				}
+			}
+		}else{
+			console.log(2)
+			arr.push(list[i]);
+		}
+	}
+	for(var x=0;x<arr.length;x++){
+		arr[x].indexId=x;
+	}
+	console.log(arr)
+	return arr;
 }
 </script>
 

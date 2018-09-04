@@ -74,6 +74,7 @@
 <style scoped>
 .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 200px;
+    box-sizing: border-box;
     min-height: 100%;
  }
  .el-menu{

@@ -48,11 +48,22 @@
 				</el-table-column>
 				<el-table-column prop="typeName" label="空间名">
 				</el-table-column>
+				<el-table-column prop="packageName" label="套餐包">
+				</el-table-column>
+				<el-table-column prop="species" label="类型">
+				</el-table-column>
+				<el-table-column prop="goodsCode" label="编号">
+				</el-table-column>
+				<el-table-column prop="model" label="型号">
+				</el-table-column>
+				<el-table-column prop="material" label="颜色材质">
+				</el-table-column>
 				<el-table-column prop="number" label="数量" >
 				</el-table-column>
 				<el-table-column prop="unitPrice" label="单价">
-				</el-table-column>
-				<el-table-column prop="totalAmount" label="总价" >
+					<template slot-scope="props">
+						<div>￥{{ props.row.unitPrice/100 }}</div>
+					</template>
 				</el-table-column>
 			</el-table>
 			

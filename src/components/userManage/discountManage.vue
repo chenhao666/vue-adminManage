@@ -100,7 +100,7 @@
 			  	
 			  	<el-form-item label="选择类别：" prop="package">
 			  		<el-select v-model="ruleForm.package" placeholder="请选择包" @change="inputFlag=1">
-						<el-option v-for="(item,key) in ruleForm.packageList" :key="key"  :label="item.name" :value="item.id+','+item.name"></el-option>
+						<el-option v-for="(item,key) in ruleForm.packageList" :key="key"  :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
 					</el-select>
 			  	</el-form-item>
 			  	
@@ -439,28 +439,25 @@
 	}
 	//获取包列表
 	function packageList(obj,callback){
-		let data={
-			'url':'https://openapi.kujiale.com/v2/commodity/cat',
-			'KujiaLe':{
-				'index':1
-			},
-			'params':'',
-			'method':'get'
-		}
-		obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-		.then(res=>{
-			if(res.data.d.model){
+		const loading =openLoad(obj,"获取列表中...");
+		obj.$ajax.post(obj.$store.state.localIP+"queryGoodsPackageList")
+		.then(response=>{
+			loading.close();
+			//console.log(response)
+			if(response.data.retCode==0){
 				obj.formLoading=false;
-				obj.ruleForm.packageList=res.data.d.model;
+				obj.ruleForm.packageList=response.data.goodsPackages;
 				callback();
 			}else{
-				obj.$message.error("获取包列表失败！");	
+				obj.$message.error('获取包列表失败！');
 			}
 		})
-		.catch(error=>{
-			console.log(error);
-			obj.$message.error("获取包列表失败！");
+		.catch((error)=>{
+			loading.close();
+	        console.log(error)
+			obj.$message.error('获取包列表失败！');
 		})
+		
 	}
 	//获取折扣列表
 	function discountList(obj){
