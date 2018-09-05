@@ -114,6 +114,39 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
+				
+				<el-form-item label="楼盘选择：" prop='home' @change="inputFlag=1" v-show="ruleForm.urlKey==4">
+					<el-select v-model="ruleForm.selectHome" placeholder="请选择">
+					    <el-option
+					      v-for="item in ruleForm.homeList"
+					      :key="item.index"
+					      :label="item.houseName"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				
+				<el-form-item label="风格选择：" prop='style' @change="inputFlag=1" v-show="ruleForm.urlKey==4">
+					<el-select v-model="ruleForm.selectStyle" placeholder="请选择">
+					    <el-option
+					      v-for="item in ruleForm.styleList"
+					      :key="item.index"
+					      :label="item.styleName"
+					      :value="item.styleId">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				
+				<el-form-item label="品牌选择：" prop='brand' @change="inputFlag=1" v-show="ruleForm.urlKey==4">
+					<el-select v-model="ruleForm.selectBrand" placeholder="请选择">
+					    <el-option
+					      v-for="item in ruleForm.brandList"
+					      :key="item.index"
+					      :label="item.brandName"
+					      :value="item.brandId">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -163,6 +196,45 @@
 					callback();
 				}
 			};
+			//楼盘验证
+			let checkHome=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				if(this.ruleForm.urlKey==4){
+					if(this.ruleForm.selectHome==""){							
+						callback(new Error('请选择楼盘！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//风格验证
+			let checkStyle=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				if(this.ruleForm.urlKey==4){
+					if(this.ruleForm.selectStyle==""){							
+						callback(new Error('请选择风格！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//品牌验证
+			let checkBrand=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				if(this.ruleForm.urlKey==4){
+					if(this.ruleForm.selectBrand==""){							
+						callback(new Error('请选择品牌！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
 			return {
 				tableData:[],
 				currentPage:1,//当前页数
@@ -186,6 +258,15 @@
 		        	],
 		        	pic:[
 		        		{  required: true, validator: checkPic, trigger: 'blur' }
+		        	],
+		        	home:[
+		        		{  required: true, validator: checkHome, trigger: 'blur' }
+		        	],
+		        	style:[
+		        		{  required: true, validator: checkStyle, trigger: 'blur' }
+		        	],
+		        	brand:[
+		        		{  required: true, validator: checkBrand, trigger: 'blur' }
 		        	]
 		        }
 			}
@@ -197,6 +278,9 @@
 			//添加图片
 	      	addBanner(){
 	      		packageList(this,function(){});
+	      		homeInfo(this);
+	      		styleList(this);
+	      		brandList(this);
 	      		this.ruleForm=formInit();
 		      	this.dialogTitle="添加图片";
 		      	this.dialogVisible = true;//打开弹窗
@@ -225,6 +309,9 @@
       			//console.log(row)
       			this.dialogFlag=row.id;
       			this.ruleForm=formInit();
+      			homeInfo(this);
+	      		styleList(this);
+	      		brandList(this);
       			//console.log(row)
       			this.dialogTitle="编辑图片";
         		//修改信息
@@ -233,6 +320,11 @@
         		this.ruleForm.urlKey=parseInt(row.type);
         		if(row.type==3){
 					this.ruleForm.url=row.content;
+				}
+        		if(row.type==4){
+					this.ruleForm.selectBrand=row.brandId;
+					this.ruleForm.selectHome=row.houseId;
+					this.ruleForm.selectStyle=row.styleId;
 				}
         		var that=this;
 				packageList(this,function(){
@@ -304,6 +396,12 @@
 				if(this.ruleForm.urlKey==3){
 					data.content=this.ruleForm.url;
 				}
+				if(this.ruleForm.urlKey==4){
+					data.content='houseType';
+					data.brandId=this.ruleForm.selectBrand;
+					data.houseId=this.ruleForm.selectHome;
+					data.styleId=this.ruleForm.selectStyle;
+				}
 				if(this.dialogFlag!=0){
 	      			data.id=this.dialogFlag;
 	      		}
@@ -364,6 +462,11 @@
 							}
 							if(this.ruleForm.urlKey==3){
 								data.content=this.ruleForm.url;
+							}
+							if(this.ruleForm.urlKey==4){
+								data.brandId=this.ruleForm.selectBrand;
+								data.houseId=this.ruleForm.selectHome;
+								data.styleId=this.ruleForm.selectStyle;
 							}
 							if(this.dialogFlag!=0){
 				      			data.id=this.dialogFlag;
@@ -472,6 +575,12 @@
          		uploadData:{'token':''},//上传图片附带的token
          		coverPic:"",//banner图
          		picChange:0,
+         		homeList:[],//楼盘列表
+         		selectHome:'',//选中楼盘
+         		styleList:[],//风格列表
+         		selectStyle:'',//选中风格
+         		brandList:[],//品牌列表
+         		selectBrand:'',//选中品牌
          		urlKey:'',//跳转Key
          		url:'',//跳转URL
          		packageArr:[],//套餐包数组
@@ -486,6 +595,9 @@
 					},{
 						index:3,
 						value:'web链接'
+					},{
+						index:4,
+						value:'楼盘'
 					}
 				],//跳转key数组
          		disabled:false//按钮禁用
@@ -504,6 +616,7 @@
 				  message: '操作成功!',
 				  type: 'success'
 				});
+				obj.ruleForm.picChange=1;
 				obj.dialogVisible = false;//关闭弹窗
 				obj.dialogFlag=0;
 				bannerList(obj);
@@ -537,6 +650,57 @@
 	        loading.close();
 	        console.log(error)
 			obj.$message.error('列表获取失败！');
+		})
+	}
+	//获取楼盘信息
+	function homeInfo(obj){
+		const loading =openLoad(obj,"楼盘信息获取...");
+		obj.$ajax.post(obj.$store.state.localIP+'selectHouses')
+		.then(response=>{
+			console.log(response);
+			loading.close();
+			if(response.data.retCode==0){
+	          	obj.ruleForm.homeList=response.data.housesList;
+	        }else{
+	           	obj.$message.error(response.data.retMsg);
+	        }
+		})
+		.catch((error)=>{
+			loading.close();
+			console.log(error);
+			obj.$message.error("网络连接错误~~");
+		})
+	}
+	//获取风格列表
+	function styleList(obj){
+		obj.$ajax.post(obj.$store.state.localIP+'selectStyleInfo')
+		.then(res=>{
+			console.log(res)
+			if(res.data.retCode==0){
+				obj.ruleForm.styleList=res.data.styleInfoList;
+			}else{
+				obj.$message.error("获取风格列表失败！");
+			}
+		})
+		.catch(error=>{
+			console.log(error);
+			obj.$message.error("获取风格列表失败！");
+		})
+	}
+	//获取品牌列表
+	function brandList(obj){
+		obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+		.then(res=>{
+			console.log(res)
+			if(res.data.retCode==0){
+				obj.ruleForm.brandList=res.data.brandList;
+			}else{
+				obj.$message.error("获取品牌列表失败！");
+			}
+		})
+		.catch(error=>{
+			console.log(error);
+			obj.$message.error("获取品牌列表失败！");
 		})
 	}
 </script>

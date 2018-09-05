@@ -138,7 +138,7 @@
 				          	message: '操作成功!',
 				          	type: 'success'
 				       	});
-				       	this.$router.push({path:'/userManage/userOrder'})
+				       	this.$router.push({path:'/userOrder/packageOrder'})
 					}else{
 						this.$message.error('操作失败！');
 					}

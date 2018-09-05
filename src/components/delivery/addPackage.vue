@@ -2,7 +2,7 @@
 	<div class="addDeliveryPackage">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  <el-breadcrumb-item>设计师</el-breadcrumb-item>
+		  <el-breadcrumb-item>信息发布</el-breadcrumb-item>
 		  <el-breadcrumb-item class="fontWeight">生成套餐模板</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -199,7 +199,7 @@
 							</el-table-column>
 							<el-table-column prop="goodsName" :resizable="resizable"   label="商品名称" min-width="80" show-overflow-tooltip>
 								<template slot-scope="props">
-									<div><span @click="editGoods(props.row)" :class="props.row.species!='组合' ? 'hrefA' : ''">{{ props.row.goodsName }}</span></div>
+									<div><span @click="editGoods(props.row)" class="hrefA">{{ props.row.goodsName }}</span></div>
 								</template>
 							</el-table-column>
 							<el-table-column prop="material" :resizable="resizable"   label="颜色材质" width="100" show-overflow-tooltip>
@@ -231,10 +231,10 @@
 			  :append-to-body="true"
 			  :close-on-click-modal="false"
 			  >
-			  	<el-form  label-width="85px" class="demo-ruleForm">
+			  	<el-form  label-width="85px" :model="addGoods" :rules="addGoodsRules" class="demo-ruleForm">
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
-							<el-form-item label="套餐包：">
+							<el-form-item label="套餐包：" prop="selectPackage">
 								<el-select v-model="addGoods.selectPackage" placeholder="请选择套餐包" v-show="this.selectGoodsType==0?'true':false">
 									<el-option v-for="(item,key) in addGoods.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
 								</el-select>  
@@ -243,7 +243,7 @@
 						</el-col>
 						
 						<el-col :span="12">
-							<el-form-item label="位置：">
+							<el-form-item label="位置：" prop="selectLocation">
 								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false">
 									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.typeName"></el-option>
 								</el-select>
@@ -302,7 +302,7 @@
 						</el-col>
 						
 						<el-col :span="12">
-							<el-form-item label="数量：">
+							<el-form-item label="数量：" prop="num">
 								<el-input v-model="addGoods.num"></el-input>
 							</el-form-item>
 						</el-col>
@@ -384,7 +384,7 @@
 			  :close-on-click-modal="false"
 			  >
 			  <!--表单开始-->
-			  	<el-form :model="goods" label-width="85px" style="padding: 0px 60px;">
+			  	<el-form :model="goods" :rules="goodsRules"  label-width="85px" style="padding: 0px 60px;">
 			  		<el-form-item label="图片上传" prop='pic'>
 						<el-upload
 						  action="https://up.qbox.me/"
@@ -402,13 +402,13 @@
 						  <i class="el-icon-plus"></i>
 						</el-upload>
 					</el-form-item>
-			  		<el-form-item label="名称">
+			  		<el-form-item label="名称" prop='name'>
 			  			<el-input v-model="goods.name"></el-input>
 			  		</el-form-item>
-			  		<el-form-item label="单价">
+			  		<el-form-item label="单价" prop='price'>
 			  			<el-input v-model="goods.price"></el-input>
 			  		</el-form-item>
-			  		<el-form-item label="数量">
+			  		<el-form-item label="数量" prop='num'>
 			  			<el-input v-model="goods.num"></el-input>
 			  		</el-form-item>
 				</el-form>
@@ -470,9 +470,31 @@
 export default {
 	name:'addDeliveryPackage',
 	data(){
+		//图片验证
+		let checkPic=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			if(this.goods.fileList.length==0){
+				callback(new Error('请上传商品图！'))
+			}else{
+				callback();
+			}
+		};
+		//价格验证
+		let checkPrice=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			var price=this.goods.price;
+			//console.log(unitPrice)
+			if(price!=parseFloat(price) || price.toString().indexOf('-')>-1){
+				callback(new Error('请输入正确的价格！'))
+			}else{
+				callback();
+			}
+		};
 		return{
+			id:0,
 			editGoodsFloag:0,
 			resizable:false,
+			selectGroupNum:0,
 			goodsSearch:'',//商品搜索
 			selectGoods:{},//选中商品
 			selectGoodsType:0,
@@ -529,7 +551,32 @@ export default {
 				desc:'',//区域描述
 				picurl:''
 			},
-			rules:{}
+			rules:{},
+			goodsRules:{
+				name:[
+		        		{ required: true, message: '请输入商品名称', trigger: 'blur' }
+		        ],
+		        price:[
+		        	{ required: true, validator: checkPrice, trigger: 'blur' }
+		        ],
+		        num:[
+		        	{ required: true, message: '请输入商品数量', trigger: 'blur' }
+		        ],
+		        pic:[
+		        	{  required: true, validator: checkPic, trigger: 'blur' }
+		        ]
+			},
+			addGoodsRules:{
+				selectPackage:[
+		        		{ required: true, message: '请选择套餐包', trigger: 'blur' }
+		        ],
+		        selectLocation:[
+		        	{ required: true, message: '请选择位置', trigger: 'blur' }
+		        ],
+		        num:[
+		        	{ required: true, message: '请输入商品数量', trigger: 'blur' }
+		        ]
+			}
 		}
 	},
 	//挂载
@@ -872,14 +919,14 @@ export default {
 					return;	
       			}
 			}
-      		var list=this.multipleSelection;
-			var listAll=this.tableData;
 			
 			this.$confirm('确定拆分所选组合吗?', '提示', {
 		      confirmButtonText: '确定',
 		      cancelButtonText: '取消',
 		      type: 'warning'
 		    }).then(() => {
+		    	var list=this.multipleSelection;
+				var listAll=this.tableData;
 		    	for(var i=0;i<listAll.length;i++){
 					if(listAll[i].indexId==list[0].indexId){
 						this.tableData.splice(i,1);
@@ -889,12 +936,10 @@ export default {
 						this.tableData[i].species='单品';
 					}
 				}
-				var listAll=this.tableData;
-		    	for(var i=0;i<listAll.length;i++){
-		    		this.tableData[i].indexId=i;
-		    	}
+		    	this.tableData=sortData(this.tableData);
 		    	this.$refs.multipleTable.clearSelection();
-		    }).catch(() => {
+		    }).catch((e) => {
+		    	console.log(e)
 		      	this.$message({
 		        	type: 'info',
 		        	message: '已取消操作'
@@ -1005,16 +1050,19 @@ export default {
 		changePic(file, fileList){
 			this.goods.fileList=[];
 			this.goods.fileList=fileList;
+			this.goods.picChange=1;
 		},
 		//移除图片
 		removePic(file, fileList){
 			this.goods.fileList=[];
 			this.goods.fileList=fileList;
+			this.goods.picChange=1;
 			this.goods.picNum=0;
 		},
 		//图片上传
 		uploadSuccess(response, file, fileList){
 			var list=this.multipleSelection;
+			//console.log(list)
 			var listAll=this.tableData;
 			var index=-1;
 			for(var i=0;i<list.length;i++){
@@ -1046,8 +1094,9 @@ export default {
 	    			coverPicArr.push(list[i].url);
 	    		}
 	    		coverPic=coverPicArr.join(',');
-	    		//console.log(this.multipleSelection)
+	
 	    		var chirld={
+	    			indexId:index,
 	    			goodsImages:coverPic,
 	    			goodsSrc:coverPicArr[0],
 	    			goodsName:this.goods.name,
@@ -1075,42 +1124,58 @@ export default {
 	    			list[i].species='商品';
 	    			this.tableData.splice(index+i+1,0,list[i]);
 	    		}
-	    		var listAll=this.tableData;
-	    		for(var i=0;i<listAll.length;i++){
-	    			this.tableData[i].indexId=i;
-	    		}
-	    	
+	    		//console.log(this.tableData)
+	    		this.tableData=sortData(this.tableData);
+	    		//console.log(this.tableData)
 	    		this.groupVisible=false;
 	    		this.$refs.multipleTable.clearSelection();
+	    		this.goods.picChange=0;
 	    	}
 		},
 		//图片上传
 		goodsSubmitForm(formName) {
 		  	this.$refs[formName].validate((valid) => {
 		        if (valid) {
+		        	if(this.goods.fileList.length==0){
+						this.$message({
+							message: '请上传商品图',
+							type: 'warning'
+						});
+						return;
+					}
 		        	const loading =openLoad(this,"Loading...");
-		        	//console.log(2)
-		        	this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
-				    .then((response)=>{
-				    	//console.log(response);
-				    	loading.close();
-				    	if(response.data.retCode==0){
-				    		var qiniutoken=response.data.token;
-				    		this.goods.uploadData.token=response.data.token;
-				    		//console.log(this.uploadData)
-				    		//上传图片信息
-				    		this.$refs.upload.submit();
-				    	}else{
-				    		loading.close();
-				    		this.$message.error('获取token失败！');
-				    	}
-				    	
-				    })
-				    .catch((error)=>{
-				    	console.log(error)
-				    	loading.close();
-						this.$message.error('获取token失败！');
-					})
+		        	if(this.goods.picChange){
+			        	//console.log(2)
+			        	this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
+					    .then((response)=>{
+					    	//console.log(response);
+					    	loading.close();
+					    	if(response.data.retCode==0){
+					    		var qiniutoken=response.data.token;
+					    		this.goods.uploadData.token=response.data.token;
+					    		//console.log(this.uploadData)
+					    		//上传图片信息
+					    		this.$refs.upload.submit();
+					    	}else{
+					    		loading.close();
+					    		this.$message.error('获取token失败！');
+					    	}
+					    	
+					    })
+					    .catch((error)=>{
+					    	console.log(error)
+					    	loading.close();
+							this.$message.error('获取token失败！');
+						})
+					}else{
+						loading.close();
+						var index=this.selectGroupNum;	
+						this.tableData[index].unitPrice=this.goods.price;
+						this.tableData[index].goodsName=this.goods.name;
+						this.tableData[index].goodsNum=this.goods.num;
+						this.tableData[index].goodsImages=this.goods.fileList[0].url;
+						this.groupVisible=false;
+					}
 		        } else {
 		          	this.$message.error('表单提交失败！');
 		          	return false;
@@ -1202,10 +1267,7 @@ export default {
 					}
 				}
 				
-				var listAll=this.tableData;
-		    	for(var i=0;i<listAll.length;i++){
-		    		this.tableData[i].indexId=i;
-		    	}
+				this.tableData=sortData(this.tableData);
 		    }).catch(() => {
 		      	this.$message({
 		        	type: 'info',
@@ -1270,7 +1332,16 @@ export default {
 							}
 						}
 					}
-					this.tableData.push(child);
+					//this.tableData.push(child);
+					var goodsLocation=this.tableData.length-1;
+					for(var i=0;i<listAll.length;i++){
+						if(child.typeName==listAll[i].typeName && listAll[i].packageId==child.packageId){
+							goodsLocation=i;
+						}
+					}
+					//console.log(goodsLocation)
+					listAll.splice(goodsLocation,0,child);
+					this.tableData=listAll;
 				}else{
 					child.species="替换";
 					for(var i=0;i<listAll.length;i++){
@@ -1281,10 +1352,7 @@ export default {
 					}
 				}
 				//console.log(child)
-				var listAll=this.tableData;
-		    	for(var i=0;i<listAll.length;i++){
-		    		this.tableData[i].indexId=i;
-		    	}
+				this.tableData=sortData(this.tableData);
 		   	}else{
 		   		for(var i=0;i<listAll.length;i++){
 					if(listAll[i].indexId==selectList[0].indexId){
@@ -1324,6 +1392,15 @@ export default {
 				this.addGoods.selectPackage=val.packageId+','+val.packageName;
 				this.addGoods.selectLocation=val.typeName;
 				this.addGoods.num=val.goodsNum;
+			}
+			if(val.species=='组合'){
+				//console.log(val)
+				this.selectGroupNum=val.indexId;
+				this.groupVisible=true;
+				this.goods.fileList.push({name:'pic',url:val.goodsSrc})
+				this.goods.name=val.goodsName;
+				this.goods.price=val.unitPrice;
+				this.goods.num=val.goodsNum;
 			}
 		}
     }
@@ -1705,25 +1782,40 @@ function querySpaceInfo(obj,callback){
 }
 //排序
 function sortData(list){
-	console.log(list)
+	//console.log(list)
 	var arr=[];
+	var arrList=[];
 	for(var i=0;i<list.length;i++){
-		if(list[i].groupId){
-			console.log(1)
-			for(var j=0;j<arr.length;j++){
-				if(arr[j].indexId==list[i].groupId){
-					arr.splice(j,0,list[i]);
-				}
-			}
+		if(list[i].groupId || list[i].groupId==0){
+			arrList.push(list[i])
 		}else{
-			console.log(2)
 			arr.push(list[i]);
 		}
 	}
-	for(var x=0;x<arr.length;x++){
-		arr[x].indexId=x;
+
+	for(var i=0;i<arrList.length;i++){
+		for(var j=0;j<arr.length;j++){
+			if(arrList[i].groupId==arr[j].indexId){
+				arr.splice(j+1,0,arrList[i]);
+				break;
+			}
+		}
 	}
-	console.log(arr)
+	for(var x=0;x<arr.length;x++){
+		if(arr[x].indexId!=x && arr[x].indexId){
+			for(var y=0;y<arr.length;y++){
+				if(arr[x].indexId==arr[y].groupId){
+					arr[x].indexId=x;
+					arr[y].groupId=x;
+				}else{
+					arr[x].indexId=x;
+				}
+			}
+		}else{
+			arr[x].indexId=x;
+		}
+	}
+	//console.log(arr)
 	return arr;
 }
 </script>

@@ -103,7 +103,7 @@
 			  <el-form ref="ruleForm" :model="ruleForm" label-width="85px">
 				
 			  	<el-form-item label="备注信息">
-			  		<el-input v-model="ruleForm.desc"  @change="inputFlag=1"></el-input>
+			  		<el-input v-model="ruleForm.desc"  @change="inputFlag=1" :maxlength="255"></el-input>
 			  	</el-form-item>
 			  	
 			  	
