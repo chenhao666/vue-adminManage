@@ -182,7 +182,7 @@
 							@selection-change="handleSelectionChange">
 							<el-table-column type="selection" width="55" :resizable="resizable" >
 							</el-table-column>
-							<!--<el-table-column prop="id" :resizable="resizable"   label="ID" width="50" show-overflow-tooltip>
+							<!--<el-table-column prop="id" :resizable="resizable"   label="ID" width="100" show-overflow-tooltip>
 							</el-table-column>-->
 							<el-table-column prop="packageName" :resizable="resizable"    label="套餐包" min-width="100" show-overflow-tooltip>
 							</el-table-column>
@@ -231,7 +231,7 @@
 			  :append-to-body="true"
 			  :close-on-click-modal="false"
 			  >
-			  	<el-form  label-width="85px" :model="addGoods" :rules="addGoodsRules" class="demo-ruleForm">
+			  	<el-form  label-width="85px" ref="addGoods" :model="addGoods" :rules="addGoodsRules" class="demo-ruleForm">
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="套餐包：" prop="selectPackage">
@@ -310,7 +310,7 @@
 				</el-form>
 				<!--表单结束-->
 				<span slot="footer" class="dialog-footer">
-			   		 <el-button type="primary" @click="addGoodsSave">确定</el-button>
+			   		 <el-button type="primary" @click="addGoodsSave('addGoods')">确定</el-button>
 			   		 <el-button @click="goGoodsList" v-show="editGoodsFloag==0 ? true : false">返回</el-button>
 				</span>
 			</el-dialog>
@@ -384,7 +384,7 @@
 			  :close-on-click-modal="false"
 			  >
 			  <!--表单开始-->
-			  	<el-form :model="goods" :rules="goodsRules"  label-width="85px" style="padding: 0px 60px;">
+			  	<el-form :model="goods" ref="goods" :rules="goodsRules"  label-width="85px" style="padding: 0px 60px;">
 			  		<el-form-item label="图片上传" prop='pic'>
 						<el-upload
 						  action="https://up.qbox.me/"
@@ -414,7 +414,7 @@
 				</el-form>
 			  <!--表单结束-->
 				<span slot="footer" class="dialog-footer">
-			   		 <el-button type="primary" @click="goodsSubmitForm('ruleForm')">确 定</el-button>
+			   		 <el-button type="primary" @click="goodsSubmitForm('goods')">确 定</el-button>
 				</span>
 			</el-dialog>
 			
@@ -932,7 +932,7 @@ export default {
 						this.tableData.splice(i,1);
 					}
 					if(listAll[i].groupId==list[0].indexId){
-						this.tableData[i].groupId='';
+						this.tableData[i].groupId=null;
 						this.tableData[i].species='单品';
 					}
 				}
@@ -1276,101 +1276,111 @@ export default {
 		    });
 		},
 		//添加商品
-		addGoodsSave(){
-			var listAll=this.tableData;
-			var child=this.selectGoods;
-			var selectList=this.multipleSelection;
-			if(this.editGoodsFloag==0){
-				if(this.selectGoodsType==0){
-					if(this.addGoods.selectPackage){
-						var selectPackageArr=this.addGoods.selectPackage.split(',');
-						child.packageName=selectPackageArr[1];
-						child.packageId=selectPackageArr[0];
-					}
-					if(this.addGoods.selectLocation){
-						child.typeName=this.addGoods.selectLocation;
-					}
-				}else{
-					child.packageName=selectList[0].packageName || '';
-					child.packageId=selectList[0].packageId || '';
-					child.typeName=selectList[0].typeName || '';
-					child.designId=selectList[0].designId || '';
-		    		child.roomId=selectList[0].roomId || '';
-		    		child.groupId=selectList[0].groupId || '';
-		    		child.replaceId=selectList[0].indexId;
-				}
-				if(this.addGoods.num){
-					child.goodsNum=this.addGoods.num;
-				}
-				child.species='单品';
-				if(child.goodsImages.indexOf(',')>-1){
-					var arr=child.goodsImages.split(',');
-					child.goodsSrc=arr[0];
-				}else{
-					child.goodsSrc=child.goodsImages;
-				}
-				if(this.selectGoodsType==0){
-					var typeFlag=0;
-					var groupId='';
-					for(var i=0;i<listAll.length;i++){
-						if(listAll[i].typeName==child.typeName){
-							if(listAll[i].groupId){
-								typeFlag=1;
-								groupId=listAll[i].groupId;
-							}else{
-								typeFlag=0;
+		addGoodsSave(formName){
+			this.$refs[formName].validate((valid) => {
+			    if (valid) {
+					var listAll=this.tableData;
+					var child=this.selectGoods;
+					var selectList=this.multipleSelection;
+					if(this.editGoodsFloag==0){
+						if(this.selectGoodsType==0){
+							if(this.addGoods.selectPackage){
+								var selectPackageArr=this.addGoods.selectPackage.split(',');
+								child.packageName=selectPackageArr[1];
+								child.packageId=selectPackageArr[0];
 							}
+							if(this.addGoods.selectLocation){
+								child.typeName=this.addGoods.selectLocation;
+							}
+						}else{
+							child.packageName=selectList[0].packageName || '';
+							child.packageId=selectList[0].packageId || '';
+							child.typeName=selectList[0].typeName || '';
+							child.designId=selectList[0].designId || '';
+				    		child.roomId=selectList[0].roomId || '';
+				    		child.groupId=selectList[0].groupId || '';
+				    		child.replaceId=selectList[0].indexId;
 						}
-					}
-					if(typeFlag){
-						for(var i=0;i<listAll.length;i++){
-							if(listAll[i].groupId==groupId){
-								if(listAll[i].typeName!=child.typeName && listAll[i].packageId==child.packageId){
-									child.groupId=groupId;
-									child.species='商品';
+						if(this.addGoods.num){
+							child.goodsNum=this.addGoods.num;
+						}
+						child.species='单品';
+						if(child.goodsImages.indexOf(',')>-1){
+							var arr=child.goodsImages.split(',');
+							child.goodsSrc=arr[0];
+						}else{
+							child.goodsSrc=child.goodsImages;
+						}
+						if(this.selectGoodsType==0){
+							var typeFlag=[];
+							var groupId='';
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].typeName==child.typeName){
+									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+										typeFlag.push(1);
+										groupId=listAll[i].groupId;
+									}else{
+										typeFlag.push(0);
+									}
+								}
+							}
+							//console.log(typeFlag)
+							if(typeFlag.length>0){
+								if(typeFlag.indexOf(0)==-1){
+									for(var i=0;i<listAll.length;i++){
+										if(listAll[i].groupId==groupId){
+											if(listAll[i].typeName!=child.typeName && listAll[i].packageId==child.packageId){
+												child.groupId=groupId;
+												child.species='商品';
+											}
+										}
+									}
+								}	
+							}
+							//this.tableData.push(child);
+							var goodsLocation=this.tableData.length-1;
+							for(var i=0;i<listAll.length;i++){
+								if(child.typeName==listAll[i].typeName && listAll[i].packageId==child.packageId){
+									goodsLocation=i;
+								}
+							}
+							//console.log(goodsLocation)
+							listAll.splice(goodsLocation,0,child);
+							this.tableData=listAll;
+						}else{
+							child.species="替换";
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].indexId==selectList[0].indexId){
+									this.tableData.splice(i+1,0,child);
+									break;
 								}
 							}
 						}
-					}
-					//this.tableData.push(child);
-					var goodsLocation=this.tableData.length-1;
-					for(var i=0;i<listAll.length;i++){
-						if(child.typeName==listAll[i].typeName && listAll[i].packageId==child.packageId){
-							goodsLocation=i;
+						//console.log(child)
+				   	}else{
+				   		for(var i=0;i<listAll.length;i++){
+							if(listAll[i].indexId==selectList[0].indexId){
+								var arr=this.addGoods.selectPackage.split(',');
+								this.tableData[i].packageId=arr[0];
+								this.tableData[i].packageName=arr[1];
+								this.tableData[i].typeName=this.addGoods.selectLocation;
+								this.tableData[i].goodsNum=this.addGoods.num;
+								this.$refs.multipleTable.toggleRowSelection(this.tableData[i],true);
+								break;
+							}
 						}
-					}
-					//console.log(goodsLocation)
-					listAll.splice(goodsLocation,0,child);
-					this.tableData=listAll;
+				   		//console.log(this.tableData)
+				   		
+				   		this.editGoodsFloag=0;
+				   	}
+				   	this.tableData=sortData(this.tableData);
+				   	this.$refs.multipleTable.clearSelection();
+					this.addGoodsVisible=false;
 				}else{
-					child.species="替换";
-					for(var i=0;i<listAll.length;i++){
-						if(listAll[i].indexId==selectList[0].indexId){
-							this.tableData.splice(i+1,0,child);
-							break;
-						}
-					}
-				}
-				//console.log(child)
-				this.tableData=sortData(this.tableData);
-		   	}else{
-		   		for(var i=0;i<listAll.length;i++){
-					if(listAll[i].indexId==selectList[0].indexId){
-						var arr=this.addGoods.selectPackage.split(',');
-						this.tableData[i].packageId=arr[0];
-						this.tableData[i].packageName=arr[1];
-						this.tableData[i].typeName=this.addGoods.selectLocation;
-						this.tableData[i].goodsNum=this.addGoods.num;
-						this.$refs.multipleTable.toggleRowSelection(this.tableData[i],true);
-						break;
-					}
-				}
-		   		//console.log(this.tableData)
-		   		
-		   		this.editGoodsFloag=0;
-		   	}
-		   	this.$refs.multipleTable.clearSelection();
-			this.addGoodsVisible=false;
+			        this.$message.error('表单提交失败！');
+			        return false;
+			    }
+			})
 		},
 		//编辑商品
 		editGoods(val){
@@ -1397,7 +1407,7 @@ export default {
 				//console.log(val)
 				this.selectGroupNum=val.indexId;
 				this.groupVisible=true;
-				this.goods.fileList.push({name:'pic',url:val.goodsSrc})
+				this.goods.fileList=[{name:'pic',url:val.goodsSrc}];
 				this.goods.name=val.goodsName;
 				this.goods.price=val.unitPrice;
 				this.goods.num=val.goodsNum;
