@@ -54,7 +54,7 @@
 				</el-table-column>
 				<el-table-column prop="material" label="颜色材质">
 				</el-table-column>
-				<el-table-column prop="packageName" label="所属分类" width="80">
+				<el-table-column prop="packageName" label="套餐包" width="80">
 				</el-table-column>
 
 				<el-table-column label="操作"  width="180">
@@ -130,7 +130,7 @@
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="商品包" prop="package">
-			  		<el-select v-model="ruleForm.package" placeholder="选择分类"  @change="inputFlag=1">
+			  		<el-select v-model="ruleForm.package" placeholder="选择包"  @change="inputFlag=1">
 						<el-option v-for="(item,key) in ruleForm.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
 					</el-select>
 			  	</el-form-item>

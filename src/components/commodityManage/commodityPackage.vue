@@ -3,13 +3,13 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">商品管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">商品套餐包</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">套餐包管理</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>商品套餐包</span>
+				<span>套餐包管理</span>
 			</div>
 			<div class="line"></div>
 			

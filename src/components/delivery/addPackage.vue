@@ -230,13 +230,14 @@
 			  width="600px"
 			  :append-to-body="true"
 			  :close-on-click-modal="false"
+			  :before-close="handleCloseGoods"
 			  >
 			  	<el-form  label-width="85px" ref="addGoods" :model="addGoods" :rules="addGoodsRules" class="demo-ruleForm">
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="套餐包：" prop="selectPackage">
 								<el-select v-model="addGoods.selectPackage" placeholder="请选择套餐包" v-show="this.selectGoodsType==0?'true':false">
-									<el-option v-for="(item,key) in addGoods.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
+									<el-option v-for="(item,key) in addGoods.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName+','+item.packageOrder"></el-option>
 								</el-select>  
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].packageName :'' }}</span>
 							</el-form-item>
@@ -245,7 +246,7 @@
 						<el-col :span="12">
 							<el-form-item label="位置：" prop="selectLocation">
 								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false">
-									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.typeName"></el-option>
+									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.typeName+','+item.typeOrder"></el-option>
 								</el-select>
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].typeName : '' }}</span>
 							</el-form-item>
@@ -303,7 +304,7 @@
 						
 						<el-col :span="12">
 							<el-form-item label="数量：" prop="num">
-								<el-input v-model="addGoods.num"></el-input>
+								<el-input v-model="addGoods.num" :disabled="selectGoodsType==0 ? false : true"></el-input>
 							</el-form-item>
 						</el-col>
 			  		</el-row>
@@ -324,6 +325,7 @@
 			  width="600px"
 			  :append-to-body="true"
 			  :close-on-click-modal="false"
+			  :before-close="handleCloseGoods"
 			  >
 			  <!--表单开始-->
 			  	<div class="dialogFilter">
@@ -432,6 +434,7 @@
 			  	<el-form :model="form" label-width="85px" v-if='dialogVisible'>
 			  		<el-form-item label="区域类型：">
 						<el-select v-model="form.areaType" placeholder="请选择位置"  @change="inputFlag=1">
+							<el-option label="无" value=""></el-option>
 							<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.id+','+item.typeName"></el-option>
 						</el-select>
 			  		</el-form-item>
@@ -486,6 +489,50 @@ export default {
 			//console.log(unitPrice)
 			if(price!=parseFloat(price) || price.toString().indexOf('-')>-1){
 				callback(new Error('请输入正确的价格！'))
+			}else{
+				callback();
+			}
+		};
+		//数量验证
+		let checkNumber=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			var num=this.goods.num;
+			//console.log(unitPrice)
+			if(num!=parseFloat(num) || num.toString().indexOf('-')>-1 || num==0){
+				callback(new Error('请输入正确的数量！'))
+			}else{
+				callback();
+			}
+		};
+		//数量验证
+		let checkNum=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			var num=this.addGoods.num;
+			//console.log(unitPrice)
+			if(num!=parseFloat(num) || num.toString().indexOf('-')>-1 || num==0){
+				callback(new Error('请输入正确的数量！'))
+			}else{
+				callback();
+			}
+		};
+		//套餐包
+		let checkPackage=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			var selectPackage=this.addGoods.selectPackage;
+			//console.log(unitPrice)
+			if(selectPackage=="" && this.selectGoodsType==0){
+				callback(new Error('请选择套餐包！'))
+			}else{
+				callback();
+			}
+		};
+		//位置
+		let checkLocation=(rule, value, callback)=>{
+			//console.log(this.ruleForm.fileList)
+			var selectLocation=this.addGoods.selectLocation;
+			//console.log(unitPrice)
+			if(selectLocation=="" && this.selectGoodsType==0){
+				callback(new Error('请选择位置信息！'))
 			}else{
 				callback();
 			}
@@ -560,7 +607,7 @@ export default {
 		        	{ required: true, validator: checkPrice, trigger: 'blur' }
 		        ],
 		        num:[
-		        	{ required: true, message: '请输入商品数量', trigger: 'blur' }
+		        	{ required: true, validator: checkNumber, trigger: 'blur' }
 		        ],
 		        pic:[
 		        	{  required: true, validator: checkPic, trigger: 'blur' }
@@ -568,13 +615,13 @@ export default {
 			},
 			addGoodsRules:{
 				selectPackage:[
-		        		{ required: true, message: '请选择套餐包', trigger: 'blur' }
+		        		{ required: true, validator: checkPackage, trigger: 'blur' }
 		        ],
 		        selectLocation:[
-		        	{ required: true, message: '请选择位置', trigger: 'blur' }
+		        	{ required: true, validator: checkLocation, trigger: 'blur' }
 		        ],
 		        num:[
-		        	{ required: true, message: '请输入商品数量', trigger: 'blur' }
+		        	{ required: true, validator: checkNum, trigger: 'blur' }
 		        ]
 			}
 		}
@@ -745,7 +792,10 @@ export default {
 	    //添加卡片
 	    addCard(){
 	    	let cardKey=this.cardKey;
-	    	let areaTypeArr=this.form.areaType.split(',');
+	    	let areaTypeArr=['','']
+	    	if(this.form.areaType){
+	    		areaTypeArr=this.form.areaType.split(',');
+	    	}
 	    	if(this.dialogFlag){
 	    		this.cardInfo[cardKey].areaTypeId=areaTypeArr[0];
 	    		this.cardInfo[cardKey].areaTypeName=areaTypeArr[1];
@@ -794,7 +844,12 @@ export default {
 			},*/
 			var that=this;
 			querySpaceInfo(this,function(){
-				that.form.areaType=that.cardInfo[cardKey].areaTypeId+','+that.cardInfo[cardKey].areaTypeName;
+				if(that.cardInfo[cardKey].areaTypeId){
+					that.form.areaType=that.cardInfo[cardKey].areaTypeId+','+that.cardInfo[cardKey].areaTypeName;
+				}else{
+					that.form.areaType='';
+				}
+				
 	    		that.form.desc=that.cardInfo[cardKey].details;
 	    		that.fileList=[{name:that.cardInfo[cardKey].areaTypeName,url:that.cardInfo[cardKey].coverPic}];
 			});
@@ -936,7 +991,9 @@ export default {
 						this.tableData[i].species='单品';
 					}
 				}
+		    	console.log(this.tableData)
 		    	this.tableData=sortData(this.tableData);
+		    	console.log(this.tableData)
 		    	this.$refs.multipleTable.clearSelection();
 		    }).catch((e) => {
 		    	console.log(e)
@@ -984,11 +1041,17 @@ export default {
       		var typeName=list[0].typeName;
       		var flag=0;//标记
       		var num=0;
+      		var packageIdArr=[];
       		for(var i=0;i<list.length;i++){
-      			for(var j=0;j<listAll.length;j++){
-      				if(list[i].typeName==listAll[j].typeName && listAll[j].species!="组合" && listAll[j].packageId==packageId){
-      					num++;
-      				}
+      			if(packageIdArr.indexOf(parseInt(list[i].packageId))==-1){
+      				for(var j=0;j<listAll.length;j++){
+	      				if(listAll[j].species!="组合" && listAll[j].packageId==list[i].packageId){
+	      					//console.log(list[i].packageId)
+	      					num++;
+	      				}
+	      			}
+      				packageIdArr.push(parseInt(list[i].packageId));
+      				//console.log(packageIdArr)
       			}
       			if(list[i].typeName!=typeName){
       				flag=1;
@@ -999,7 +1062,7 @@ export default {
       			if(list.length!=num){
 	      			this.$message({
 					    showClose: true,
-					    message: '跨空间商品需要全选当前空间所有商品！',
+					    message: '跨空间商品需要全选当前套餐包所有商品！',
 					    type: 'warning'
 					});
 					return;
@@ -1197,10 +1260,17 @@ export default {
 			//console.log(val)	
 			this.selectGoods=val;
 			//console.log(this.selectGoods)
+			if(this.selectGoodsType==1){
+				var list=this.multipleSelection;
+				this.addGoods.num=list[0].goodsNum || '1';
+			}
 		},
 		//新增商品
 		addGoodsFun(){
 			this.selectGoodsType=0;
+			this.goodsSearch='';
+			this.goodsData=[];
+			this.pageTotal=0;
 			//goodsListAll(this);
 			this.goodsListVisible=true;
 		},
@@ -1216,7 +1286,7 @@ export default {
 				return;
 			}
 			for(var i=0;i<list.length;i++){
-      			if(list[i].species=="组合"){
+      			if(list[i].species=="组合" || list[i].species=="替换"){
       				this.$message({
 					    showClose: true,
 					    message: '请选择单品或者子商品进行替换！',
@@ -1225,10 +1295,18 @@ export default {
 					return;
       			}
       		}
+			this.goodsSearch='';
+			this.goodsData=[];
+			this.pageTotal=0;
 			this.selectGoodsType=1;
-			goodsListAll(this);
+			//goodsListAll(this);
 			this.goodsListVisible=true;
 		},
+		handleCloseGoods(done){
+      		this.selectGoodsType=0;
+      		this.editGoodsFloag=0;
+      		done();
+      	},
 		//返回
 		goGoodsList(){
 			this.addGoodsVisible =false;
@@ -1288,9 +1366,12 @@ export default {
 								var selectPackageArr=this.addGoods.selectPackage.split(',');
 								child.packageName=selectPackageArr[1];
 								child.packageId=selectPackageArr[0];
+								child.packageOrder=selectPackageArr[2];
 							}
 							if(this.addGoods.selectLocation){
-								child.typeName=this.addGoods.selectLocation;
+								var selectLocationArr=this.addGoods.selectLocation.split(',');
+								child.typeName=selectLocationArr[0];
+								child.typeOrder=selectLocationArr[1]
 							}
 						}else{
 							child.packageName=selectList[0].packageName || '';
@@ -1298,8 +1379,12 @@ export default {
 							child.typeName=selectList[0].typeName || '';
 							child.designId=selectList[0].designId || '';
 				    		child.roomId=selectList[0].roomId || '';
-				    		child.groupId=selectList[0].groupId || '';
+				    		if(selectList[0].groupId || selectList[0].groupId==0){
+				    			child.groupId=selectList[0].groupId
+				    		}
 				    		child.replaceId=selectList[0].indexId;
+				    		child.packageOrder=selectList[0].packageOrder;
+				    		child.typeOrder=selectList[0].typeOrder;
 						}
 						if(this.addGoods.num){
 							child.goodsNum=this.addGoods.num;
@@ -1315,7 +1400,7 @@ export default {
 							var typeFlag=[];
 							var groupId='';
 							for(var i=0;i<listAll.length;i++){
-								if(listAll[i].typeName==child.typeName){
+								if(listAll[i].packageId==child.packageId){
 									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
 										typeFlag.push(1);
 										groupId=listAll[i].groupId;
@@ -1337,20 +1422,27 @@ export default {
 									}
 								}	
 							}
+							//console.log(child)
 							//this.tableData.push(child);
 							var goodsLocation=this.tableData.length-1;
 							for(var i=0;i<listAll.length;i++){
-								if(child.typeName==listAll[i].typeName && listAll[i].packageId==child.packageId){
+								if(listAll[i].packageId==child.packageId){
+									//console.log(listAll[i].species)
+									if(listAll[i].typeName==child.typeName){
+										goodsLocation=i;
+										break;
+									}
 									goodsLocation=i;
 								}
 							}
-							//console.log(goodsLocation)
-							listAll.splice(goodsLocation,0,child);
-							this.tableData=listAll;
+							
+							this.tableData.splice(goodsLocation+1,0,child);
+							this.selectGoods={};
 						}else{
 							child.species="替换";
 							for(var i=0;i<listAll.length;i++){
 								if(listAll[i].indexId==selectList[0].indexId){
+									//console.log(i,listAll[i].indexId)
 									this.tableData.splice(i+1,0,child);
 									break;
 								}
@@ -1363,7 +1455,11 @@ export default {
 								var arr=this.addGoods.selectPackage.split(',');
 								this.tableData[i].packageId=arr[0];
 								this.tableData[i].packageName=arr[1];
-								this.tableData[i].typeName=this.addGoods.selectLocation;
+								if(this.addGoods.selectLocation){
+									var selectLocationArr=this.addGoods.selectLocation.split(',');
+									this.tableData[i].typeName=selectLocationArr[0];
+									this.tableData[i].typeOrder=selectLocationArr[1]
+								}
 								this.tableData[i].goodsNum=this.addGoods.num;
 								this.$refs.multipleTable.toggleRowSelection(this.tableData[i],true);
 								break;
@@ -1374,6 +1470,7 @@ export default {
 				   		this.editGoodsFloag=0;
 				   	}
 				   	this.tableData=sortData(this.tableData);
+				   	//console.log(this.tableData)
 				   	this.$refs.multipleTable.clearSelection();
 					this.addGoodsVisible=false;
 				}else{
@@ -1392,15 +1489,15 @@ export default {
 			this.selectGoods=val;
 			if(val.species=='单品' || val.species=='商品'){
 				this.addGoodsVisible=true;
-				this.addGoods.selectPackage=val.packageId+','+val.packageName;
-				this.addGoods.selectLocation=val.typeName;
+				this.addGoods.selectPackage=val.packageId+','+val.packageName+','+val.packageOrder;
+				this.addGoods.selectLocation=val.typeName+','+val.typeOrder;
 				this.addGoods.num=val.goodsNum;
 			}
 			if(val.species=='替换'){
-				this.selectGoodsType=1;
+				this.selectGoodsType=0;
 				this.addGoodsVisible=true;
-				this.addGoods.selectPackage=val.packageId+','+val.packageName;
-				this.addGoods.selectLocation=val.typeName;
+				this.addGoods.selectPackage=val.packageId+','+val.packageName+','+val.packageOrder;
+				this.addGoods.selectLocation=val.typeName+','+val.typeOrder;
 				this.addGoods.num=val.goodsNum;
 			}
 			if(val.species=='组合'){
@@ -1415,6 +1512,7 @@ export default {
 		}
     }
 }
+
 //打开loading
 function openLoad(obj){
 	const loading=obj.$loading({
@@ -1795,14 +1893,21 @@ function sortData(list){
 	//console.log(list)
 	var arr=[];
 	var arrList=[];
+	var arrRe=[];
 	for(var i=0;i<list.length;i++){
-		if(list[i].groupId || list[i].groupId==0){
-			arrList.push(list[i])
+		if(list[i].replaceId || list[i].replaceId ==0){
+			arrRe.push(list[i]);
 		}else{
-			arr.push(list[i]);
+			if(list[i].groupId || list[i].groupId==0){
+				arrList.push(list[i])
+			}else{
+				arr.push(list[i]);
+			}
 		}
 	}
-
+	arr=packageSort(arr);
+	arr=locationSort(arr);
+	//console.log(arr,0)
 	for(var i=0;i<arrList.length;i++){
 		for(var j=0;j<arr.length;j++){
 			if(arrList[i].groupId==arr[j].indexId){
@@ -1811,7 +1916,19 @@ function sortData(list){
 			}
 		}
 	}
+	//console.log(arrRe,arr)
+	for(var i=0;i<arrRe.length;i++){
+		for(var j=0;j<arr.length;j++){
+			if(arrRe[i].replaceId==arr[j].indexId){
+				//console.log(arrRe[i].replaceId)
+				arr.splice(j+1,0,arrRe[i]);
+				break;
+			}
+		}
+	}
+	//console.log(arr,2)
 	for(var x=0;x<arr.length;x++){
+		arr[x].lastIndex=arr[x].indexId;
 		if(arr[x].indexId!=x && arr[x].indexId){
 			for(var y=0;y<arr.length;y++){
 				if(arr[x].indexId==arr[y].groupId){
@@ -1825,7 +1942,75 @@ function sortData(list){
 			arr[x].indexId=x;
 		}
 	}
+	//console.log(arr,3)
+	for(var i=1;i<arr.length;i++){
+		if(arr[i].replaceId){
+			if(arr[i-1].replaceId){
+				arr[i].replaceId=arr[i-1].replaceId;
+			}else{
+				arr[i].replaceId=i-1;
+			}
+		}
+	}
+	//console.log(arr,4)
+	return arr;
+}
+//套餐包  排序
+function packageSort(arr){
 	//console.log(arr)
+	//var newArr=arr;
+	for(var i=0;i<arr.length;i++){
+		arr[i].packageOrder=parseInt(arr[i].packageOrder);
+		arr[i].typeOrder=parseInt(arr[i].typeOrder);
+		if(i!=arr.length-1){
+			if(parseInt(arr[i].packageOrder)>=parseInt(arr[i+1].packageOrder)){
+				var x=arr[i];
+				var y=arr[i+1];
+				arr[i]=y;
+				arr[i+1]=x;
+			}		
+		}
+		
+	}
+	for(var i=arr.length-1;i>0;i--){
+		if(parseInt(arr[i].packageOrder)<parseInt(arr[i-1].packageOrder)){
+			var x=arr[i];
+			var y=arr[i-1];
+			arr[i]=y;
+			arr[i-1]=x;
+		}		
+		
+	}
+	//console.log(newArr)
+	return arr;
+}
+//位置排序
+function locationSort(arr){
+	//var newArr=arr;
+	for(var i=0;i<arr.length;i++){
+		if(i!=arr.length-1){
+			if(parseInt(arr[i].packageOrder)==parseInt(arr[i+1].packageOrder)){
+				if(arr[i].typeOrder>=arr[i+1].typeOrder){
+					var x=arr[i];
+					var y=arr[i+1];
+					arr[i]=y;
+					arr[i+1]=x;
+				}
+			}
+		}
+		
+	}
+	for(var i=arr.length-1;i>0;i--){
+		if(parseInt(arr[i].packageOrder)==parseInt(arr[i-1].packageOrder)){
+			if(arr[i].typeOrder<arr[i-1].typeOrder){
+				var x=arr[i];
+				var y=arr[i-1];
+				arr[i]=y;
+				arr[i-1]=x;
+			}
+		}	
+	}
+	//console.log(newArr)
 	return arr;
 }
 </script>
