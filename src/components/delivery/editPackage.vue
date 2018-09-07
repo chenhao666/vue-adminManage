@@ -2028,6 +2028,7 @@ function sortData(list){
 			}
 		}
 	}
+	arr=groupSort(arr);
 	//console.log(arr,4)
 	return arr;
 }
@@ -2078,6 +2079,34 @@ function locationSort(arr){
 	}
 	for(var i=arr.length-1;i>0;i--){
 		if(parseInt(arr[i].packageOrder)==parseInt(arr[i-1].packageOrder)){
+			if(arr[i].typeOrder<arr[i-1].typeOrder){
+				var x=arr[i];
+				var y=arr[i-1];
+				arr[i]=y;
+				arr[i-1]=x;
+			}
+		}	
+	}
+	//console.log(newArr)
+	return arr;
+}
+//组合排序
+function groupSort(arr){
+	for(var i=0;i<arr.length;i++){
+		if(i!=arr.length-1){
+			if(parseInt(arr[i].groupId)==parseInt(arr[i+1].groupId)){
+				if(arr[i].typeOrder>=arr[i+1].typeOrder){
+					var x=arr[i];
+					var y=arr[i+1];
+					arr[i]=y;
+					arr[i+1]=x;
+				}
+			}
+		}
+		
+	}
+	for(var i=arr.length-1;i>0;i--){
+		if(parseInt(arr[i].groupId)==parseInt(arr[i-1].groupId)){
 			if(arr[i].typeOrder<arr[i-1].typeOrder){
 				var x=arr[i];
 				var y=arr[i-1];
