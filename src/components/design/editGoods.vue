@@ -1,167 +1,20 @@
 <template>
-	<div class="addPackage">
+	<div class="editGoods">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  <el-breadcrumb-item>信息发布</el-breadcrumb-item>
-		  <el-breadcrumb-item class="fontWeight">生成套餐模板</el-breadcrumb-item>
+		  <el-breadcrumb-item>设计师</el-breadcrumb-item>
+		  <el-breadcrumb-item class="fontWeight">商品编辑</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>生成套餐模板</span>
+				<span>商品编辑</span>
 			</div>
 			<div class="line"></div>
 			
 			<div class="text item addPackageForm">
-				<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="85px" class="demo-ruleForm">
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="方案名：" class="widthLager">
-								<el-input v-model="ruleForm.programmeName" :maxlength="50" :disabled="true"></el-input>
-							</el-form-item>
-						</el-col>
-						<!--<el-col :span="12">
-							<el-form-item label="样板类型：" class="widthLager">
-								<el-select v-model="ruleForm.modelType" placeholder="请选择类型">
-									<el-option label="软装定制" value="1,软装定制"></el-option>
-									<el-option label="全屋定制" value="2,全屋定制"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>-->
-						<el-col :span="12">
-							<el-form-item label="楼盘名：">
-								<el-select v-model="ruleForm.home" placeholder="请选择楼盘">
-									<el-option v-for="(item,key) in ruleForm.homeNameArr" :key="key"  :label="item.houseName" :value="item.id+','+item.houseName"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="户型：">
-								<el-input v-model="ruleForm.apartmentLayout" :maxlength="50" :disabled="true"></el-input>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="面积：">
-								<el-input v-model="ruleForm.homeArea" :maxlength="50" :disabled="true"></el-input>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="户型名称：">
-								<el-input v-model="ruleForm.houseModel" :maxlength="50"></el-input>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="套餐名称：">
-								<el-input v-model="ruleForm.name" :maxlength="20"></el-input>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="品牌选择：">
-								<el-select v-model="ruleForm.selectBrand" placeholder="请选择品牌">
-									<el-option v-for="(item,key) in brandList" :key="key" :label="item.brandName" :value="item.brandId+','+item.brandName"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="风格选择：">
-								<el-select v-model="ruleForm.selectStyle" placeholder="请选择风格">
-									<el-option v-for="(item,key) in styleList" :key="key" :label="item.styleName" :value="item.styleId+','+item.styleName"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>
-
-					</el-row>
-					
-					<!--<el-row :gutter="20">	
-						<el-col :span="12">
-							<el-form-item label="套餐简介：">
-								<el-input v-model="ruleForm.introduction" :maxlength="100"></el-input>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="套餐价格：">
-								<el-input v-model="ruleForm.price" :maxlength="10"></el-input>
-							</el-form-item>
-						</el-col>
-						
-					</el-row>-->
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="封面选择：" class="picList">
-								<ul v-model="ruleForm.picShow">
-									<li v-for="(item,key) in ruleForm.picArr" :key="key" v-show="(ruleForm.picShow===key || ruleForm.picShow==='')?true:false" @click="selectPaic(key,item.img)">
-										<img :src="item.img" alt="" />
-									</li>
-									<li v-if="ruleForm.picArr.length==0" style="margin-top: 0px;">无</li>
-									<div class="clear"></div>
-								</ul>
-								<el-button style="margin-top: 20px;" @click="reSelect" type="primary" v-if="ruleForm.selectBtn">重新选择</el-button>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<!--<el-row :gutter="20">
-						
-					</el-row>-->
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="套餐描述" prop="desc">
-								<el-input type="textarea" v-model="ruleForm.desc" :rows="6"></el-input>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="描述介绍：">
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<div class="line"></div>
-					
-					<div class="item_container">
-						<ul id="list" v-model="cardInfo">
-							<li v-for='(item,key) in cardInfo' :key="key" v-dragging="{ item: item, list: cardInfo, group: 'cardInfo' }">
-								<el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
-									<span class="editCard" alt="编辑" @click="editCard(key)"><i class="iconfont icon-bianji"></i></span>
-								</el-tooltip>
-								<el-tooltip class="item" effect="dark" content="删除" placement="top-start">
-									<span class="delCard" alt="删除" @click="delCard(key)"><i class="iconfont icon-shanchu"></i></span>
-								</el-tooltip>
-								
-								<el-card class="box-card">
-									<span class="area_type">{{ item.areaTypeName }}</span>
-									
-									<span class="cardPic">
-										<img :src="item.coverPic" alt="" />
-									</span>
-								</el-card>
-							</li>
-							
-							<span class="addInfo" @click="showDilog">+</span>
-							<div class="clear"></div>
-						</ul>
-					</div>
-					
-					<input name="listSortOrder" type="hidden" />
+				<el-form label-width="85px" class="demo-ruleForm">
 					
 					<!--组合编辑-->
 					<div class="edit_btn">
@@ -213,8 +66,7 @@
 					
 					<div style="text-align: center;padding: 30px 0px;">
 						<el-button  @click="goBack">返回</el-button>
-						<el-button type="primary" @click="submitForm('ruleForm')">发布</el-button>
-						<el-button type="primary" @click="saveForm('ruleForm')">存草稿</el-button>
+						<el-button type="primary" @click="submitForm">保存</el-button>
 					</div>
 				</el-form>
 			</div>
@@ -421,57 +273,12 @@
 			</el-dialog>
 			
 		</div>
-		<!--dialog弹窗-->
-		<div class="edit_dialog">
-			<el-dialog
-			  :title="dialogTitle"
-			  :visible.sync="dialogVisible"
-			  width="600px"
-			  :append-to-body="true"
-			  :close-on-click-modal="false"
-			  :before-close="handleClose">
-			  <!--表单开始-->
-			  	<el-form :model="form" label-width="85px" v-if='dialogVisible'>
-			  		<el-form-item label="区域类型：">
-						<el-select v-model="form.areaType" placeholder="请选择位置"  @change="inputFlag=1">
-							<el-option label="无" value=""></el-option>
-							<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.id+','+item.typeName"></el-option>
-						</el-select>
-			  		</el-form-item>
-			  		<el-form-item label="图片上传：">
-			  			<el-upload
-						  :action="uploadPic"
-						  list-type="picture-card"
-						  :data="uploadData"
-						  :limit="1"
-						  :file-list="fileList"
-						  :on-error="uploadError"
-						  :on-exceed="onExceed"
-						  :on-change="beforeUpload"
-						  :on-success="handlePictureCardPreview"
-						  ref="upload"
-						  :auto-upload="false"
-						  :on-remove="handleRemove">
-						  <i class="el-icon-plus"></i>
-						</el-upload>
-			  		</el-form-item>
-			  		<el-form-item label="区域描述">
-			  			<el-input type="textarea" v-model="form.desc" @change="inputFlag=1" :rows="6"></el-input>
-			  		</el-form-item>
-				</el-form>
-			  <!--表单结束-->
-				<span slot="footer" class="dialog-footer">
-			   		<el-button type="primary" @click="addCard" :disabled="form.addDisabled">确 定</el-button>
-				</span>
-			</el-dialog>
-			
-		</div>
 	</div>
 </template>
 
 <script>
 export default {
-	name:'addPackage',
+	name:'addDeliveryPackage',
 	data(){
 		//图片验证
 		let checkPic=(rule, value, callback)=>{
@@ -538,7 +345,7 @@ export default {
 			}
 		};
 		return{
-			id:0,
+			programmeID:'',
 			editGoodsFloag:0,
 			resizable:false,
 			selectGroupNum:0,
@@ -557,42 +364,10 @@ export default {
 			addGoodsVisible:false,//新增商品
 			goodsListVisible:false,//商品列表弹窗
 			multipleSelection: [],//多选
-			dialogVisible:false,//弹窗显示
 			inputFlag:0,//表单修改标记
-			lookPic:false,//图片查看
-			cardInfo:[],//描述卡片信息
-			cardKey:'',//卡片id
-			dialogFlag:0,//弹窗状态
-			styleList:[],//风格列表
-			brandList:[],//品牌列表
 			uploadData:{'token':''},
 			uploadPic:"https://up.qbox.me/",//图片上传
 			goods:initGoods(),
-			ruleForm:{
-				//listingId:'',//清单ID
-				//programmeArr:[],//方案列表
-				programmeID:'',//选中方案
-				programmeName:'',//方案名
-				modelType:'',//样板类型
-				homeNameArr:[],
-				home:'',//楼盘信息
-				apartmentLayout:'',//户型信息
-				homeArea:'',//面积
-				roamPic:'',//漫游图
-				name:'',//套餐名称
-				//price:'',//套餐价格
-				houseModel:'',//标题
-				introduction:'',//简介
-				picArr:[],//渲染图数组
-				selectPic:"",//选中渲染图
-				selectBtn:false,//重新选择
-				picShow:'',//渲染图展示
-				selectStyle:'',//风格
-				selectBrand:'',//选择品牌
-				desc:'',//套餐描述
-				planPic:'',//户型图Url
-				//content:''//内容
-			},
 			form:{
 				areaType:'',//区域类型
 				desc:'',//区域描述
@@ -629,30 +404,14 @@ export default {
 	//挂载
 	mounted(){
 		let obj=this;
-		//获取方案ID
-		this.ruleForm.programmeID=this.$route.params.code;
-		//获取方案信息
-		programeInfo(this,function(res){
-			//console.log(res)
-			if(res.data.c==0){				
-				obj.ruleForm.programmeName=res.data.d.name;
-				//方案列表
-				goodsList(obj);//获取商品列表
-				renderpic(obj);//渲染图列表
-				roamPicInfo(obj);
-				styleList(obj);//风格
-				brandList(obj);//品牌
-			}else{
-				obj.$message.error(res.data.m);
-			}
-		})
-		//拖动
-		this.$dragging.$on('dragged', ({ value }) => {
-	      	//console.log(value.item)
-	      	//console.log(value.list);
-	      	this.cardInfo=value.list;
-	   })
-
+		//let Base64=new Base64();
+		if(this.$route.params.code){			
+			this.programmeID=this.$route.params.code;
+		}else{
+			window.history.go(-1);
+		}
+		
+		goodsList(obj);//获取商品列表
 	},
 	beforeDestroy(){
 		this.dialogVisible=false;
@@ -669,6 +428,10 @@ export default {
 		  this.currentPage=val;
 		  goodsListAll(this);
 		},
+		uploadError(err, file, fileList){
+	    	this.$message.error("图片上传失败");
+	    	console.log(err);
+	    },
 		//全选
 	    toggleSelection() {
 	      	//更改状态
@@ -686,274 +449,20 @@ export default {
 	    	//console.log(val)	
 	        this.multipleSelection = val;
 	    },
-		//选择方案
-		/*programmeChange(){
-			this.ruleForm.selectBtn=false;
-			this.ruleForm.picShow='';
-			this.ruleForm.selectPic='';
-			this.ruleForm.picArr=[];
-			//获取渲染图
-			renderpic(this);
-		},*/
-	
-		//重新选择
-		reSelect(){
-			this.ruleForm.selectBtn=false;
-			this.ruleForm.picShow='';
-			this.ruleForm.selectPic='';
-		},
-		//选择封面图
-		selectPaic(picKey,picUrl){
-			this.ruleForm.picShow=picKey;
-			this.ruleForm.selectPic=picUrl;
-			this.ruleForm.selectBtn=true;
-			//console.log(this.ruleForm.picShow)
-		},
 		//返回
       	goBack(){
       		window.history.go(-1);
       	},
-      	//dialog弹窗
-      	showDilog(){
-      		querySpaceInfo(this,function(){});
-      		this.inputFlag=0;
-      		this.dialogFlag=0;
-	    	this.dialogTitle="新增描述";
-      		this.dialogVisible=true;
-      		this.form={
-      			areaType:'',//区域类型
-				desc:'',//区域描述
-				picurl:''
-      		}
-      		this.fileList=[];
-      	},
-	    handleClose(done) {
-	      	if(this.inputFlag){
-	      		this.$confirm('当前有未保存内容,确认关闭?', '提示', {
-		          	confirmButtonText: '确定',
-		          	cancelButtonText: '取消',
-	          		type: 'warning'
-	          	})
-	      		.then(_ => {
-		            done();
-		            this.inputFlag=0;
-		        })
-		        .catch(_ => {});
-	      	}else{
-	      		done();
-	      		this.inputFlag=0;
-	      	}
-	    },
-	    //图片上传与删除
-	    handleRemove(file, fileList) {
-        	//console.log(file, fileList);
-      	},
-      	beforeUpload(file,fileList){
-      		//console.log(fileList)
-      		const loading =openLoad(this);
-      		this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
-	       .then((response)=>{
-		       	//console.log(response);
-		       	loading.close();
-		       	if(response.data.retCode==0){
-		       		var qiniutoken=response.data.token;
-		       		this.uploadData.token=response.data.token;
-		       		this.$refs.upload.submit();
-		       		//console.log(this.uploadData)
-		       	}else{
-		       		loading.close();
-		       		this.$message.error('获取token失败！');
-		       	}
-	       })
-	       .catch((error)=>{
-		       	console.log(error)
-		       	loading.close();
-				this.$message.error('获取token失败！');
-			})
-      	},
-	    handlePictureCardPreview(response, file, fileList) {
-	    	this.$message({
-				message: '图片上传成功!',
-				type: 'success'
-			});
-			this.form.picurl = this.$store.state.qiniuUrl+response.key;
-	    	//console.log(response)
-	    },
-	    uploadError(err, file, fileList){
-	    	this.$message.error("图片上传失败");
-	    	console.log(err);
-	    },
-	    onExceed(){
-	    	this.$message({
-				message: '前先删除图片在进行上传操作',
-				type: 'warning'
-			});
-	    },
-	    //添加卡片
-	    addCard(){
-	    	let cardKey=this.cardKey;
-	    	let areaTypeArr=['','']
-	    	if(this.form.areaType){
-	    		areaTypeArr=this.form.areaType.split(',');
-	    	}
-	    	if(this.dialogFlag){
-	    		this.cardInfo[cardKey].areaTypeId=areaTypeArr[0];
-	    		this.cardInfo[cardKey].areaTypeName=areaTypeArr[1];
-	    		if(this.form.picurl){	    			
-	    			this.cardInfo[cardKey].coverPic=this.form.picurl;
-	    		}
-	    		this.cardInfo[cardKey].details=this.form.desc;
-	    	}else{
-	    		let info={
-	    			'areaTypeId':areaTypeArr[0],
-	    			'areaTypeName':areaTypeArr[1],
-	    			'coverPic':this.form.picurl,
-	    			'details':this.form.desc
-	    		}
-	    		this.cardInfo.push(info);
-	    	}
-	    	this.dialogVisible=false;	
-	    	this.cardKey='';
-	    },
-	    //删除卡片
-	    delCard(cardKey){
-	    	//cardInfo
-	    	this.$confirm('确定删除当前信息吗?', '提示', {
-	          	confirmButtonText: '确定',
-	          	cancelButtonText: '取消',
-	          	type: 'warning'
-	        }).then(() => {
-	         	this.cardInfo.splice(cardKey,1);
-	        }).catch(() => {
-	          	this.$message({
-	            	type: 'info',
-	            	message: '已取消删除'
-	          	});          
-	        });
-	    },
-	    //编辑卡片
-	    editCard(cardKey){
-	    	this.cardKey=cardKey;
-	    	this.dialogFlag=1;
-	    	this.dialogTitle="编辑描述";
-	    	this.dialogVisible=true;
-	    	/*form:{
-				areaType:'',//区域类型
-				desc:'',//区域描述
-				picurl:''
-			},*/
-			var that=this;
-			querySpaceInfo(this,function(){
-				if(that.cardInfo[cardKey].areaTypeId){
-					that.form.areaType=that.cardInfo[cardKey].areaTypeId+','+that.cardInfo[cardKey].areaTypeName;
-				}else{
-					that.form.areaType='';
-				}
-				
-	    		that.form.desc=that.cardInfo[cardKey].details;
-	    		that.fileList=[{name:that.cardInfo[cardKey].areaTypeName,url:that.cardInfo[cardKey].coverPic}];
-			});
-	    	
-	    },
+      	
       	//提交
-      	submitForm(formName) {
-	        this.$refs[formName].validate((valid) => {
-	          	if (valid) {
-					//样板
-					let modelTypeArr=this.ruleForm.modelType.split(',');
-					//楼盘
-					let homeArr=this.ruleForm.home.split(',');
-					//户型
-					let apartmentLayout=this.ruleForm.apartmentLayout;
-			        //面积
-			        let homeArea=this.ruleForm.homeArea;
-			        //风格
-			        let styleArr=this.ruleForm.selectStyle.split(',');
-			        //品牌
-			        let brandArr=this.ruleForm.selectBrand.split(',');
-		            let data={
-		            	'designId':this.ruleForm.programmeID,
-		            	'designName':this.ruleForm.programmeName,
-		            	'templateTypeId':modelTypeArr[0],
-		            	'templateTypeName':modelTypeArr[1],
-		            	'houseId':homeArr[0],
-		            	'houseName':homeArr[1],
-		            	'houseTypeName':apartmentLayout,
-		            	'houseArea':homeArea,
-		            	'threeDurl':this.ruleForm.roamPic,
-		            	'comboName':this.ruleForm.name,
-		            	//'comboPrice':this.ruleForm.price,
-		            	'styleId':styleArr[0],
-		            	'styleName':styleArr[1],
-		            	"brandId":brandArr[0],
-		            	"brandName":brandArr[1],
-		            	'houseModel':this.ruleForm.houseModel,
-		            	'intro':this.ruleForm.introduction,
-		            	'details':this.ruleForm.desc,
-		            	'coverPic':this.ruleForm.selectPic,
-		            	'tempInfo':this.cardInfo,
-		            	"houseModelUrl":this.ruleForm.planPic,
-		            	"designGoodsArray":this.tableData,
-		            	//'listingId':this.ruleForm.listingId,
-		            	'isUsed':0
-		            }
-		            addPackage(this,data);
-	          	} else {
-		          	this.$message.error("表单提交失败！");
-		            //console.log('error submit!!');
-		            return false;
-		        }
-	        });
+      	submitForm() {
+		    let data={
+		    	"designGoodsArray":this.tableData,
+		        'designId':this.programmeID
+		    }
+		    addPackage(this,data);
       	},
-      	saveForm(formName){
-      		 this.$refs[formName].validate((valid) => {
-	          if (valid) {
-				//样板
-				let modelTypeArr=this.ruleForm.modelType.split(',');
-				//楼盘
-				let homeArr=this.ruleForm.home.split(',');
-				//户型
-				let apartmentLayout=this.ruleForm.apartmentLayout;
-			    //面积
-			    let homeArea=this.ruleForm.homeArea;
-			    //风格
-			    let styleArr=this.ruleForm.selectStyle.split(',');
-			    //品牌
-			    let brandArr=this.ruleForm.selectBrand.split(',');
-	            let data={
-	            	'designId':this.ruleForm.programmeID,
-	            	'designName':this.ruleForm.programmeName,
-	            	'templateTypeId':modelTypeArr[0],
-	            	'templateTypeName':modelTypeArr[1],
-	            	'houseId':homeArr[0],
-	            	'houseName':homeArr[1],
-	            	'houseTypeName':apartmentLayout,
-	            	'houseArea':homeArea,
-	            	'threeDurl':this.ruleForm.roamPic,
-	            	'comboName':this.ruleForm.name,
-	            	//'comboPrice':this.ruleForm.price,
-	            	'styleId':styleArr[0],
-	            	'styleName':styleArr[1],
-	            	"brandId":brandArr[0],
-		            "brandName":brandArr[1],
-	            	'houseModel':this.ruleForm.houseModel,
-	            	'intro':this.ruleForm.introduction,
-	            	'details':this.ruleForm.desc,
-	            	'coverPic':this.ruleForm.selectPic,
-	            	'tempInfo':this.cardInfo,
-	            	"houseModelUrl":this.ruleForm.planPic,
-	            	"designGoodsArray":this.tableData,
-	            	//'listingId':this.ruleForm.listingId,
-	            	'isUsed':1
-	            }
-	            addPackage(this,data);
-	          } else {
-	          	this.$message.error("表单提交失败！");
-	            //console.log('error submit!!');
-	            return false;
-	          }
-	        });
-      	},
+      	
       	//拆分组合
       	removeGroup(){
       		if(this.multipleSelection.length!=1){
@@ -1483,7 +992,6 @@ export default {
 		}
     }
 }
-
 //打开loading
 function openLoad(obj){
 	const loading=obj.$loading({
@@ -1495,196 +1003,11 @@ function openLoad(obj){
     });
     return loading;
 }
-//获取方案信息
-function programeInfo(obj,callback){
-	const loading =openLoad(obj);
-	let data={
-		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
-		'KujiaLe':{},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		//console.log(res)
-		obj.ruleForm.apartmentLayout=res.data.d.specName;
-		obj.ruleForm.homeArea=res.data.d.srcArea;
-		obj.ruleForm.planPic=res.data.d.planPic;
-		loading.close();
-		callback(res);
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//获取风格列表
-function styleList(obj){
-	obj.$ajax.post(obj.$store.state.localIP+'selectStyleInfo')
-	.then(res=>{
-		//console.log(res)
-		if(res.data.retCode==0){
-			obj.styleList=res.data.styleInfoList;
-		}else{
-			obj.$message.error("获取风格列表失败！");
-		}
-	})
-	.catch(error=>{
-		console.log(error);
-		obj.$message.error("获取风格列表失败！");
-	})
-}
-//获取品牌列表
-function brandList(obj){
-	obj.$ajax.post(obj.$store.state.localIP+'selectBrand',{brandType:1})
-	.then(res=>{
-		//console.log(res)
-		if(res.data.retCode==0){
-			obj.brandList=res.data.brandList;
-		}else{
-			obj.$message.error("获取品牌列表失败！");
-		}
-	})
-	.catch(error=>{
-		console.log(error);
-		obj.$message.error("获取品牌列表失败！");
-	})
-}
-//获取方案渲染图列表
-function renderpic(obj){
-	const loading=obj.$loading({
-       	lock: true,
-      	text: '渲染图获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	let data={
-		'url':'https://openapi.kujiale.com/v2/renderpic/list',
-		'KujiaLe':{
-			'design_id':obj.ruleForm.programmeID,
-			'start':0,
-			'num':50
-		},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		loading.close();
-		if(res.data.c==0){
-			obj.$message({
-				message: '渲染图获取成功!',
-				type: 'success'
-			});
-			obj.ruleForm.picArr=res.data.d.result;
-			//roamPic(obj,res.data.d.result);
-			//console.log(obj.ruleForm.picArr)
-		}else{
-			obj.$message.error("获取渲染图列表出错~~");
-		}
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//获取方案信息列表
-function roamPicInfo(obj){
-	const loading=obj.$loading({
-       	lock: true,
-      	text: '信息获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	let data={
-		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
-		'KujiaLe':{
-			'designId':obj.ruleForm.programmeID
-		},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		//console.log(res)
-		loading.close();
-		if(res.data.c==0){
-			obj.$message({
-				message: '获取方案详情成功!',
-				type: 'success'
-			});
-			var fpid=res.data.d.planId;
-			//console.log(obj.ruleForm.picArr)
-			roamPic(obj,fpid);
-		}else{
-			obj.$message.error("获取方案详情失败~~");
-		}
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//生成全屋漫游图
-function roamPic(obj,fpid){
-	let loading=obj.$loading({
-       	lock: true,
-      	text: '漫游图获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-    let data={
-		'url':'https://openapi.kujiale.com/v2/renderpic/pano',
-		'KujiaLe':{
-			'start':0,
-			'num':50,
-			'appuid':hex_md5(obj.$store.state.userCode)
-		},
-		'params':'',
-		'method':'get',
-		'appuid':obj.$store.state.userCode
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		loading.close();
-		//console.log(res)
-		if(res.data.c==0){
-			obj.$message({
-				message: '获取全屋漫游图成功!',
-				type: 'success'
-			});
-			if(res.data.d){
-				if(res.data.d.result.length>0){
-					var index=res.data.d.result.indexOf('https://yun.kujiale.com/design/'+fpid+'/show');
-					if(index>-1){
-						obj.ruleForm.roamPic=res.data.d.result[index];
-						//console.log(obj.ruleForm.roamPic)
-					}else{
-						obj.$message.error("暂未生成全屋漫游图！");	
-					}
-				}
-			}
-		}else{
-			obj.$message.error("获取全屋漫游图失败~~");
-		}
-		homeInfo(obj);
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
+
 //新增套餐
 function addPackage(obj,data){
 	const loading =openLoad(obj);
-	obj.$ajax.post(obj.$store.state.localIP+'saveDesigInfo',data)
+	obj.$ajax.post(obj.$store.state.localIP+'saveDesigngoodsInfo',data)
 	.then(response=>{
 		loading.close();
 		if(response.data.retCode==0){
@@ -1692,32 +1015,7 @@ function addPackage(obj,data){
 				message: '套餐新增成功!',
 				type: 'success'
 			});
-			obj.$router.push({path:'/delivery/package'})
-        }else{
-           	obj.$message.error(response.data.retMsg);
-        }
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//获取楼盘信息
-function homeInfo(obj){
-	let loading=obj.$loading({
-       	lock: true,
-      	text: '获取楼盘信息',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	obj.$ajax.post(obj.$store.state.localIP+'selectHouses')
-	.then(response=>{
-		//console.log(response);
-		loading.close();
-		if(response.data.retCode==0){
-          	obj.ruleForm.homeNameArr=response.data.housesList;
+			obj.$router.push({path:'/designer/programme'})
         }else{
            	obj.$message.error(response.data.retMsg);
         }
@@ -1729,6 +1027,7 @@ function homeInfo(obj){
 	})
 }
 
+
 //获取商品列表
 function goodsList(obj){
 	
@@ -1739,7 +1038,7 @@ function goodsList(obj){
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
    });
-	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.ruleForm.programmeID,type:'0'})
+	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.programmeID})
 	.then(response=>{
 		//console.log(response);
 		var list=response.data.goodsList;
@@ -1769,7 +1068,7 @@ function initGoods(){
 		name:'',//名称
 		price:'',//单价
 		picNum:0,//标记
-		num:''//数量
+		num:1//数量
 	}
 	return data;
 }
@@ -1814,7 +1113,7 @@ function initAddGoods(){
 				selectPackage:'',//选中套餐包
 				selectLocation:'',//选中位置
 				locationList:[],//位置列表
-				num:''//数量
+				num:1//数量
 			}
 	return data;
 }
@@ -1896,15 +1195,7 @@ function sortData(list){
 			arr[i].groupId = index;
 		}
 	}
-	for(var i=1;i<arr.length;i++){
-		if(arr[i].replaceId){
-			if(arr[i-1].replaceId){
-				arr[i].replaceId=arr[i-1].replaceId;
-			}else{
-				arr[i].replaceId=i-1;
-			}
-		}
-	}
+	
 	arr=groupSort(arr);
 	var newArr=[];
 	for(var x=0;x<arr.length;x++){
@@ -2040,6 +1331,7 @@ function duplicate(arr){
 	}
 	return newArr;
 }
+
 </script>
 
 <style scoped>

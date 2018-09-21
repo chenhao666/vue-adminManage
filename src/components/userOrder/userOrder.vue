@@ -16,13 +16,53 @@
 			<!--筛选条件-->
 			<div class="filter">
 				<div class="inlineBlock">
-					<div class="left" style="width: 200px;">
+					<div class="left">
 						<el-input v-model="searchNum" placeholder="请输入订单编号"></el-input>
 					</div>
-					<div class="left" style="width: 200px;margin-left: 10px;">
-						<el-input v-model="searchName" placeholder="请输入客户名称"></el-input>
+					<div class="left">
+						<el-input v-model="searchName" placeholder="请输入姓名"></el-input>
 					</div>
-					<div class="left" style="margin-left: 10px;">
+					<div class="left">
+						<el-input v-model="searchCity" placeholder="请输入城市"></el-input>
+					</div>
+					<div class="left">
+						<el-date-picker 
+							v-model="searchTime" 
+							type="daterange" 
+							align="right" 
+							unlink-panels 
+							range-separator="至" 
+							start-placeholder="开始日期" 
+							end-placeholder="结束日期" 
+							value-format="yyyy-MM-dd HH:mm:ss">
+						</el-date-picker>
+					</div>
+					<div class="left">
+						<el-input v-model="searchAddress" placeholder="请输入地址"></el-input>
+					</div>
+					<div class="left">
+						<el-input v-model="searchUsername" placeholder="请输入账号"></el-input>
+					</div>
+					<div class="left">
+						<el-select v-model="searchPay" placeholder="支付状态">
+						    <el-option label="未付" value="0"></el-option>
+						    <el-option label="已付" value="1"></el-option>
+						</el-select>
+					</div>
+					<div class="left">
+						<el-select v-model="searchStatus" placeholder="订单状态">
+						    <el-option
+						      v-for="(item,index) in stateList"
+						      :key="index"
+						      :label="item"
+						      :value="index">
+						    </el-option>
+						</el-select>
+					</div>
+					<div class="left">
+						<el-input v-model="searchDesc" placeholder="请输入备注"></el-input>
+					</div>
+					<div class="left">
 						<el-button type="success" @click="searchOrder"><span class="iconfont icon-search"></span>搜索</el-button>
 					</div>
 					<div class="clear"></div>
@@ -35,36 +75,40 @@
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="orderNo" label="订单编号" width="220" show-overflow-tooltip>
+				<el-table-column prop="orderNo" label="订单编号" min-width="180" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="city" label="城市" width="80" show-overflow-tooltip>
+				<el-table-column prop="city" label="城市" min-width="60" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="updateTime" label="创建时间" width="100">
+				<el-table-column prop="updateTime" label="创建时间" min-width="100">
 					<template slot-scope="props">
 						<div>{{ timeFomit(props.row.updateTime)[0] }}</div>
 						<div>{{ timeFomit(props.row.updateTime)[1] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="address" label="地址" min-width="100" show-overflow-tooltip>
+				<el-table-column prop="address" label="地址" min-width="80" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="linkman" label="客户" width="80" show-overflow-tooltip>
+				<el-table-column prop="linkman" label="姓名" min-width="60" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="totalAmout" label="金额" width="80">
+				<el-table-column prop="linkMobileNum" label="电话" min-width="60" show-overflow-tooltip>
+				</el-table-column>
+				<el-table-column prop="mobileNum" label="账号" min-width="60" show-overflow-tooltip>
+				</el-table-column>
+				<el-table-column prop="totalAmout" label="金额" min-width="80">
 					<template slot-scope="props">
 						<div>￥{{ props.row.totalAmout/100 }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="alreadyAmount" label="已付" width="80">
+				<el-table-column prop="alreadyAmount" label="已付" min-width="80">
 					<template slot-scope="props">
 						<div>￥{{ props.row.alreadyAmount/100 }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="orderStatus" label="支付状态" width="80" show-overflow-tooltip>
+				<el-table-column prop="orderStatus" label="支付状态" min-width="80" show-overflow-tooltip>
 					<template slot-scope="props">
 						<div>{{ stateList[props.row.orderStatus] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="orderStatus" label="备注" width="80" show-overflow-tooltip>
+				<el-table-column prop="orderStatus" label="备注" min-width="80" show-overflow-tooltip>
 					<template slot-scope="props">
 						<div><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.row)">{{ props.row.remark ? props.row.remark : '备注' }}</a></div>
 					</template>
@@ -127,10 +171,17 @@
 				tableData:[],
 				searchName:'',//搜索客户
 				searchNum:'',//搜索订单编号
+				searchCity:'',//搜索城市  
+				searchTime:'',//搜索时间
+				searchAddress:'',//搜索地址
+				searchUsername:'',//搜索账号
+				searchPay:'',//搜索已付
+				searchStatus:'',//搜索状态
+				searchDesc:'',//搜索备注
 				currentPage: 1,//分页当前页数
 		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
-		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成'],
+		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        ruleForm:{
 		        	desc:''
 		        }
@@ -229,12 +280,35 @@
 	//获取订单列表
 	function orderList(obj){
 		const loading =openLoad(obj,"获取列表中...");
-		obj.$ajax.post(obj.$store.state.localIP+"queryGoodsOrderList",{
+		var data={
 			"linkman":obj.searchName,
 			"orderNo":obj.searchNum,
 			"start":(obj.currentPage-1)*obj.pageSize,
 			"length":obj.pageSize
-		})
+		}
+		if(obj.searchCity){
+			data.city=obj.searchCity;
+		}
+		if(obj.searchAddress){
+			data.address=obj.searchAddress;
+		}
+		if(obj.searchUsername){
+			data.linkMobileNum=obj.searchUsername;
+		}
+		if(obj.searchPay){
+			data.status=obj.searchPay;
+		}
+		if(obj.searchStatus || obj.searchStatus){
+			data.orderStatus=obj.searchStatus;
+		}
+		if(obj.searchDesc){
+			data.remark=obj.searchDesc;
+		}
+		if(obj.searchTime){
+			data.beginTime=obj.searchTime[0];
+			data.endTime=obj.searchTime[1];
+		}
+		obj.$ajax.post(obj.$store.state.localIP+"queryGoodsOrderList",data)
 		.then(response=>{
 			loading.close();
 			//console.log(response)
@@ -268,5 +342,13 @@
 	}
 	.filter .left{
 		float: left;
-	}	
+		margin-left: 20px;
+		margin-top: 20px;
+		width: 200px;
+	}
+
+	.filter{
+		width: 100%;
+		box-sizing: border-box;
+	}
 </style>

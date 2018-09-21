@@ -239,7 +239,7 @@
 				tableData:[],
 				currentPage:1,//当前页数
 				pageTotal:0,//总数
-				pageSize:5,//分页默认每页条数
+				pageSize:10,//分页默认每页条数
 				dialogVisible: false,//弹窗状态
 		        dialogTitle:'提示',
 		        dialogFlag:0,
@@ -689,7 +689,7 @@
 	}
 	//获取品牌列表
 	function brandList(obj){
-		obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+		obj.$ajax.post(obj.$store.state.localIP+'selectBrand',{brandType:1})
 		.then(res=>{
 			console.log(res)
 			if(res.data.retCode==0){

@@ -99,7 +99,7 @@
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
 		        currentPage: 1,//分页当前页数
-		        pageSize:5,//分页默认每页条数
+		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
 		        dialogVisible: false,//弹窗状态
 		        dialogFlag:0,//标记

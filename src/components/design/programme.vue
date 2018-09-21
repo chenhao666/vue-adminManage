@@ -27,11 +27,13 @@
 					style="width: 100%;">
 					<!--<el-table-column type="selection" width="55">
 					</el-table-column>-->
-					<el-table-column prop="name" label="方案" width="300">
+					<el-table-column prop="name" label="方案" width="150" show-overflow-tooltip>
 					</el-table-column>
-					<el-table-column prop="specName" label="户型" width="150">
+					<el-table-column prop="specName" label="户型" width="100" show-overflow-tooltip>
 					</el-table-column>
 					<el-table-column prop="srcArea" label="面积(㎡)" width="75">
+					</el-table-column>
+					<el-table-column prop="mobileNum" label="手机号" width="100" show-overflow-tooltip>
 					</el-table-column>
 					<el-table-column prop="modifiedTime" label="修改时间" width="150">
 						<template slot-scope="props">
@@ -43,10 +45,13 @@
 						<template slot-scope="scope">
 							<el-button
 					          size="mini"
-					          @click="handleSend(scope.$index, scope.row)">发送方案</el-button>
+					          @click="handleSend(scope.$index, scope.row)">{{ scope.row.isUsed==0 ? "撤回方案" : "发送方案"  }}</el-button>
 							<el-button
 					          size="mini"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+					          <el-button
+					          size="mini"
+					          @click="handleEditGoods(scope.$index, scope.row)">商品编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
@@ -104,20 +109,13 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="选择用户：" prop="mobile">
-					<el-select v-model="ruleForm.user" placeholder="请选择" @change="inputFlag=1">
-					    <el-option
-					      v-for="(item,index) in ruleForm.userList"
-					      :key="index"
-					      :label="item.userName"
-					      :value="item.userName">
-					    </el-option>
-					</el-select>
+				<el-form-item label="手机号：" prop="mobile">
+					<el-input  v-model="ruleForm.mobile" @change="inputFlag=1"></el-input>
 				</el-form-item>
 			</el-form>
 			<!--表单结束-->
 			<span slot="footer" class="dialog-footer">
-				<el-button type="primary" :disabled="ruleForm.disabled" @click="submitForm('ruleForm')">确 定</el-button>
+				<el-button type="primary"  @click="submitForm('ruleForm')">确 定</el-button>
 			</span>
 		</el-dialog>
 	</div>
@@ -128,14 +126,14 @@ export default {
 	name:'homeDesign',
 	data(){
 		//手机号码验证
-		/*let checkMobile=(rule, value, callback)=>{
+		let checkMobile=(rule, value, callback)=>{
 			let Ptest=/^1[34578]{1}\d{9}$/;
 			if(!Ptest.test(value)){
 				callback(new Error('请输入正确的手机格式'))
 			}else{
 				callback();
 			}
-		};*/
+		};
 		return{
 			dialogVisible:false,//弹窗
 			inputFlag:0,//弹窗状态
@@ -143,23 +141,11 @@ export default {
 			currentPage: 1,//分页当前页数
 	        pageSize:10,//分页默认每页条数
 	        pageTotal:0,//页数总数
-	        ruleForm:{	 
-	        	name:'',//方案名称
-	        	user:'',//用户
-	        	pic:'',//户型图
-	        	userList:[],//用户表
-	        	threeDpic:'',//3D全景图
-	        	brandList:[],//品牌列表
-	        	styleList:[],//风格列表
-	        	styleName:'',//风格
-	        	brand:'',//品牌
-	        	programmeId:'',//选中品牌ID
-	        	disabled:true
-	        },
+	        ruleForm:initForm(),
 	        //表单验证
 	        rules:{
-	        	user:[
-	        		{ required: true, message: '请选择用户', trigger: 'blur' }
+	        	mobile:[
+	        		{  required: true, validator: checkMobile, trigger: 'blur' }
 	        	],
 	        	brand:[
 	        		{ required: true, message: '请选择品牌', trigger: 'blur' }
@@ -171,13 +157,9 @@ export default {
 		}
 	},
 	//挂载
-	mounted(){		
+	mounted(){	
 		//方案列表
 		programeList(this);
-		//获取渲染图
-		//renderpic(this);
-		//获取清单
-		//orderList(this)
 	},
 	beforeDestroy(){
 		this.dialogVisible=false;
@@ -186,18 +168,49 @@ export default {
 		//发送方案
 		handleSend(index, row){
 			//console.log(row)
-			this.dialogVisible=true;
-			var that=this;
-			this.ruleForm.name=row.name;
-			this.ruleForm.programmeId=row.designId;
-			this.ruleForm.pic=row.planPic;
-			userList(this,function(res){
-				//console.log(res)
-				renderpic(that,row.designId);
-				brandList(that);
-				styleList(that)
-				that.ruleForm.userList=res.data.uRelations;
-			})
+			if(row.isUsed==0){
+				this.$confirm('确定撤回当前方案吗?', '提示', {
+		        	confirmButtonText: '确定',
+		        	cancelButtonText: '取消',
+		        	type: 'warning'
+		      	}).then(() => {
+					const loading =openLoad(this);
+					this.$ajax.post(this.$store.state.localIP+'updateUserProgram',{designInfoId:row.designId})
+					.then(res=>{
+						loading.close();
+						//console.log(res)
+						if(res.data.retCode==0){
+							this.$message({
+								message: '撤回成功!',
+								type: 'success'
+							});
+							programeList(this);
+						}else{
+							this.$message.error("撤回失败！");
+						}
+					})
+					.catch((error)=>{
+						loading.close();
+						console.log(error);
+						this.$message.error("网络连接错误~~");
+					})
+		      	}).catch(() => {
+			        this.$message({
+			          	type: 'info',
+			          	message: '已取消操作'
+			        }); 
+			    })
+				
+			}else{
+				this.ruleForm=initForm();
+				styleList(this);
+				brandList(this);
+				this.dialogVisible=true;
+				var that=this;
+				this.ruleForm.name=row.name;
+				this.ruleForm.programmeId=row.designId;
+				this.ruleForm.pic=row.planPic;
+			}
 		},
 		 //表单提交
    		submitForm(formName) {
@@ -205,7 +218,7 @@ export default {
 	          if (valid) {
 	          	const loading =openLoad(this);
 	          	this.$ajax.post(this.$store.state.localIP+'sendUserProgram',{
-	          		userName:this.ruleForm.user,
+	          		mobileNum:this.ruleForm.mobile,
 	          		brandName:this.ruleForm.brand,
 	          		desigName:this.ruleForm.name,
 	          		designInfoId:this.ruleForm.programmeId,
@@ -221,8 +234,8 @@ export default {
 							message: '方案发送成功!',
 							type: 'success'
 						});
+						programeList(this);
 						this.dialogVisible=false;
-						this.ruleForm.disabled=true;
 					}else{
 						this.$message.error("方案发送失败！");
 					}
@@ -243,6 +256,12 @@ export default {
 	        //console.log(index, row);
 	        //console.log(row)
 	        this.$router.push({path:'/designer/editHomeDesign/'+row.designId})
+      	},
+      	handleEditGoods(index, row) {
+	        //console.log(index, row);
+	        //console.log(row)
+	        this.$router.push({path:'/designer/editGoods/'+row.designId});
+	       
       	},
 	    //删除
 	    handleDelete(index, row) {
@@ -342,8 +361,21 @@ function programeList(obj){
 		let list=res.data;
 		if(list.c==0){
 			if(list.d.result){
-				obj.tableData=list.d.result;
-				obj.pageTotal=list.d.totalCount;
+				userList(obj,function(res){
+					var programList=res.data.userPrograms;
+					var listAll=list.d.result;
+					for(var i=0;i<listAll.length;i++){
+						for(var j=0;j<programList.length;j++){
+							if(programList[j].designInfoId==listAll[i].designId){
+								listAll[i].mobileNum=programList[j].mobileNum;
+								listAll[i].isUsed=programList[j].isUsed;
+							}
+						}
+					}
+					//console.log(listAll)
+					obj.tableData=listAll;
+					obj.pageTotal=list.d.totalCount;
+				})
 			}	
 		}
 	})
@@ -434,7 +466,6 @@ function roamPic(obj,picArr){
 				type: 'success'
 			});
 			obj.ruleForm.threeDpic=res.data.d || "";
-			obj.ruleForm.disabled=false
 		}else{
 			obj.$message.error("全屋漫游图生成失败~~");
 			roamPic(obj,picArr)
@@ -563,15 +594,15 @@ function dropProgramme(obj,programmeId){
 		obj.$message.error("网络连接错误~~");
 	})
 }
-//获取用户列表
+//获取发送的手机号
 function userList(obj,callback){
 	const loading =openLoad(obj);
-	obj.$ajax.post(obj.$store.state.localIP+'queryDesignUser',{personName:Base64.decode(sessionStorage.getItem(Base64.encode('username')))})
+	obj.$ajax.post(obj.$store.state.localIP+'queryUserProgramInfo')
 	.then(res=>{
 		loading.close();
 		//console.log(res)
 		if(res.data.retCode==0){
-			callback(res)
+			callback(res);
 		}else{
 			obj.$message.error("获取用户列表失败！");
 		}
@@ -600,7 +631,7 @@ function styleList(obj){
 }
 //获取品牌列表
 function brandList(obj){
-	obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+	obj.$ajax.post(obj.$store.state.localIP+'selectBrand',{brandType:1})
 	.then(res=>{
 		//console.log(res)
 		if(res.data.retCode==0){
@@ -613,6 +644,20 @@ function brandList(obj){
 		console.log(error);
 		obj.$message.error("获取品牌列表失败！");
 	})
+}
+function initForm(){
+	var data={	 
+	        	name:'',//方案名称
+	        	pic:'',//户型图
+	        	mobile:'',//手机号
+	        	threeDpic:'',//3D全景图
+	        	brandList:[],//品牌列表
+	        	styleList:[],//风格列表
+	        	styleName:'',//风格
+	        	brand:'',//品牌
+	        	programmeId:'',//选中品牌ID
+	        }
+	return data;
 }
 </script>
 

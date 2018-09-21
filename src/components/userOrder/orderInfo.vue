@@ -56,7 +56,11 @@
 				</el-table-column>
 				<el-table-column prop="model" label="型号">
 				</el-table-column>
-				<el-table-column prop="material" label="颜色材质">
+				<el-table-column prop="goodsColor" label="颜色">
+				</el-table-column>
+				<el-table-column prop="material" label="材质">
+				</el-table-column>
+				<el-table-column prop="units" label="单位">
 				</el-table-column>
 				<el-table-column prop="number" label="数量" >
 				</el-table-column>
@@ -94,7 +98,7 @@
 				currentPage: 1,//分页当前页数
 		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
-		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成'],
+		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        state:0,//状态
 			}
 		}, 

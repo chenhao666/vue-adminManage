@@ -29,6 +29,11 @@
 				</el-table-column>-->
 				<el-table-column prop="brandName" label="品牌名称">
 				</el-table-column>
+				<el-table-column prop="brandType" label="品牌类型">
+					<template slot-scope="props">
+						<div>{{ props.row.brandType=="1" ? "设计方案" : "商品" }}</div>
+					</template>
+				</el-table-column>
 				<el-table-column label="操作">
 			      <template slot-scope="scope">
 			        <el-button
@@ -74,6 +79,13 @@
 			  	<el-form-item label="品牌名" prop="name">
 			  		<el-input v-model="ruleForm.name" maxlength='20'  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
+			  	
+			  	<el-form-item label="品牌类型" prop="brandType">
+			  		<el-select v-model="ruleForm.brandType" placeholder="请选择类型"  @change="inputFlag=1">
+						<el-option label="设计方案" value="1"></el-option>
+						<el-option label="商品品牌" value="2"></el-option>
+					</el-select>
+			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -93,7 +105,7 @@
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
 		        currentPage: 1,//分页当前页数
-		        pageSize:5,//分页默认每页条数
+		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
 		        dialogVisible: false,//弹窗状态
 		        dialogFlag:0,//标记
@@ -103,6 +115,9 @@
 		        rules:{
 		        	name:[
 		        		{ required: true, message: '请输入品牌名称', trigger: 'blur' }
+		        	],
+		        	brandType:[
+		        		{ required: true, message: '请选择品牌类型', trigger: 'blur' }
 		        	]
 		        }
 			}
@@ -186,6 +201,7 @@
 		      	this.dialogVisible = true;//打开弹窗
 		      	this.dialogFlag=row.brandId;
 		      	this.ruleForm.name=row.brandName;
+		      	this.ruleForm.brandType=row.brandType.toString();
       		},
 	     	//删除
 	      	handleDelete(index, row) {
@@ -209,7 +225,8 @@
 			        if (valid) {
 			        	const loading =openLoad(this,"Loading...");
 			        	var data={
-			        		brandName:this.ruleForm.name
+			        		brandName:this.ruleForm.name,
+			        		brandType:this.ruleForm.brandType
 			        	}
 			        	if(this.dialogFlag!=0){
 			        		data.brandId=this.dialogFlag;
@@ -274,7 +291,8 @@
 	//表单初始化
 	function formInit(){
 		let data={
-		        name: ''//品牌名称
+		        name: '',//品牌名称
+		        brandType:'1',
 	        }
 		return data;
 	}

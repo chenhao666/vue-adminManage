@@ -33,11 +33,11 @@
 					</el-table-column>
 					<el-table-column prop="comboName" label="套餐名" width="150">
 					</el-table-column>
-					<el-table-column prop="comboPrice" label="套餐价格" width="150">
+					<el-table-column prop="houseName" label="楼盘" width="150">
 					</el-table-column>
 					<el-table-column prop="styleName" label="风格" width="75">
 					</el-table-column>
-					<el-table-column prop="title" label="标题" width="150" show-overflow-tooltip>
+					<el-table-column prop="brandName" label="品牌名" width="150" show-overflow-tooltip>
 					</el-table-column>
 					<el-table-column prop="statusName" label="状态" width="75">
 					</el-table-column>

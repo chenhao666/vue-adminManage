@@ -47,6 +47,9 @@ import HomeDesign from '@/components/design/homeDesign'
 import EditHomeDesign from '@/components/design/editHomeDesign'
 //设计师-设计方案
 import DesignProgramme from '@/components/design/programme'
+//设计师-商品编辑
+import EditGoods from '@/components/design/editGoods'
+
 
 //信息发布-装修攻略
 import Raiders from '@/components/delivery/raiders'
@@ -83,6 +86,8 @@ import CommodityEntry from '@/components/commodityManage/commodityEntry'
 import CommodityPackage from '@/components/commodityManage/commodityPackage'
 //商品管理-位置管理
 import LocationManage from '@/components/commodityManage/locationManage'
+//商品管理-商品类型管理
+import CommodityType from '@/components/commodityManage/commodityType'
 
 //订单-订单管理
 import PackageOrder from '@/components/userOrder/userOrder'
@@ -214,6 +219,10 @@ export default new Router({
       		name:'设计师-设计方案',
       		component:DesignProgramme		
       	},{
+      		path:'designer/editGoods/:code',
+      		name:'设计师-商品编辑',
+      		component:EditGoods		
+      	},{
       		path:'designer/chat',
       		name:'设计师-及时通讯',
       		component:CustomerService		
@@ -293,6 +302,10 @@ export default new Router({
       		path:'commodityManage/locationManage',
       		name:'商品管理-位置管理',
       		component:LocationManage		
+      	},{
+      		path:'commodityManage/commodityType',
+      		name:'商品管理-商品类型管理',
+      		component:CommodityType		
       	}
       ]
     },

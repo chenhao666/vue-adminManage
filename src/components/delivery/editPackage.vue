@@ -1,5 +1,5 @@
 <template>
-	<div class="addDeliveryPackage">
+	<div class="editPackage">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  <el-breadcrumb-item>信息发布</el-breadcrumb-item>
@@ -236,7 +236,7 @@
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="套餐包：" prop="selectPackage">
-								<el-select v-model="addGoods.selectPackage" placeholder="请选择套餐包" v-show="this.selectGoodsType==0?'true':false">
+								<el-select v-model="addGoods.selectPackage" placeholder="请选择套餐包" v-show="this.selectGoodsType==0?'true':false" :disabled="(selectGoods.species=='商品' || selectGoods.species=='替换') ? true :false ">
 									<el-option v-for="(item,key) in addGoods.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName+','+item.packageOrder"></el-option>
 								</el-select>  
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].packageName :'' }}</span>
@@ -245,7 +245,7 @@
 						
 						<el-col :span="12">
 							<el-form-item label="位置：" prop="selectLocation">
-								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false">
+								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false" :disabled="(selectGoods.species=='商品' || selectGoods.species=='替换') ? true :false ">
 									<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.typeName+','+item.typeOrder"></el-option>
 								</el-select>
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].typeName : '' }}</span>
@@ -471,7 +471,7 @@
 
 <script>
 export default {
-	name:'addDeliveryPackage',
+	name:'editPackage',
 	data(){
 		//图片验证
 		let checkPic=(rule, value, callback)=>{
@@ -546,7 +546,7 @@ export default {
 			selectGoods:{},//选中商品
 			selectGoodsType:0,
 			currentPage: 1,//分页当前页数
-		    pageSize:5,//分页默认每页条数
+		    pageSize:10,//分页默认每页条数
 		    pageTotal:0,//页数总数
 			tableData:[],
 			goodsData:[],//商品列表
@@ -1168,27 +1168,7 @@ export default {
 			this.goods.picNum=0;
 		},
 		//图片上传
-		uploadSuccess(response, file, fileList){
-			var list=this.multipleSelection;
-			//console.log(list)
-			var listAll=this.tableData;
-			var index=-1;
-			for(var i=0;i<list.length;i++){
-				for(var j=0;j<listAll.length;j++){
-					if(list[i].indexId==listAll[j].indexId){
-						//console.log(j)
-						if(index!=-1){
-							if(parseInt(j)<parseInt(index)){
-								index=j;
-							}
-						}else{							
-							index=j;
-						}
-					}
-				}
-			}
-			//console.log(index)
-			
+		uploadSuccess(response, file, fileList){		
 			var list=this.goods.fileList;
 			var num=this.goods.picNum;
 			list[num].url=this.$store.state.qiniuUrl+response.key;
@@ -1204,7 +1184,7 @@ export default {
 	    		coverPic=coverPicArr.join(',');
 	
 	    		var chirld={
-	    			indexId:index,
+	    			indexId:this.tableData.length,
 	    			goodsImages:coverPic,
 	    			goodsSrc:coverPicArr[0],
 	    			goodsName:this.goods.name,
@@ -1216,22 +1196,20 @@ export default {
 	    			species:'组合',
 	    			designId:this.multipleSelection[0].designId,
 	    			roomId:this.multipleSelection[0].roomId,
+	    			packageOrder:this.multipleSelection[0].packageOrder,
+	    			typeOrder:this.multipleSelection[0].typeOrder
 	    		}
 	    		var list=this.multipleSelection;
 				var listAll=this.tableData;
-	    		for(var i=0;i<list.length;i++){
-	    			list[i].groupId=index;
+				for(var i=0;i<list.length;i++){
 					for(var j=0;j<listAll.length;j++){
-						if(list[i].indexId==listAll[j].indexId){
-							this.tableData.splice(j,1);
+						if(listAll[j].indexId==list[i].indexId){
+							this.tableData[j].groupId=chirld.indexId;
+							this.tableData[j].species='商品';
 						}
 					}
 				}
-	    		this.tableData.splice(index,0,chirld);
-	    		for(var i=0;i<list.length;i++){
-	    			list[i].species='商品';
-	    			this.tableData.splice(index+i+1,0,list[i]);
-	    		}
+	    		this.tableData.push(chirld);
 	    		//console.log(this.tableData)
 	    		this.tableData=sortData(this.tableData);
 	    		//console.log(this.tableData)
@@ -1391,7 +1369,8 @@ export default {
 				}
 				
 				this.tableData=sortData(this.tableData);
-		    }).catch(() => {
+		    }).catch((e) => {
+		    	console.log(e)
 		      	this.$message({
 		        	type: 'info',
 		        	message: '已取消删除'
@@ -1469,29 +1448,20 @@ export default {
 							}
 							//console.log(child)
 							//this.tableData.push(child);
-							var goodsLocation=this.tableData.length-1;
-							for(var i=0;i<listAll.length;i++){
-								if(listAll[i].packageId==child.packageId){
-									//console.log(listAll[i].species)
-									if(listAll[i].typeName==child.typeName){
-										goodsLocation=i;
-										break;
-									}
-									goodsLocation=i;
-								}
-							}
-							
-							this.tableData.splice(goodsLocation+1,0,child);
+							child.indexId=this.tableData.length;
+							this.tableData.push(child);
 							this.selectGoods={};
 						}else{
 							child.species="替换";
-							for(var i=0;i<listAll.length;i++){
+							/*for(var i=0;i<listAll.length;i++){
 								if(listAll[i].indexId==selectList[0].indexId){
 									//console.log(i,listAll[i].indexId)
 									this.tableData.splice(i+1,0,child);
 									break;
 								}
-							}
+							}*/
+							child.indexId=this.tableData.length;
+							this.tableData.push(child);
 						}
 						//console.log(child)
 				   	}else{
@@ -1500,6 +1470,7 @@ export default {
 								var arr=this.addGoods.selectPackage.split(',');
 								this.tableData[i].packageId=arr[0];
 								this.tableData[i].packageName=arr[1];
+								this.tableData[i].packageOrder=arr[2];
 								if(this.addGoods.selectLocation){
 									var selectLocationArr=this.addGoods.selectLocation.split(',');
 									this.tableData[i].typeName=selectLocationArr[0];
@@ -1609,7 +1580,7 @@ function styleList(obj){
 }
 //获取品牌列表
 function brandList(obj){
-	obj.$ajax.post(obj.$store.state.localIP+'selectBrand')
+	obj.$ajax.post(obj.$store.state.localIP+'selectBrand',{brandType:1})
 	.then(res=>{
 		//console.log(res)
 		if(res.data.retCode==0){
@@ -1968,31 +1939,15 @@ function packageInfo(obj,callback){
 function sortData(list){
 	//console.log(list)
 	var arr=[];
-	var arrList=[];
 	var arrRe=[];
 	for(var i=0;i<list.length;i++){
 		if(list[i].replaceId || list[i].replaceId ==0){
 			arrRe.push(list[i]);
 		}else{
-			if(list[i].groupId || list[i].groupId==0){
-				arrList.push(list[i])
-			}else{
-				arr.push(list[i]);
-			}
+			arr.push(list[i]);
 		}
 	}
-	arr=packageSort(arr);
-	arr=locationSort(arr);
-	//console.log(arr,0)
-	for(var i=0;i<arrList.length;i++){
-		for(var j=0;j<arr.length;j++){
-			if(arrList[i].groupId==arr[j].indexId){
-				arr.splice(j+1,0,arrList[i]);
-				break;
-			}
-		}
-	}
-	//console.log(arrRe,arr)
+	
 	for(var i=0;i<arrRe.length;i++){
 		for(var j=0;j<arr.length;j++){
 			if(arrRe[i].replaceId==arr[j].indexId){
@@ -2002,23 +1957,36 @@ function sortData(list){
 			}
 		}
 	}
-	//console.log(arr,2)
+	arr=packageSort(arr);
+	arr=locationSort(arr);
+	var newArr=[];
 	for(var x=0;x<arr.length;x++){
 		arr[x].lastIndex=arr[x].indexId;
-		if(arr[x].indexId!=x && arr[x].indexId){
-			for(var y=0;y<arr.length;y++){
-				if(arr[x].indexId==arr[y].groupId){
-					arr[x].indexId=x;
-					arr[y].groupId=x;
-				}else{
-					arr[x].indexId=x;
-				}
-			}
-		}else{
-			arr[x].indexId=x;
+		newArr.push(arr[x].indexId)
+		arr[x].indexId=x;
+	}
+	
+	for(var i=0;i<arr.length;i++){
+		if(arr[i].groupId || arr[i].groupId==0){
+			var index=newArr.indexOf(arr[i].groupId);
+			arr[i].groupId = index;
 		}
 	}
-	//console.log(arr,3)
+	
+	arr=groupSort(arr);
+	var newArr=[];
+	for(var x=0;x<arr.length;x++){
+		arr[x].lastIndex=arr[x].indexId;
+		newArr.push(arr[x].indexId)
+		arr[x].indexId=x;
+	}
+	
+	for(var i=0;i<arr.length;i++){
+		if(arr[i].groupId || arr[i].groupId==0){
+			var index=newArr.indexOf(arr[i].groupId);
+			arr[i].groupId = index;
+		}
+	}
 	for(var i=1;i<arr.length;i++){
 		if(arr[i].replaceId){
 			if(arr[i-1].replaceId){
@@ -2028,96 +1996,119 @@ function sortData(list){
 			}
 		}
 	}
-	arr=groupSort(arr);
-	//console.log(arr,4)
 	return arr;
 }
 //套餐包  排序
 function packageSort(arr){
-	//console.log(arr)
-	//var newArr=arr;
+	
+	var newArr=[];
+	var sortArr=[];
 	for(var i=0;i<arr.length;i++){
-		arr[i].packageOrder=parseInt(arr[i].packageOrder);
-		arr[i].typeOrder=parseInt(arr[i].typeOrder);
-		if(i!=arr.length-1){
-			if(parseInt(arr[i].packageOrder)>=parseInt(arr[i+1].packageOrder)){
-				var x=arr[i];
-				var y=arr[i+1];
-				arr[i]=y;
-				arr[i+1]=x;
-			}		
-		}
-		
+		newArr.push(arr[i].packageOrder);
 	}
-	for(var i=arr.length-1;i>0;i--){
-		if(parseInt(arr[i].packageOrder)<parseInt(arr[i-1].packageOrder)){
-			var x=arr[i];
-			var y=arr[i-1];
-			arr[i]=y;
-			arr[i-1]=x;
-		}		
-		
-	}
+	newArr=duplicate(newArr);
+	newArr.sort();
 	//console.log(newArr)
-	return arr;
+	for(var i=0;i<newArr.length;i++){
+		for(var j=0;j<arr.length;j++){
+			if(arr[j].packageOrder==newArr[i]){
+				sortArr.push(arr[j])
+			}
+		}
+	}
+	//console.log(sortArr)
+	return sortArr;
 }
 //位置排序
 function locationSort(arr){
-	//var newArr=arr;
+	var newArr=[];
+	var sortArr=[];
+	var num=0;
 	for(var i=0;i<arr.length;i++){
-		if(i!=arr.length-1){
-			if(parseInt(arr[i].packageOrder)==parseInt(arr[i+1].packageOrder)){
-				if(arr[i].typeOrder>=arr[i+1].typeOrder){
-					var x=arr[i];
-					var y=arr[i+1];
-					arr[i]=y;
-					arr[i+1]=x;
+		newArr.push(arr[i].packageOrder);
+	}
+	newArr=duplicate(newArr);
+	for(var i=0;i<newArr.length;i++){
+		var typeArr=[];
+		var typeOrderArr=[];
+		for(var j=0;j<arr.length;j++){
+			if(arr[j].packageOrder==newArr[i]){
+				typeOrderArr.push(arr[j].typeOrder);
+				typeArr.push(arr[j]);
+			}
+		}
+		typeOrderArr=duplicate(typeOrderArr);
+		typeOrderArr.sort();
+		for(var x=0;x<typeOrderArr.length;x++){
+			for(var y=0;y<typeArr.length;y++){
+				if(typeArr[y].typeOrder==typeOrderArr[x]){
+					sortArr.push(typeArr[y])
 				}
 			}
 		}
-		
 	}
-	for(var i=arr.length-1;i>0;i--){
-		if(parseInt(arr[i].packageOrder)==parseInt(arr[i-1].packageOrder)){
-			if(arr[i].typeOrder<arr[i-1].typeOrder){
-				var x=arr[i];
-				var y=arr[i-1];
-				arr[i]=y;
-				arr[i-1]=x;
-			}
-		}	
-	}
-	//console.log(newArr)
-	return arr;
+	return sortArr;
 }
 //组合排序
 function groupSort(arr){
+	var saaa=arr;
+	//console.log(saaa)
+	var newArr=[];
+	var sortArr=[];
+	var flagArr=[];
 	for(var i=0;i<arr.length;i++){
-		if(i!=arr.length-1){
-			if(parseInt(arr[i].groupId)==parseInt(arr[i+1].groupId)){
-				if(arr[i].typeOrder>=arr[i+1].typeOrder){
-					var x=arr[i];
-					var y=arr[i+1];
-					arr[i]=y;
-					arr[i+1]=x;
+		if(arr[i].groupId || arr[i].groupId==0){			
+			newArr.push(arr[i].groupId);
+		}
+	}
+	newArr=duplicate(newArr);
+	for(var i=0;i<arr.length;i++){
+		if(newArr.indexOf(arr[i].indexId)>-1){
+			if(flagArr.indexOf(arr[i].indexId)==-1){
+				sortArr.push(arr[i]);
+				for(var y=0;y<arr.length;y++){
+					if(arr[y].groupId==arr[i].indexId){
+						sortArr.push(arr[y]);
+					}
 				}
+				flagArr.push(arr[i].indexId);
+			}
+		}else{
+			if(flagArr.indexOf(arr[i].groupId)==-1){
+				//console.log(1)
+				if(arr[i].groupId || arr[i].groupId==0){
+					for(var j=0;j<arr.length;j++){
+						if(arr[j].indexId==arr[i].groupId){
+							sortArr.push(arr[j]);
+						}
+					}
+					for(var x=0;x<arr.length;x++){
+						if(arr[x].groupId==arr[i].groupId){
+							sortArr.push(arr[x]);
+						}
+					}
+					flagArr.push(arr[i].groupId);	
+				}else{
+					sortArr.push(arr[i]);
+				} 
 			}
 		}
-		
 	}
-	for(var i=arr.length-1;i>0;i--){
-		if(parseInt(arr[i].groupId)==parseInt(arr[i-1].groupId)){
-			if(arr[i].typeOrder<arr[i-1].typeOrder){
-				var x=arr[i];
-				var y=arr[i-1];
-				arr[i]=y;
-				arr[i-1]=x;
-			}
-		}	
-	}
-	//console.log(newArr)
-	return arr;
+	//console.log(sortArr)
+	return sortArr;
 }
+//去重
+function duplicate(arr){
+	var newArr=[];
+	for(var i=0;i<arr.length;i++){
+		arr[i]=parseInt(arr[i]);
+		if(newArr.indexOf(arr[i])==-1){
+			newArr.push(arr[i]);
+		}
+	}
+	return newArr;
+}
+
 </script>
 
 <style scoped>

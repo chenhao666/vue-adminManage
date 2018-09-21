@@ -1,33 +1,38 @@
 <template>
-	<div class="styleManage">
+	<div class="commodityType">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">用户管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">风格管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/commodityManage/commodityEntry' }">商品管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">商品类型管理</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>风格管理</span>
+				<span>商品类型管理</span>
 			</div>
 			<div class="line"></div>
 			
 			<!--批量操作-->
 			<div class="editBtn">
 				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addStyle" type="primary"><span class="iconfont icon-crm11"></span>添加风格</el-button>
+				<el-button @click="addBrand" type="primary"><span class="iconfont icon-crm11"></span>添加类型</el-button>
 				<div class="clear"></div>
 			</div>
 			
-			<!--风格列表-->
+			<!--类型列表-->
 			<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark"  @selection-change="handleSelectionChange">
 				<el-table-column type="selection" width="55">
 				</el-table-column>
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="styleName" label="风格">
+				
+				<el-table-column prop="packageName" label="套餐包">
+				</el-table-column>
+				<el-table-column prop="goodsType" label="类型名称">
+				</el-table-column>
+				<el-table-column prop="codePrefix" label="前缀">
 				</el-table-column>
 				<el-table-column label="操作">
 			      <template slot-scope="scope">
@@ -70,9 +75,18 @@
 			  :before-close="handleClose">
 			  <!--表单开始-->
 			  <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="85px">
-				
-			  	<el-form-item label="风格" prop="name">
-			  		<el-input v-model="ruleForm.name" maxlength='20'  @change="inputFlag=1"></el-input>
+				<el-form-item label="套餐包" prop="package">
+			  		<el-select v-model="ruleForm.package" placeholder="选择包">
+						<el-option v-for="(item,key) in ruleForm.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
+					</el-select>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="类型名" prop="goodsType">
+			  		<el-input v-model="ruleForm.goodsType" maxlength='20'  @change="inputFlag=1"></el-input>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="前缀" prop="codePrefix">
+			  		<el-input v-model="ruleForm.codePrefix" maxlength='20'  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
@@ -86,7 +100,7 @@
 
 <script>
 	export default{
-		name:'styleManage',
+		name:'commodityType',
 		data () {
 			return {
 				tableData:[],
@@ -101,15 +115,21 @@
 		        dialogTitle:'提示',
 		        ruleForm:formInit(),
 		        rules:{
-		        	name:[
-		        		{ required: true, message: '请输入品牌名称', trigger: 'blur' }
+		        	goodsType:[
+		        		{ required: true, message: '请输入类型名称', trigger: 'blur' }
+		        	],
+		        	codePrefix:[
+		        		{ required: true, message: '请选择类型类型', trigger: 'blur' }
+		        	],
+		        	package:[
+		        		{ required: true, message: '请选择套餐包', trigger: 'blur' }
 		        	]
 		        }
 			}
 		},
 		mounted(){
-			//获取品牌列表
-			styleList(this);
+			//获取类型列表
+			typeList(this);
 		},
 		beforeDestroy(){
 			this.dialogVisible=false;
@@ -141,7 +161,7 @@
 			        	type: 'warning'
 			      });
 		    	}else{
-			    	this.$confirm('确定删除当前风格吗?', '提示', {
+			    	this.$confirm('确定删除当前类型吗?', '提示', {
 			        confirmButtonText: '确定',
 			        cancelButtonText: '取消',
 			        type: 'warning'
@@ -149,10 +169,10 @@
 			      	let delArr=[];
 			      	let multi=this.multipleSelection;
 			      	for(let i=0;i<multi.length;i++){
-			      		delArr.push(multi[i].styleId);
+			      		delArr.push(multi[i].id);
 			      	}
-			      	let data={"styleId":delArr.join(',')};
-			      	delStyle(this,data);
+			      	let data={"id":delArr.join(',')};
+			      	delBrand(this,data);
 			      }).catch(() => {
 			        this.$message({
 			          type: 'info',
@@ -165,37 +185,41 @@
 		    handleSizeChange(val) {
 		      //console.log(`每页 ${val} 条`);
 		      this.pageSize=val;
-		      styleList(this);
+		      typeList(this);
 		    },
 		    handleCurrentChange(val) {
 		      //console.log(`当前页: ${val}`);
 		      this.currentPage=val;
-		      styleList(this);
+		      typeList(this);
 		    },
-		    //添加品牌
-		    addStyle(){
+		    //添加类型
+		    addBrand(){
 		    	this.ruleForm=formInit();
-		      	this.dialogTitle="添加风格";
+		    	packageList(this);
+		      	this.dialogTitle="添加类型";
 		      	this.dialogVisible = true;//打开弹窗
 		      	this.dialogFlag=0;
 		    },
 		    //编辑
       		handleEdit(index, row) {
 				this.ruleForm=formInit();
-		      	this.dialogTitle="编辑风格";
+				packageList(this);
+		      	this.dialogTitle="编辑类型";
 		      	this.dialogVisible = true;//打开弹窗
-		      	this.dialogFlag=row.styleId;
-		      	this.ruleForm.name=row.styleName;
+		      	this.dialogFlag=row.id;
+		      	this.ruleForm.goodsType=row.goodsType;
+		      	this.ruleForm.codePrefix=row.codePrefix;
+		      	this.ruleForm.package=row.packageId+','+row.packageName;
       		},
 	     	//删除
 	      	handleDelete(index, row) {
-	      		this.$confirm('确定删除当前风格吗?', '提示', {
+	      		this.$confirm('确定删除当前类型吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
 		        }).then(() => {
-		          let data={"styleId":row.styleId};
-		          delStyle(this,data);
+		          let data={"id":row.id};
+		          delBrand(this,data);
 		        }).catch(() => {
 		          this.$message({
 		            type: 'info',
@@ -207,32 +231,69 @@
 		    submitForm(formName) {
 		      	this.$refs[formName].validate((valid) => {
 			        if (valid) {
-			        	const loading =openLoad(this,"Loading...");
+			        	var packageArr=this.ruleForm.package.split(',');
+			        		
 			        	var data={
-			        		styleName:this.ruleForm.name
+			        		goodsType:this.ruleForm.goodsType,
+			        		codePrefix:this.ruleForm.codePrefix,
+			        		packageId:packageArr[0],
+			        		packageName:packageArr[1]
 			        	}
 			        	if(this.dialogFlag!=0){
-			        		data.styleId=this.dialogFlag;
+			        		this.$confirm('修改后，所有已录入商品的前缀都将进行修改，是否继续?', '提示', {
+					        	confirmButtonText: '确定',
+					        	cancelButtonText: '取消',
+				        		type: 'warning'
+				        	})
+			        		.then(_ => {
+			        			const loading =openLoad(this,"Loading...");
+					        	data.id=this.dialogFlag;	
+					        	this.$ajax.post(this.$store.state.localIP+'saveGoodsType',data)
+					        	.then((response)=>{
+					        		loading.close();
+					        		if(response.data.retCode==0){
+					        			this.$message({
+										  message: '操作成功!',
+										  type: 'success'
+										});
+										this.dialogVisible=false;
+										typeList(this);
+					        		}else{
+					        			this.$message.error(response.data.retMsg);	
+					        		}
+					        	})
+					        	.catch((error) =>{
+					        		console.log(error);
+					        		loading.close();
+					        		this.$message.error('操作失败！');
+					        	})
+					      	})
+					      	.catch(_ => {
+									
+					      	});
+			        	}else{
+			        		const loading =openLoad(this,"Loading...");	
+				        	this.$ajax.post(this.$store.state.localIP+'saveGoodsType',data)
+				        	.then((response)=>{
+				        		loading.close();
+				        		if(response.data.retCode==0){
+				        			this.$message({
+									  message: '操作成功!',
+									  type: 'success'
+									});
+									this.dialogVisible=false;
+									typeList(this);
+				        		}else{
+				        			this.$message.error('操作失败！');	
+				        		}
+				        	})
+				        	.catch((error) =>{
+				        		console.log(error);
+				        		loading.close();
+				        		this.$message.error(response.data.retMsg);	
+				        	})
 			        	}
-			        	this.$ajax.post(this.$store.state.localIP+'addStyleInfo',data)
-			        	.then((response)=>{
-			        		loading.close();
-			        		if(response.data.retCode==0){
-			        			this.$message({
-								  message: '操作成功!',
-								  type: 'success'
-								});
-								this.dialogVisible=false;
-								styleList(this);
-			        		}else{
-			        			this.$message.error('操作失败！');	
-			        		}
-			        	})
-			        	.catch((error) =>{
-			        		console.log(error);
-			        		loading.close();
-			        		this.$message.error('操作失败！');
-			        	})
+			        	
 			        } else {
 			          	this.$message.error('表单提交失败！');
 			          	return false;
@@ -250,8 +311,8 @@
 		    		.then(_ => {
 			          done();
 			          this.inputFlag=0;
-			      })
-			      .catch(_ => {});
+			      	})
+			      	.catch(_ => {});
 		    	}else{
 		    		done();
 		    		this.inputFlag=0;
@@ -274,14 +335,17 @@
 	//表单初始化
 	function formInit(){
 		let data={
-		        name: ''//品牌名称
-	        }
+		        goodsType: '',//类型名称
+		        codePrefix:'',
+		        packageList:[],
+		        package:''
+	    }
 		return data;
 	}
-	//获取风格列表
-	function styleList(obj){
+	//获取类型列表
+	function typeList(obj){
 		const loading =openLoad(obj,"获取列表中...");
-		obj.$ajax.post(obj.$store.state.localIP+"queryStyleInfo",{
+		obj.$ajax.post(obj.$store.state.localIP+"queryGoodsType",{
 			"start":(obj.currentPage-1)*obj.pageSize,
 			"length":obj.pageSize
 		})
@@ -289,22 +353,22 @@
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.tableData=response.data.styleInfoList;
+				obj.tableData=response.data.goodsTypeList;
 				obj.pageTotal=response.data.countNum;
 			}else{
-				obj.$message.error('获取品牌列表失败！');
+				obj.$message.error('获取类型列表失败！');
 			}
 		})
 		.catch((error)=>{
 			loading.close();
 	        console.log(error)
-			obj.$message.error('获取品牌列表失败！');
+			obj.$message.error('获取类型列表失败！');
 		})
 	}
-	//删除风格
-	function delStyle(obj,data){
+	//删除类型
+	function delBrand(obj,data){
 		const loading =openLoad(obj,"Loading...");
-		obj.$ajax.post(obj.$store.state.localIP+"deleteStyleInfo",data)
+		obj.$ajax.post(obj.$store.state.localIP+"deleteGoodsType",data)
 		.then(response=>{
 			loading.close();
 			//console.log(response)
@@ -313,7 +377,7 @@
 				  message: '删除成功!',
 				  type: 'success'
 				});
-				var list=data.styleId.toString();
+				var list=data.id.toString();
 				if(list.indexOf(',')>-1){
 					var listArr=list.split(',');
 					obj.pageTotal-=listArr.length;
@@ -323,7 +387,7 @@
 				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
 					obj.currentPage-=1;
 				}
-				styleList(obj);
+				typeList(obj);
 			}else{
 				obj.$message.error('删除失败！');
 			}
@@ -332,6 +396,25 @@
 			loading.close();
 	        console.log(error)
 			obj.$message.error('删除失败！');
+		})
+	}
+	//获取包列表
+	function packageList(obj){
+		const loading =openLoad(obj,"获取列表中...");
+		obj.$ajax.post(obj.$store.state.localIP+'queryGoodsPackageList')
+		.then(res=>{
+			loading.close();
+			//console.log(res)
+			if(res.data.retCode==0){
+				obj.ruleForm.packageList=res.data.goodsPackages;
+			}else{
+				obj.$message.error("获取商品包失败！");
+			}
+		})
+		.catch(error=>{
+			loading.close();
+			console.log(error);
+			obj.$message.error("获取商品包失败！");
 		})
 	}
 </script>
