@@ -43,7 +43,7 @@
 				</el-table-column>
 				<el-table-column prop="imageUrl" label="商品图">
 					<template slot-scope="props">
-						<div><img :src="props.row.imageUrl" alt="" width="90%"/></div>
+						<div><img :src="props.row.goodsImg" alt="" width="90%"/></div>
 					</template>
 				</el-table-column>
 				<el-table-column prop="typeName" label="空间名">
@@ -179,7 +179,16 @@
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.tableData=response.data.goodsOrderDetailList;
+				var list=response.data.goodsOrderDetailList;
+				for(var i=0;i<list.length;i++){
+					if(list[i].imageUrl.indexOf(',')>-1){
+						var arr=list[i].imageUrl.split(',');
+						list[i].goodsImg=arr[0];
+					}else{
+						list[i].goodsImg=list[i].imageUrl;
+					}
+				}
+				obj.tableData=list;
 				obj.pageTotal=response.data.countNum;
 			}else{
 				obj.$message.error('获取订单详情失败！');

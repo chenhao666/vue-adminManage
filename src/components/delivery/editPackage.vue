@@ -449,7 +449,7 @@
 						  :on-exceed="onExceed"
 						  :on-change="beforeUpload"
 						  :on-success="handlePictureCardPreview"
-						  ref="upload"
+						  ref="uploadCard"
 						  :auto-upload="false"
 						  :on-remove="handleRemove">
 						  <i class="el-icon-plus"></i>
@@ -800,7 +800,7 @@ export default {
 		       	if(response.data.retCode==0){
 		       		var qiniutoken=response.data.token;
 		       		this.uploadData.token=response.data.token;
-		       		this.$refs.upload.submit();
+		       		this.$refs.uploadCard.submit();
 		       		//console.log(this.uploadData)
 		       	}else{
 		       		loading.close();
