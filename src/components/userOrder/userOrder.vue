@@ -45,12 +45,14 @@
 					</div>
 					<div class="left">
 						<el-select v-model="searchPay" placeholder="支付状态">
+							<el-option label="全部" value=""></el-option>
 						    <el-option label="未付" value="0"></el-option>
 						    <el-option label="已付" value="1"></el-option>
 						</el-select>
 					</div>
 					<div class="left">
 						<el-select v-model="searchStatus" placeholder="订单状态">
+							<el-option  label="全部" value=""></el-option>
 						    <el-option
 						      v-for="(item,index) in stateList"
 						      :key="index"
@@ -295,10 +297,10 @@
 		if(obj.searchUsername){
 			data.linkMobileNum=obj.searchUsername;
 		}
-		if(obj.searchPay){
+		if(obj.searchPay || obj.searchPay===0){
 			data.status=obj.searchPay;
 		}
-		if(obj.searchStatus || obj.searchStatus){
+		if(obj.searchStatus || obj.searchStatus===0){
 			data.orderStatus=obj.searchStatus;
 		}
 		if(obj.searchDesc){

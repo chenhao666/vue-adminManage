@@ -744,10 +744,19 @@
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.$message({
-				  message: '删除成功!',
-				  type: 'success'
-				});
+				if(response.data.errMsg){
+					obj.$alert(response.data.errMsg, '错误信息', {
+			          confirmButtonText: '确定',
+			          callback: action => {
+			            goodsList(this);
+			          }
+			        });
+				}else{
+					obj.$message({
+					  message: '删除成功!',
+					  type: 'success'
+					});
+				}
 				var list=data.id.toString();
 				if(list.indexOf(',')>-1){
 					var listArr=list.split(',');

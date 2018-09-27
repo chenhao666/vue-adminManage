@@ -202,7 +202,7 @@
 									<div><span @click="editGoods(props.row)" class="hrefA">{{ props.row.goodsName }}</span></div>
 								</template>
 							</el-table-column>
-							<el-table-column prop="material" :resizable="resizable"   label="颜色材质" width="100" show-overflow-tooltip>
+							<el-table-column prop="material" :resizable="resizable"   label="材质" width="100" show-overflow-tooltip>
 							</el-table-column>
 							<el-table-column prop="unitPrice" :resizable="resizable"   label="单价" width="75">
 							</el-table-column>
@@ -275,7 +275,7 @@
 						</el-col>
 						
 						<el-col :span="12">
-							<el-form-item label="颜色材质：">
+							<el-form-item label="材质：">
 								{{ selectGoods.material }}
 							</el-form-item>
 						</el-col>
@@ -541,7 +541,7 @@ export default {
 			id:0,
 			editGoodsFloag:0,
 			resizable:false,
-			selectGroupNum:0,
+			selectGroupNum:-1,
 			goodsSearch:'',//商品搜索
 			selectGoods:{},//选中商品
 			selectGoodsType:0,
@@ -1137,37 +1137,47 @@ export default {
 	    			coverPicArr.push(list[i].url);
 	    		}
 	    		coverPic=coverPicArr.join(',');
-	
-	    		var chirld={
-	    			indexId:this.tableData.length,
-	    			goodsImages:coverPic,
-	    			goodsSrc:coverPicArr[0],
-	    			goodsName:this.goods.name,
-	    			unitPrice:this.goods.price,
-	    			goodsNum:this.goods.num,
-	    			packageId:this.multipleSelection[0].packageId,
-	    			packageName:this.multipleSelection[0].packageName,
-	    			typeName:this.multipleSelection[0].typeName,
-	    			species:'组合',
-	    			designId:this.multipleSelection[0].designId,
-	    			roomId:this.multipleSelection[0].roomId,
-	    			packageOrder:this.multipleSelection[0].packageOrder,
-	    			typeOrder:this.multipleSelection[0].typeOrder
-	    		}
-	    		var list=this.multipleSelection;
-				var listAll=this.tableData;
-				for(var i=0;i<list.length;i++){
-					for(var j=0;j<listAll.length;j++){
-						if(listAll[j].indexId==list[i].indexId){
-							this.tableData[j].groupId=chirld.indexId;
-							this.tableData[j].species='商品';
+				if(this.selectGroupNum==-1){
+		    		var chirld={
+		    			indexId:this.tableData.length,
+		    			goodsImages:coverPic,
+		    			goodsSrc:coverPicArr[0],
+		    			goodsName:this.goods.name,
+		    			unitPrice:this.goods.price,
+		    			goodsNum:this.goods.num,
+		    			packageId:this.multipleSelection[0].packageId,
+		    			packageName:this.multipleSelection[0].packageName,
+		    			typeName:this.multipleSelection[0].typeName,
+		    			species:'组合',
+		    			designId:this.multipleSelection[0].designId,
+		    			roomId:this.multipleSelection[0].roomId,
+		    			packageOrder:this.multipleSelection[0].packageOrder,
+		    			typeOrder:this.multipleSelection[0].typeOrder
+		    		}
+		    		var list=this.multipleSelection;
+					var listAll=this.tableData;
+					for(var i=0;i<list.length;i++){
+						for(var j=0;j<listAll.length;j++){
+							if(listAll[j].indexId==list[i].indexId){
+								this.tableData[j].groupId=chirld.indexId;
+								this.tableData[j].species='商品';
+							}
 						}
 					}
-				}
-	    		this.tableData.push(chirld);
-	    		//console.log(this.tableData)
-	    		this.tableData=sortData(this.tableData);
-	    		//console.log(this.tableData)
+		    		this.tableData.push(chirld);
+		    		//console.log(this.tableData)
+		    		this.tableData=sortData(this.tableData);
+		    		//console.log(this.tableData)
+		    	}else{
+					var index=this.selectGroupNum;	
+					this.tableData[index].unitPrice=this.goods.price;
+					this.tableData[index].goodsName=this.goods.name;
+					this.tableData[index].goodsNum=this.goods.num;
+					this.tableData[index].goodsImages=coverPic;
+					this.tableData[index].goodsSrc=coverPicArr[0];
+					//console.log(coverPic)
+					this.selectGroupNum=-1;
+		    	}
 	    		this.groupVisible=false;
 	    		this.$refs.multipleTable.clearSelection();
 	    		this.goods.picChange=0;
@@ -1185,8 +1195,7 @@ export default {
 						return;
 					}
 		        	const loading =openLoad(this,"Loading...");
-		        	if(this.goods.picChange){
-			        	//console.log(2)
+		        	if(this.goods.picChange){	
 			        	this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
 					    .then((response)=>{
 					    	//console.log(response);
@@ -1215,7 +1224,9 @@ export default {
 						this.tableData[index].goodsName=this.goods.name;
 						this.tableData[index].goodsNum=this.goods.num;
 						this.tableData[index].goodsImages=this.goods.fileList[0].url;
+						this.selectGroupNum=-1
 						this.groupVisible=false;
+						this.goods.picChange=0;
 					}
 		        } else {
 		          	this.$message.error('表单提交失败！');
@@ -1246,6 +1257,7 @@ export default {
 		//新增商品
 		addGoodsFun(){
 			this.selectGoodsType=0;
+			this.editGoodsFloag=0;
 			this.goodsSearch='';
 			this.goodsData=[];
 			this.pageTotal=0;
@@ -1473,6 +1485,7 @@ export default {
 			}
 			if(val.species=='组合'){
 				//console.log(val)
+				this.goods.picChange=0;
 				this.selectGroupNum=val.indexId;
 				this.groupVisible=true;
 				this.goods.fileList=[{name:'pic',url:val.goodsSrc}];
