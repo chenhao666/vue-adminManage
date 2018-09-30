@@ -126,7 +126,7 @@ export default {
 	width: 100%;
 }
 .v-aside{
-	width: 200px;
+	/*width: 200px;*/
 	position: absolute;
 	height: 100%;
 	top: 0px;
