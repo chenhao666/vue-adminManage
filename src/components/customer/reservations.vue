@@ -69,7 +69,7 @@
 				    			align="right"
 				    			style="float:left">
 				    		</el-date-picker>
-				    		<el-button type="primary" @click="addCustomer" style="padding:12px 12.5px"><span class="iconfont icon-crm11"></span>新增登记</el-button>
+				    		<el-button type="primary" @click="addCustomer" v-if="addBtnShow" style="padding:12px 12.5px"><span class="iconfont icon-crm11"></span>新增登记</el-button>
 							<div class="clear"></div>
 						</div>
 				</el-form>
@@ -82,36 +82,36 @@
 					<!--<el-table-column label="ID" width="60" prop="id">
 						<template slot-scope="scope">{{ scope.row.orderID }}</template>
 					</el-table-column>-->
-					<el-table-column prop="custName" label="姓名" :width="initWidth" >
+					<el-table-column prop="custName" label="姓名" min-width="120" >
 					</el-table-column>
 					<el-table-column prop="sex" label="性别" width="75">
 					</el-table-column>
-					<el-table-column prop="mobileNum" label="手机号" :width="initWidth">
+					<el-table-column prop="mobileNum" label="手机号" min-width="120">
 					</el-table-column>
-					<el-table-column prop="inletWay" label="预约方式" :width="initWidth">
+					<el-table-column prop="inletWay" label="预约方式" min-width="120">
 					</el-table-column>
-					<el-table-column prop="appTime" label="预约时间" v-if="!timeFlag" :width="initWidth">
+					<el-table-column prop="appTime" label="预约时间" v-if="!timeFlag" min-width="120">
 						<template slot-scope="props">
 							 <div>{{ timeFomit(props.row.appTime)[0] }}</div>
 							 <div>{{ timeFomit(props.row.appTime)[1] }}</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="callTime" label="回访时间" v-if="searchOffset"  :width="initWidth">
+					<el-table-column prop="callTime" label="回访时间" v-if="searchOffset"  min-width="120">
 						<template slot-scope="props">
 							 <div>{{ timeFomit(props.row.callTime)[0] }}</div>
 							 <div>{{ timeFomit(props.row.callTime)[1] }}</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="callBackTime" label="回访时间" v-if="timeFlag" :width="initWidth">
+					<el-table-column prop="callBackTime" label="回访时间" v-if="timeFlag" min-width="120">
 						<template slot-scope="props">
 							 <div>{{ timeFomit(props.row.callBackTime)[0] }}</div>
 							 <div>{{ timeFomit(props.row.callBackTime)[1] }}</div>
 						</template>
 					</el-table-column>
-					<el-table-column label="操作">
+					<el-table-column label="操作"  v-if="!connectTypeShow && !editBtnShow">
 						<template slot-scope="scope">
 							<el-button size="mini" @click="handleLook(scope.$index, scope.row)" v-if="connectTypeShow">详情</el-button>
-							<el-button size="mini" @click="handleEdit(scope.$index, scope.row)" v-if="!connectTypeShow">回访</el-button>
+							<el-button size="mini" @click="handleEdit(scope.$index, scope.row)" v-if="!connectTypeShow && editBtnShow">回访</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -140,8 +140,11 @@ export default {
 	name:'reservations',
 	data () {
 		return {
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: [],
-			initWidth:120,//初始宽度
 			pickerOptions2: {
 	          shortcuts: [{
 	            text: '最近一周',
@@ -177,12 +180,6 @@ export default {
 			form: initForm()
 		}
 	},
-	created(){
-		let width=$(window).width();
-		if(width>1300){
-			this.initWidth=150;
-		}
-	},
 	computed:{
 		//沟通类型展示不同结果
 		connectTypeShow(){
@@ -209,6 +206,15 @@ export default {
 		}
 	},
 	mounted(){
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		//初始化请求列表
 		customerList(this);
 		//请求需回访

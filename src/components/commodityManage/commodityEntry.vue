@@ -40,10 +40,10 @@
 			
 			<!--批量操作-->
 			<div class="editBtn">
-				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addClass" type="primary"><span class="iconfont icon-crm11"></span>添加商品</el-button>
-				<el-button @click="importData" type="success">批量导入</el-button>
-				<a href="http://m.wojiali.cn/file/fileSource/template.xlsx" download="download"><el-button type="success">下载模板</el-button></a>
+				<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+				<el-button @click="addClass" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加商品</el-button>
+				<el-button v-if="addBtnShow" @click="importData" type="success">批量导入</el-button>
+				<a href="http://m.wojiali.cn/file/fileSource/template.xlsx" v-if="addBtnShow" download="download"><el-button type="success">下载模板</el-button></a>
 				<div class="clear"></div>
 			</div>
 			
@@ -57,9 +57,9 @@
 				</el-table-column>
 				<el-table-column prop="model" label="商品型号">
 				</el-table-column>
-				<el-table-column prop="brandName" label="商品品牌" width="80">
+				<el-table-column prop="brandName" label="商品品牌" min-width="80">
 				</el-table-column>
-				<el-table-column prop="unitPrice" label="商品价格" width="100">
+				<el-table-column prop="unitPrice" label="商品价格" min-width="100">
 				</el-table-column>
 				<el-table-column prop="specifications" label="商品规格">
 				</el-table-column>
@@ -68,16 +68,18 @@
 				<!--<el-table-column prop="packageName" label="套餐包" width="80">
 				</el-table-column>-->
 
-				<el-table-column label="操作"  width="180">
+				<el-table-column label="操作"  width="180" v-if="editBtnShow || delBtnShow">
 			      <template slot-scope="scope">
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
 			          type="danger"
+			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 			      </template>
 			    </el-table-column>
@@ -259,6 +261,10 @@
 				}
 			};
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				fileUpload:this.$store.state.localIP+'goodsBatchImport',//文件上传地址
 				fileListExcel:[],
 				tableData:[],
@@ -320,6 +326,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			goodsList(this);
 		},
 		beforeDestroy(){

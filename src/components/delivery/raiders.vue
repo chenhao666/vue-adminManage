@@ -71,10 +71,11 @@
 			</div>
 			
 			<div class="edit_btn">
-				<el-button @click="addRaiders" type="primary">新增</el-button>
-				<el-button @click="releaseRaiders" type="primary" :disabled="changeValue==0?true:false">发布</el-button>
-				<el-button @click="withdrawRaiders" type="danger" :disabled="changeValue==2?true:false">撤回</el-button>
-				<el-button @click="delRaiders" type="danger" :disabled="changeValue==0?true:false">删除</el-button>
+				<el-button @click="addRaiders" v-if="addBtnShow" type="primary">新增</el-button>
+				<el-button @click="releaseRaiders" type="primary" v-if="editBtnShow" :disabled="changeValue==0?true:false">发布</el-button>
+				<el-button @click="withdrawRaiders" type="danger" v-if="editBtnShow" :disabled="changeValue==2?true:false">撤回</el-button>
+				<el-button @click="delRaiders" type="danger" v-if="delBtnShow" :disabled="changeValue==0?true:false">删除</el-button>
+				<div class="clear"></div>
 			</div>
 			
 			<div class="raidersList">
@@ -159,6 +160,10 @@ export default {
 	name:'raiders',
 	data(){
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData:[],
 			multipleSelection: [],
 			currentPage: 1,//分页当前页数
@@ -204,6 +209,15 @@ export default {
 	},
 	//挂载
 	mounted(){		
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		raidersList(this);
 	},
 	methods: {

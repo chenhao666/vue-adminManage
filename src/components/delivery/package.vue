@@ -14,10 +14,11 @@
 			<div class="line"></div>
 			
 			<div class="edit_btn">
-				<el-button @click="addPackage" type="primary">新增</el-button>
-				<el-button @click="releasePackage" type="primary" :disabled="changeValue==0?true:false">发布</el-button>
-				<el-button @click="withdrawPackage" type="danger" :disabled="changeValue==2?true:false">撤回</el-button>
-				<el-button @click="delPackage" type="danger" :disabled="changeValue==0?true:false">删除</el-button>
+				<el-button @click="addPackage" v-if="addBtnShow" type="primary">新增</el-button>
+				<el-button @click="releasePackage" v-if="editBtnShow" type="primary" :disabled="changeValue==0?true:false">发布</el-button>
+				<el-button @click="withdrawPackage" v-if="editBtnShow" type="danger" :disabled="changeValue==2?true:false">撤回</el-button>
+				<el-button @click="delPackage" type="danger" v-if="delBtnShow" :disabled="changeValue==0?true:false">删除</el-button>
+				<div class="clear"></div>
 			</div>
 			
 			<div class="deliveryPackageList">
@@ -29,25 +30,27 @@
 					tooltip-effect="dark" 
 					style="width: 100%;"
 					@selection-change="handleSelectionChange">
-					<el-table-column type="selection" width="55">
+					<el-table-column type="selection" min-width="55">
 					</el-table-column>
-					<el-table-column prop="comboName" label="套餐名" width="150">
+					<el-table-column prop="comboName" label="套餐名" min-width="150">
 					</el-table-column>
-					<el-table-column prop="houseName" label="楼盘" width="150">
+					<el-table-column prop="houseName" label="楼盘" min-width="150">
 					</el-table-column>
-					<el-table-column prop="styleName" label="风格" width="75">
+					<el-table-column prop="styleName" label="风格" min-width="75">
 					</el-table-column>
-					<el-table-column prop="brandName" label="品牌名" width="150" show-overflow-tooltip>
+					<el-table-column prop="brandName" label="品牌名" min-width="150" show-overflow-tooltip>
 					</el-table-column>
-					<el-table-column prop="statusName" label="状态" width="75">
+					<el-table-column prop="statusName" label="状态" min-width="75">
 					</el-table-column>
-					<el-table-column label="操作">
+					<el-table-column label="操作" v-if="editBtnShow">
 						<template slot-scope="scope">
 							<el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)">方案设计</el-button>
 					        <el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handlePackageEdit(scope.$index, scope.row)">套餐编辑</el-button>
 					        <!--<el-button
 					          size="mini"
@@ -80,6 +83,10 @@ export default {
 	name:'deliveryPackage',
 	data(){
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData:[],
 			multipleSelection: [],
 			currentPage: 1,//分页当前页数
@@ -90,6 +97,15 @@ export default {
 	},
 	//挂载
 	mounted(){		
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		packageList(this);
 	},
 	methods: {

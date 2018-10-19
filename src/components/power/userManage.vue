@@ -42,8 +42,9 @@
 				<!--批量操作-->
 				<div class="editBtn">
 					<!--<el-button @click="toggleSelection" style="float: left;">全选</el-button>-->
-					<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-					<el-button @click="addUser" type="primary"><span class="iconfont icon-crm11"></span>添加员工</el-button>
+					<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+					<el-button @click="addUser" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加员工</el-button>
+					<div class="clear"></div>
 				</div>
 				<div style="width: 100%;">
 					<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark"  @selection-change="handleSelectionChange">
@@ -52,31 +53,33 @@
 						<!--<el-table-column label="ID" width="80"  prop="id">
 							<template slot-scope="scope">{{ scope.row.id }}</template>
 						</el-table-column>-->
-						<el-table-column prop="personName" label="登录名" width="150">
+						<el-table-column prop="personName" label="登录名" min-width="150">
 						</el-table-column>
-						<el-table-column prop="department" label="部门" width="150" show-overflow-tooltip>
+						<el-table-column prop="department" label="部门" min-width="150" show-overflow-tooltip>
 						</el-table-column>
-						<el-table-column prop="roleName" label="角色" width="150" show-overflow-tooltip>
+						<el-table-column prop="roleName" label="角色" min-width="150" show-overflow-tooltip>
 						</el-table-column>
-						<el-table-column prop="mobileNum" label="手机" width="150">
+						<el-table-column prop="mobileNum" label="手机" min-width="150">
 						</el-table-column>
-						<el-table-column prop="createTime" label="加入时间" width="150">
+						<el-table-column prop="createTime" label="加入时间" min-width="150">
 							<template slot-scope="props">
 							 	<div>{{ timeFomit(props.row.createTime)[0] }}</div>
 							 	<div>{{ timeFomit(props.row.createTime)[1] }}</div>
 							</template>
 						</el-table-column>
-						<el-table-column label="操作">
+						<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 					      <template slot-scope="scope">
 					      	
 					        <el-button
 					          size="mini"
 					          style="margin: 5px 5px;"
+					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)" :disabled="checkPower(scope.row.id)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          style="margin: 5px 5px;"
 					          type="danger"
+					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)" :disabled="checkPower(scope.row.id)">删除</el-button>
 					      </template>
 					    </el-table-column>
@@ -195,6 +198,10 @@ export default {
 			}
 		};
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: [],
 	        //加载
 	        multipleSelection: [],//多选
@@ -262,6 +269,15 @@ export default {
 	},
 	//挂载
 	mounted(){
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		axiosUserList(this);
 	},
 	beforeDestroy(){

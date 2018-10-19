@@ -27,7 +27,7 @@
 						</el-select>
 					</div>
 					<div class="left" style="margin-left: 10px;">
-						<el-button type="primary" @click="updateState"><span class="iconfont icon-search"></span>修改</el-button>
+						<el-button v-if="editBtnShow" type="primary" @click="updateState"><span class="iconfont icon-search"></span>修改</el-button>
 					</div>
 					<div class="clear"></div>
 				</div>
@@ -39,7 +39,7 @@
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="name" label="商品" width="150" show-overflow-tooltip>
+				<el-table-column prop="name" label="商品" min-width="120" show-overflow-tooltip>
 				</el-table-column>
 				<el-table-column prop="imageUrl" label="商品图">
 					<template slot-scope="props">
@@ -93,6 +93,10 @@
 		name:'orderInfo',
 		data(){
 			return{
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				orderNum:'',//订单编号
 				currentPage: 1,//分页当前页数
@@ -103,6 +107,15 @@
 			}
 		}, 
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			//console.log(this.$route)
 			this.orderNum=Base64.decode(this.$route.params.code);
 			this.state=parseInt(Base64.decode(this.$route.query.state));

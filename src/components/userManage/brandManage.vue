@@ -15,8 +15,8 @@
 			
 			<!--批量操作-->
 			<div class="editBtn">
-				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addBrand" type="primary"><span class="iconfont icon-crm11"></span>添加品牌</el-button>
+				<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+				<el-button @click="addBrand" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加品牌</el-button>
 				<div class="clear"></div>
 			</div>
 			
@@ -34,16 +34,18 @@
 						<div>{{ props.row.brandType=="1" ? "设计方案" : "商品" }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column label="操作">
+				<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 			      <template slot-scope="scope">
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
 			          type="danger"
+			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 			      </template>
 			    </el-table-column>
@@ -101,6 +103,10 @@
 		name:'brandManage',
 		data () {
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
@@ -123,6 +129,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			//获取品牌列表
 			brandList(this);
 		},

@@ -77,13 +77,13 @@ export default{
 						sessionStorage.setItem(Base64.encode('username'),Base64.encode(this.username));
 						sessionStorage.setItem(Base64.encode('userCode'),Base64.encode(response.data.empInfo.id.toString()));
 						sessionStorage.setItem(Base64.encode('roleName'),Base64.encode(response.data.empInfo.roleName));
+						sessionStorage.setItem(Base64.encode('roleID'),Base64.encode(response.data.empInfo.roleID.toString()));
 						sessionStorage.setItem(Base64.encode('loginFlag'),Base64.encode("true"));
 						//设置权限
 						
 						let Base64Power=Base64.encode(JSON.stringify(response.data.allMsg));
 						//console.log(JSON.stringify(response.data.allMsg))
 						sessionStorage.setItem(Base64.encode('userPower'),Base64Power);
-						
 						//城市信息
 						sessionStorage.setItem('cityID',response.data.empInfo.cityID);
 						sessionStorage.setItem('cityName',response.data.empInfo.city);

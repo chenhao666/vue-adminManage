@@ -55,8 +55,8 @@
 					<el-table-column label="操作">
 						<template slot-scope="scope">
 							<el-button size="mini" style="margin: 5px 5px;" @click="handleInfo(scope.$index, scope.row)">详细</el-button>
-							<el-button size="mini" style="margin: 5px 5px;" @click="handleNote(scope.$index, scope.row)" >记事</el-button>
-							<el-button size="mini" style="margin: 5px 5px;" @click="handleClose(scope.$index, scope.row)"  type="danger">关闭</el-button>
+							<el-button size="mini" v-if="editBtnShow" style="margin: 5px 5px;" @click="handleNote(scope.$index, scope.row)" >记事</el-button>
+							<el-button size="mini" v-if="delBtnShow" style="margin: 5px 5px;" @click="handleClose(scope.$index, scope.row)"  type="danger">关闭</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -84,6 +84,10 @@ export default {
 	name:'customer',
 	data(){
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: [],
 			currentPage: 1,//分页当前页数
 	        pageSize:10,//分页默认每页条数
@@ -105,6 +109,15 @@ export default {
 		}
 	},
 	mounted(){
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		customerInfoList(this);
 	},
 	methods:{

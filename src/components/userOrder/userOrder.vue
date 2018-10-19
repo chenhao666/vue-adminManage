@@ -110,7 +110,7 @@
 						<div>{{ stateList[props.row.orderStatus] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="orderStatus" label="备注" min-width="80" show-overflow-tooltip>
+				<el-table-column prop="orderStatus" label="备注" min-width="80" show-overflow-tooltip v-if="editBtnShow">
 					<template slot-scope="props">
 						<div><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.row)">{{ props.row.remark ? props.row.remark : '备注' }}</a></div>
 					</template>
@@ -168,6 +168,10 @@
 		name:'userPrder',
 		data () {
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				dialogVisible:false,
 				selectOrderNum:'',
 				tableData:[],
@@ -190,6 +194,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			//获取订单列表
 			orderList(this);
 		},

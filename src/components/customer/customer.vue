@@ -82,6 +82,10 @@ export default {
 	name:'customer',
 	data(){
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: [],
 			currentPage: 1,//分页当前页数
 	        pageSize:10,//分页默认每页条数
@@ -95,6 +99,15 @@ export default {
 		}
 	},
 	mounted(){
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		customerInfoList(this)
 	},
 	methods:{

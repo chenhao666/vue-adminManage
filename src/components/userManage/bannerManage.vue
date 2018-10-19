@@ -15,29 +15,32 @@
 			<div class="banner_list">
 				<!--批量操作-->
 				<div class="editBtn">
-					<el-button @click="addBanner" type="primary"><span class="iconfont icon-crm11"></span>添加图片</el-button>
+					<el-button @click="addBanner" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加图片</el-button>
 					<div class="clear"></div>
 				</div>
 				
 				<el-table border :data="tableData" :stripe="true" tooltip-effect="dark">
-					<el-table-column prop="url" label="banner图" width="500">
+					<el-table-column prop="url" label="banner图" min-width="500">
 						<template slot-scope="props">
 							<div><img :src="props.row.bannerImg" alt="" style="width: 150px;height: 112px;"/></div>
 						</template>
 					</el-table-column>
 				
-					<el-table-column label="操作">
+					<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 				      <template slot-scope="scope">
 				      	<el-button
 				          size="mini"
 				          style="margin: 5px 5px;"
+				          v-if="editBtnShow"
 				          @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
 				        <el-button
 				          size="mini"
+				          v-if="editBtnShow"
 				          @click="handleEdit(scope.$index, scope.row)">{{ scope.row.isUsed==0 ? "撤回" : "使用" }}</el-button>
 				        <el-button
 				          size="mini"
 				          type="danger"
+				          v-if="delBtnShow"
 				          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 				      </template>
 				    </el-table-column>
@@ -236,6 +239,10 @@
 				}
 			};
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				currentPage:1,//当前页数
 				pageTotal:0,//总数
@@ -272,6 +279,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			bannerList(this);
 		},
 		methods:{

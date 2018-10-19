@@ -16,8 +16,9 @@
 				<!--批量操作-->
 				<div class="editBtn">
 					<!--<el-button @click="toggleSelection" style="float: left;">全选</el-button>-->
-					<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-					<el-button @click="addRole" type="primary"><span class="iconfont icon-crm11"></span>添加角色</el-button>
+					<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加角色</el-button>
+					<div class="clear"></div>
 				</div>
 				
 				<div style="width: 100%;">
@@ -27,18 +28,20 @@
 						<!--<el-table-column label="角色ID" width="80" prop="id">
 							<template slot-scope="scope">{{ scope.row.id }}</template>
 						</el-table-column>-->
-						<el-table-column prop="roleName" label="角色名" width="150">
+						<el-table-column prop="roleName" label="角色名" min-width="150">
 						</el-table-column>
-						<el-table-column prop="roleRemark" label="描述" width="300"  show-overflow-tooltip>
+						<el-table-column prop="roleRemark" label="描述" min-width="300"  show-overflow-tooltip>
 						</el-table-column>
-						<el-table-column label="操作">
+						<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 					      <template slot-scope="scope">	
 					        <el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
+					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					      </template>
 					    </el-table-column>
@@ -105,6 +108,10 @@ export default {
 	name:'role',
 	data(){
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: [],
 	        multipleSelection: [],
 	        multipleFlag:false,//全选状态
@@ -134,6 +141,16 @@ export default {
 		this.dialogVisible=false;
 	},
 	mounted(){
+		//console.log(this.roleAuthList)
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		//获取列表数据
 		axiosRoleList(this)
 		//提示信息
@@ -184,8 +201,18 @@ export default {
         this.form.desc=row.roleRemark;
         roleList(this,function(obj){
         	//console.log(row)
-        	let checkP=row.funcIdList[0].split(',');
-        	checkP.pop()
+        	let list=row.operations;
+        	//console.log(list)
+        	let checkP=[];
+        	for(let i=0;i<list.length;i++){
+        		checkP.push(list[i].functionAuthorityID);
+        		if(list[i].roleOperation){
+        			let arr=list[i].roleOperation.split(',');
+        			for(let j=0;j<arr.length;j++){
+        				checkP.push(list[i].functionAuthorityID+'_'+arr[j]);
+        			}
+        		}
+        	}
         	//console.log(checkP)
         	obj.form.checkedPower=checkP;
         	obj.checkStrictly=false;
@@ -279,16 +306,44 @@ export default {
       	//console.log(this.$refs.tree.getCheckedNodes());
       	//获取选中权限id
       	let powerArr=[];
+      	var childArr=[];
       	let treeArr=this.$refs.tree.getCheckedNodes();
+      	//console.log(treeArr)
       	for(let i=0;i<treeArr.length;i++){
-      		powerArr.push(treeArr[i].id);
-      		if(treeArr[i].parentID){      			
+      		if(!treeArr[i].type){
+      			powerArr.push(treeArr[i].id);
+	      		if(treeArr[i].parentID){      			
+	      			if(powerArr.indexOf(treeArr[i].parentID)==-1){
+	      				powerArr.push(treeArr[i].parentID);
+	      			}
+	      		}
+      		}else{
+      			childArr.push(treeArr[i]);
       			if(powerArr.indexOf(treeArr[i].parentID)==-1){
-      				powerArr.push(treeArr[i].parentID);
-      			}
+	      			powerArr.push(treeArr[i].parentID);
+	      		}
+	      		if(powerArr.indexOf(treeArr[i].firstID)==-1){
+	      			powerArr.push(treeArr[i].firstID);
+	      		}
       		}
       	}
       	//console.log(powerArr)
+      	var newPowerArr=[];
+      	for(let i=0;i<powerArr.length;i++){
+      		let list={
+      			funcIDs:powerArr[i],
+      			roleOperation:[]
+      		}
+      		for(let j=0;j<childArr.length;j++){
+      			if(powerArr[i]==childArr[j].parentID){
+      				let childID=parseInt(childArr[j].id.split('_')[1])
+      				list.roleOperation.push(childID);
+      			}
+      		}
+      		list.roleOperation=list.roleOperation.join(',');
+      		newPowerArr.push(list);
+      	}
+      	//console.log(newPowerArr)
         this.$refs[formName].validate((valid) => {
           if (valid) {
           	//按钮禁用
@@ -298,7 +353,7 @@ export default {
           		"roleName":this.form.name,
           		"roleRemark":this.form.desc,
           		"roleStatus":0,
-          		"functionAuthorityID":powerArr.join(',')	
+          		"operation":newPowerArr
           	}
           	if(this.dialogMark){
           		data.id=this.form.roleID;
@@ -406,6 +461,39 @@ function roleList(obj,callback){
 					let newStr2=newStr.replace(/\"functionName\"/g,'"label"');
 					let newStr3=newStr2.replace(/\,\"children\"\:\[\]/g,'');
 					let newObj=JSON.parse(newStr3);
+					/*obj.form.powers=newObj;*/
+					for(let i=0;i<newObj.length;i++){
+						for(let j=0;j<newObj[i].children.length;j++){
+							newObj[i].children[j].children=[
+								{
+									id:newObj[i].children[j].id+'_0',
+									label:'查看',
+									type:1,
+									parentID:newObj[i].children[j].id,
+									firstID:newObj[i].id
+								},{
+									id:newObj[i].children[j].id+'_1',
+									label:'新增',
+									type:1,
+									parentID:newObj[i].children[j].id,
+									firstID:newObj[i].id
+								},{
+									id:newObj[i].children[j].id+'_2',
+									label:'删除',
+									type:1,
+									parentID:newObj[i].children[j].id,
+									firstID:newObj[i].id
+								},{
+									id:newObj[i].children[j].id+'_3',
+									label:'修改',
+									type:1,
+									parentID:newObj[i].children[j].id,
+									firstID:newObj[i].id
+								}
+							];
+						}
+					}
+					//console.log(newObj)
 					obj.form.powers=newObj;
 					callback(obj);
 					obj.form.addDisabled=false;

@@ -16,8 +16,9 @@
 				<!--批量操作-->
 				<div class="editBtn">
 					<!--<el-button @click="toggleSelection" style="float: left;">全选</el-button>-->
-					<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-					<el-button @click="addRole" type="primary"><span class="iconfont icon-crm11"></span>添加权限</el-button>
+					<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加权限</el-button>
+					<div class="clear"></div>
 				</div>
 				<div style="width: 100%;">
 					<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark"   @selection-change="handleSelectionChange">
@@ -26,19 +27,21 @@
 						<!--<el-table-column label="ID" width="80" prop="id">
 							<template slot-scope="scope">{{ scope.row.id }}</template>
 						</el-table-column>-->
-						<el-table-column prop="functionName" label="节点名称" width="150">
+						<el-table-column prop="functionName" label="节点名称" min-width="150">
 						</el-table-column>
-						<el-table-column prop="fitField" label="字段名" width="300" show-overflow-tooltip>
+						<el-table-column prop="fitField" label="字段名" min-width="300" show-overflow-tooltip>
 						</el-table-column>
-						<el-table-column label="操作">
+						<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 					      <template slot-scope="scope">
 	
 					        <el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
+					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					      </template>
 					    </el-table-column>
@@ -103,6 +106,10 @@ export default {
 			}
 		}
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			tableData: this.$store.state.userPower,
 	        multipleSelection: [],
 	        multipleFlag:false,//全选状态
@@ -130,7 +137,16 @@ export default {
 		}
 	},
 	//挂载
-	mounted(){		
+	mounted(){	
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		//获取列表
 		axiosPowerList(this);
 		//提示信息

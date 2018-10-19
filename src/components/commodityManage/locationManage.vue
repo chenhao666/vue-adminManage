@@ -17,7 +17,7 @@
 			<div class="editBtn">
 				<!--<el-button type="primary" class="iconBox"><span class="iconfont icon-uparrow-top"></span></el-button>
 				<el-button type="primary" class="iconBox"><span class="iconfont icon-uparrow-bottom"></span></el-button>-->
-				<el-button @click="addClass" type="primary"><span class="iconfont icon-crm11"></span>添加位置</el-button>
+				<el-button @click="addClass" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加位置</el-button>
 				<div class="clear"></div>
 			</div>
 			
@@ -30,21 +30,24 @@
 						<div>{{ props.row.isCheck ? '是' : '否' }}</div>
 					</template>
 				</el-table-column>-->
-				<el-table-column label="操作">
+				<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 			      <template slot-scope="scope">
 			      	<el-button
 			          size="mini"
 			          type="primary"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEditTop(scope.$index, scope.row)">上移</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
 			          type="danger"
+			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 			      </template>
 			    </el-table-column>
@@ -95,6 +98,10 @@
 		name:'commodityManage',
 		data () {
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
@@ -114,6 +121,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			pachageList(this);
 		},
 		beforeDestroy(){

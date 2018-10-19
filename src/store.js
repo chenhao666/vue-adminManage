@@ -14,6 +14,9 @@ function stateValue(state){
 	if(sessionStorage.getItem(Base64.encode('roleName'))){
 		state.roleName=Base64.decode(sessionStorage.getItem(Base64.encode('roleName')));
 	}
+	if(sessionStorage.getItem(Base64.encode('roleID'))){
+		state.roleID=Base64.decode(sessionStorage.getItem(Base64.encode('roleID')));
+	}
 	if(sessionStorage.getItem(Base64.encode('loginFlag'))){
 		state.loginFlag=Base64.decode(sessionStorage.getItem(Base64.encode('loginFlag')));
 	}
@@ -47,8 +50,8 @@ const state={
 	cityName:'',
 	appuid:'',//设计师
 	accessToken:'',
-	//localIP:'http://192.168.2.68:8080/ourHouse/',
-	localIP:'http://192.168.2.62:8080/ourHouse/',
+	localIP:'http://192.168.2.68:8080/ourHouse/',
+	//localIP:'http://192.168.2.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
 	status:1,
 	//及时聊天对象数组

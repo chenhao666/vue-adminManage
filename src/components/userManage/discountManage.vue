@@ -14,8 +14,8 @@
 			<div class="line"></div>
 			<!--批量操作-->
 			<div class="editBtn">
-				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addDiscount" type="primary"><span class="iconfont icon-crm11"></span>添加折扣</el-button>
+				<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+				<el-button @click="addDiscount" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加折扣</el-button>
 				<div class="clear"></div>
 			</div>
 			
@@ -26,36 +26,38 @@
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="desigName" label="套餐名" width="200" show-overflow-tooltip>
+				<el-table-column prop="desigName" label="套餐名" min-width="200" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="packageName" label="包名" width="100">
+				<el-table-column prop="packageName" label="包名" min-width="100">
 				</el-table-column>
-				<el-table-column prop="city" label="城市" width="100">
+				<el-table-column prop="city" label="城市" min-width="100">
 				</el-table-column>
-				<el-table-column prop="discount" label="折扣" width="100">
+				<el-table-column prop="discount" label="折扣" min-width="100">
 				</el-table-column>
-				<el-table-column prop="startTime" label="开始时间" width="150">
+				<el-table-column prop="startTime" label="开始时间" min-width="150">
 					<template slot-scope="props">
 						<div>{{ timeFomit(props.row.startTime)[0] }}</div>
 						<div>{{ timeFomit(props.row.startTime)[1] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column prop="endTime" label="结束时间" width="150">
+				<el-table-column prop="endTime" label="结束时间" min-width="150">
 					<template slot-scope="props">
 						<div>{{ timeFomit(props.row.endTime)[0] }}</div>
 						<div>{{ timeFomit(props.row.endTime)[1] }}</div>
 					</template>
 				</el-table-column>
-				<el-table-column label="操作">
+				<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 			      <template slot-scope="scope">
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
 			          type="danger"
+			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 			      </template>
 			    </el-table-column>
@@ -144,6 +146,10 @@
 				}
 			};
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
@@ -178,6 +184,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			discountList(this);
 		},
 		beforeDestroy(){

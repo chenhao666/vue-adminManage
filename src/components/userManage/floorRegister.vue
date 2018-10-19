@@ -15,8 +15,8 @@
 			
 			<!--批量操作-->
 			<div class="editBtn">
-				<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>
-				<el-button @click="addFloor" type="primary"><span class="iconfont icon-crm11"></span>添加楼盘</el-button>
+				<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
+				<el-button @click="addFloor" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加楼盘</el-button>
 				<div class="clear"></div>
 			</div>
 			
@@ -27,27 +27,29 @@
 				<!--<el-table-column label="ID" width="80"  prop="id">
 					<template slot-scope="scope">{{ scope.row.id }}</template>
 				</el-table-column>-->
-				<el-table-column prop="houseName" label="楼盘名" maxlength='20' width="150">
+				<el-table-column prop="houseName" label="楼盘名" maxlength='20' min-width="150">
 				</el-table-column>
-				<el-table-column prop="city" label="城市" width="150">
+				<el-table-column prop="city" label="城市" min-width="150">
 				</el-table-column>
-				<el-table-column prop="coverPic" label="楼盘封面" width="300">
+				<el-table-column prop="coverPic" label="楼盘封面" min-width="300">
 					<template slot-scope="scope">
 						<img :src="scope.row.coverPic" alt="" class="houseImg"/>
 					</template>
 				</el-table-column>
-				<el-table-column prop="address" label="楼盘地址" width="150" show-overflow-tooltip>
+				<el-table-column prop="address" label="楼盘地址" min-width="150" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column label="操作">
+				<el-table-column label="操作"  v-if="editBtnShow || delBtnShow">
 			      <template slot-scope="scope">
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
 			          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
 			          type="danger"
+			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 			      </template>
 			    </el-table-column>
@@ -137,6 +139,10 @@
 				}
 			};
 			return {
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				tableData:[],
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态
@@ -167,6 +173,15 @@
 			}
 		},
 		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
 			floorList(this);
 		},
 		beforeDestroy(){

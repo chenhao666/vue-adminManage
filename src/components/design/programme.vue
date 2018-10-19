@@ -15,7 +15,8 @@
 			<!--批量操作-->
 			<div class="editBtn">
 				<!--<el-button type="danger" @click="delQuery" style="float: left;">批量删除</el-button>-->
-				<el-button @click="addProgramme" type="primary"><span class="iconfont icon-crm11"></span>添加方案</el-button>
+				<el-button @click="addProgramme" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加方案</el-button>
+				<div class="clear"></div>
 			</div>
 			<div class="programmeList">
 				<el-table 
@@ -27,34 +28,38 @@
 					style="width: 100%;">
 					<!--<el-table-column type="selection" width="55">
 					</el-table-column>-->
-					<el-table-column prop="name" label="方案" width="150" show-overflow-tooltip>
+					<el-table-column prop="name" label="方案" min-width="150" show-overflow-tooltip>
 					</el-table-column>
-					<el-table-column prop="specName" label="户型" width="100" show-overflow-tooltip>
+					<el-table-column prop="specName" label="户型" min-width="100" show-overflow-tooltip>
 					</el-table-column>
-					<el-table-column prop="srcArea" label="面积(㎡)" width="75">
+					<el-table-column prop="srcArea" label="面积(㎡)" min-width="75">
 					</el-table-column>
-					<el-table-column prop="mobileNum" label="手机号" width="100" show-overflow-tooltip>
+					<el-table-column prop="mobileNum" label="手机号" min-width="100" show-overflow-tooltip>
 					</el-table-column>
-					<el-table-column prop="modifiedTime" label="修改时间" width="150">
+					<el-table-column prop="modifiedTime" label="修改时间" min-width="150">
 						<template slot-scope="props">
 							 <div>{{ formatDate(props.row.modifiedTime).day }}</div>
 							 <div>{{ formatDate(props.row.modifiedTime).time }}</div>
 						</template>
 					</el-table-column>
-					<el-table-column label="操作">
+					<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 						<template slot-scope="scope">
 							<el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleSend(scope.$index, scope.row)">{{ scope.row.isUsed==0 ? "撤回方案" : "发送方案"  }}</el-button>
 							<el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					          <el-button
 					          size="mini"
+					          v-if="editBtnShow"
 					          @click="handleEditGoods(scope.$index, scope.row)">商品编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
+					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 						</template>
 					</el-table-column>
@@ -135,6 +140,10 @@ export default {
 			}
 		};
 		return{
+			addBtnShow:false,
+			delBtnShow:false,
+			editBtnShow:false,
+			roleAuthList:sessionStorage.getItem('roleAuthList'),
 			dialogVisible:false,//弹窗
 			inputFlag:0,//弹窗状态
 			tableData: [],
@@ -158,6 +167,15 @@ export default {
 	},
 	//挂载
 	mounted(){	
+		if(this.roleAuthList.indexOf('1')>-1){
+			this.addBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('2')>-1){
+			this.delBtnShow=true;
+		}
+		if(this.roleAuthList.indexOf('3')>-1){
+			this.editBtnShow=true;
+		}
 		//方案列表
 		programeList(this);
 	},
