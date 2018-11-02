@@ -93,6 +93,8 @@ import CommodityType from '@/components/commodityManage/commodityType'
 import PackageOrder from '@/components/userOrder/userOrder'
 //订单-订单管理-订单详情
 import userOrderInfo from '@/components/userOrder/orderInfo'
+//订单-订单管理-采购
+import Purchase from '@/components/userOrder/purchase'
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -290,6 +292,10 @@ export default new Router({
       		path:'userOrder/orderInfo/:code',
       		name:'订单-订单详情',
       		component:userOrderInfo		
+      	},{
+      		path:'userOrder/purchase/:code',
+      		name:'订单-采购',
+      		component:Purchase		
       	},{
       		path:'commodityManage/commodityEntry',
       		name:'商品管理-商品录入',

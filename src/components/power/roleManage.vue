@@ -463,34 +463,36 @@ function roleList(obj,callback){
 					let newObj=JSON.parse(newStr3);
 					/*obj.form.powers=newObj;*/
 					for(let i=0;i<newObj.length;i++){
-						for(let j=0;j<newObj[i].children.length;j++){
-							newObj[i].children[j].children=[
-								{
-									id:newObj[i].children[j].id+'_0',
-									label:'查看',
-									type:1,
-									parentID:newObj[i].children[j].id,
-									firstID:newObj[i].id
-								},{
-									id:newObj[i].children[j].id+'_1',
-									label:'新增',
-									type:1,
-									parentID:newObj[i].children[j].id,
-									firstID:newObj[i].id
-								},{
-									id:newObj[i].children[j].id+'_2',
-									label:'删除',
-									type:1,
-									parentID:newObj[i].children[j].id,
-									firstID:newObj[i].id
-								},{
-									id:newObj[i].children[j].id+'_3',
-									label:'修改',
-									type:1,
-									parentID:newObj[i].children[j].id,
-									firstID:newObj[i].id
-								}
-							];
+						if(newObj[i].children){
+							for(let j=0;j<newObj[i].children.length;j++){
+								newObj[i].children[j].children=[
+									{
+										id:newObj[i].children[j].id+'_0',
+										label:'查看',
+										type:1,
+										parentID:newObj[i].children[j].id,
+										firstID:newObj[i].id
+									},{
+										id:newObj[i].children[j].id+'_1',
+										label:'新增',
+										type:1,
+										parentID:newObj[i].children[j].id,
+										firstID:newObj[i].id
+									},{
+										id:newObj[i].children[j].id+'_2',
+										label:'删除',
+										type:1,
+										parentID:newObj[i].children[j].id,
+										firstID:newObj[i].id
+									},{
+										id:newObj[i].children[j].id+'_3',
+										label:'修改',
+										type:1,
+										parentID:newObj[i].children[j].id,
+										firstID:newObj[i].id
+									}
+								];
+							}	
 						}
 					}
 					//console.log(newObj)

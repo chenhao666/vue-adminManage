@@ -50,8 +50,8 @@ const state={
 	cityName:'',
 	appuid:'',//设计师
 	accessToken:'',
-	localIP:'http://192.168.2.68:8080/ourHouse/',
-	//localIP:'http://192.168.2.62:8080/ourHouse/',
+	//localIP:'http://192.168.2.188:8080/ourHouse/',
+	localIP:'http://192.168.2.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
 	status:1,
 	//及时聊天对象数组

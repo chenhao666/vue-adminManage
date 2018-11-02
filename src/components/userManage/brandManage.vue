@@ -88,6 +88,16 @@
 						<el-option label="商品品牌" value="2"></el-option>
 					</el-select>
 			  	</el-form-item>
+			  	
+			  	<el-form-item label="存在货号">
+			  		<el-radio v-model="ruleForm.goodsNumber" label="0">是</el-radio>
+  					<el-radio v-model="ruleForm.goodsNumber" label="1">否</el-radio>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="指导单价">
+			  		<el-radio v-model="ruleForm.price" label="0">是</el-radio>
+  					<el-radio v-model="ruleForm.price" label="1">否</el-radio>
+			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -217,6 +227,8 @@
 		      	this.dialogFlag=row.brandId;
 		      	this.ruleForm.name=row.brandName;
 		      	this.ruleForm.brandType=row.brandType.toString();
+		      	this.ruleForm.goodsNumber=row.articleNum.toString();
+		      	this.ruleForm.price=row.guideUnitPrice.toString();
       		},
 	     	//删除
 	      	handleDelete(index, row) {
@@ -241,7 +253,9 @@
 			        	const loading =openLoad(this,"Loading...");
 			        	var data={
 			        		brandName:this.ruleForm.name,
-			        		brandType:this.ruleForm.brandType
+			        		brandType:this.ruleForm.brandType,
+			        		articleNum:this.ruleForm.goodsNumber,
+			        		guideUnitPrice:this.ruleForm.price
 			        	}
 			        	if(this.dialogFlag!=0){
 			        		data.brandId=this.dialogFlag;
@@ -308,6 +322,8 @@
 		let data={
 		        name: '',//品牌名称
 		        brandType:'1',
+		        goodsNumber:'1',//货号
+		        price:'1'//指导单价
 	        }
 		return data;
 	}

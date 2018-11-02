@@ -2,7 +2,7 @@
 	<div class="orderInfo">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userManage/bannerManage' }">用户管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">订单详情</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -66,7 +66,7 @@
 				</el-table-column>
 				<el-table-column prop="unitPrice" label="单价">
 					<template slot-scope="props">
-						<div>￥{{ props.row.unitPrice/100 }}</div>
+						<div>￥{{ props.row.unitPrice }}</div>
 					</template>
 				</el-table-column>
 			</el-table>

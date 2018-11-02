@@ -46,18 +46,22 @@
 						<template slot-scope="scope">
 							<el-button
 					          size="mini"
+					          style="margin: 5px 10px;"
 					          v-if="editBtnShow"
 					          @click="handleSend(scope.$index, scope.row)">{{ scope.row.isUsed==0 ? "撤回方案" : "发送方案"  }}</el-button>
 							<el-button
 					          size="mini"
+					          style="margin: 5px 10px;"
 					          v-if="editBtnShow"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					          <el-button
 					          size="mini"
+					          style="margin: 5px 10px;"
 					          v-if="editBtnShow"
 					          @click="handleEditGoods(scope.$index, scope.row)">商品编辑</el-button>
 					        <el-button
 					          size="mini"
+					          style="margin: 5px 10px;"
 					          type="danger"
 					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>

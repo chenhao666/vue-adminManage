@@ -2,7 +2,7 @@
 	<div class="userPrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">套餐订单</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -95,14 +95,14 @@
 				</el-table-column>
 				<el-table-column prop="mobileNum" label="账号" min-width="60" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="totalAmout" label="金额" min-width="80">
+				<el-table-column prop="actualAmount" label="金额" min-width="80">
 					<template slot-scope="props">
-						<div>￥{{ props.row.totalAmout/100 }}</div>
+						<div>￥{{ props.row.actualAmount }}</div>
 					</template>
 				</el-table-column>
 				<el-table-column prop="alreadyAmount" label="已付" min-width="80">
 					<template slot-scope="props">
-						<div>￥{{ props.row.alreadyAmount/100 }}</div>
+						<div>￥{{ props.row.alreadyAmount ? props.row.alreadyAmount : 0 }}</div>
 					</template>
 				</el-table-column>
 				<el-table-column prop="orderStatus" label="支付状态" min-width="80" show-overflow-tooltip>
@@ -118,6 +118,7 @@
 				<el-table-column  label="操作">
 					<template slot-scope="scope">
 						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)">详情</div>
+						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)">采购</div>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -232,6 +233,12 @@
 		    	var state=Base64.encode(row.orderStatus);
 		    	this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state}})
 		    },
+		    //采购
+		    handlePurchase(index,row){
+		    	var num = Base64.encode(row.orderNo);
+		    	/*var state=Base64.encode(row.orderStatus)*/
+		    	this.$router.push({path:'/userOrder/purchase/'+num})
+		    },
 		    //搜索订单
 		    searchOrder(){
 		    	this.currentPage=1;
@@ -343,11 +350,13 @@
 </script>
 
 <style scoped="scoped">
-	.lookInfo{
+	.lookInfo,.purchase{
+		padding: 0px 10px;
 		color: #01AEF0;
 		text-decoration: underline;
 		cursor: pointer;
 	}
+
 	.filter{
 		width: 100%;
 		box-sizing: border-box;

@@ -48,9 +48,44 @@
 			</div>
 			
 			<!--商品列表-->
-			<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark"  @selection-change="handleSelectionChange">
+			<el-table ref="multipleTable" border  :data="tableData"  tooltip-effect="dark"  @selection-change="handleSelectionChange">
 				<el-table-column type="selection" width="55">
 				</el-table-column>
+				<el-table-column type="expand" label="展开" width="80">
+      				<template slot-scope="props">
+      					<el-table ref="multipleTable" border  :data="props.row.goodsInfoList"  tooltip-effect="dark" :row-class-name="childTable" :header-row-class-name="childTable">
+      						<el-table-column prop="goodsName" label="商品名称" min-width="150" show-overflow-tooltip>
+							</el-table-column>
+							<el-table-column prop="goodsCode" label="商品编码">
+							</el-table-column>
+							<el-table-column prop="model" label="商品型号">
+							</el-table-column>
+							<el-table-column prop="brandName" label="商品品牌" min-width="80">
+							</el-table-column>
+							<!--<el-table-column prop="unitPrice" label="零售单价" min-width="100">
+							</el-table-column>-->
+							<el-table-column prop="specifications" label="商品规格" show-overflow-tooltip>
+							</el-table-column>
+							<el-table-column prop="material" label="材质" show-overflow-tooltip>
+							</el-table-column>
+							<el-table-column label="操作"  width="180" v-if="editBtnShow || delBtnShow">
+						      	<template slot-scope="scope">
+							        <el-button
+							          size="mini"
+							          style="margin: 5px 5px;"
+							          v-if="editBtnShow"
+							          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+							        <el-button
+							          size="mini"
+							          style="margin: 5px 5px;"
+							          type="danger"
+							          v-if="delBtnShow"
+							          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+						      	</template>
+						    </el-table-column>
+      					</el-table>
+      				</template>
+      			</el-table-column>
 				<el-table-column prop="goodsName" label="商品名称" width="150" show-overflow-tooltip>
 				</el-table-column>
 				<el-table-column prop="goodsCode" label="商品编码">
@@ -59,11 +94,11 @@
 				</el-table-column>
 				<el-table-column prop="brandName" label="商品品牌" min-width="80">
 				</el-table-column>
-				<el-table-column prop="unitPrice" label="商品价格" min-width="100">
+				<el-table-column prop="unitPrice" label="零售单价" min-width="100">
 				</el-table-column>
-				<el-table-column prop="specifications" label="商品规格">
+				<el-table-column prop="specifications" label="商品规格" show-overflow-tooltip>
 				</el-table-column>
-				<el-table-column prop="material" label="材质">
+				<el-table-column prop="material" label="材质" show-overflow-tooltip>
 				</el-table-column>
 				<!--<el-table-column prop="packageName" label="套餐包" width="80">
 				</el-table-column>-->
@@ -81,6 +116,11 @@
 			          type="danger"
 			          v-if="delBtnShow"
 			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+			        <el-button
+			          size="mini"
+			          style="margin: 5px 5px;"
+			          v-if="editBtnShow"
+			          @click="childListBtn(scope.$index, scope.row)">添加子商品</el-button>
 			      </template>
 			    </el-table-column>
 			</el-table>
@@ -112,7 +152,11 @@
 			  <!--表单开始-->
 			  <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="85px">
 				
-				<el-form-item label="类型选择" prop="goodsType">
+				<el-form-item label="父商品" v-show="addGoodsFlag ? true : false">
+			  		<el-input v-model="child.goodsName" :disabled='true'  @change="inputFlag=1"></el-input>
+			  	</el-form-item>
+				
+				<el-form-item label="类型选择" prop="goodsType" v-show="addGoodsFlag ? false : true">
 			  		<el-select v-model="ruleForm.goodsType" placeholder="请选择类型"  @change="inputFlag=1">
 						<el-option v-for="(item,key) in ruleForm.goodsTypeList" :key="key" :label="item.goodsType" :value="item.goodsType"></el-option>
 					</el-select>
@@ -120,6 +164,20 @@
 				
 			  	<el-form-item label="商品名称" prop="goodsName">
 			  		<el-input v-model="ruleForm.goodsName"  @change="inputFlag=1"></el-input>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="商品品牌" prop="brand">
+			  		<el-select v-model="ruleForm.brand" placeholder="请选择品牌"  @change="brandChange">
+						<el-option v-for="(item,key) in ruleForm.brandList" :key="key" :label="item.brandName" :value="item.brandId+','+item.brandName"></el-option>
+					</el-select>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="商品货号" v-show="ruleForm.showArticleNum" prop="articleNum">
+			  		<el-input v-model="ruleForm.articleNum"  @change="inputFlag=1"></el-input>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="指导单价" v-show="ruleForm.showGuideUnitPrice" prop="guideUnitPrice">
+			  		<el-input v-model="ruleForm.guideUnitPrice"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
 			  	<el-form-item label="风格名称" prop="styleName">
@@ -141,7 +199,7 @@
 			  		<el-input v-model="ruleForm.model"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
-			  	<el-form-item label="商品价格" prop="unitPrice">
+			  	<el-form-item label="零售单价" prop="unitPrice" v-show="addGoodsFlag ? false : true">
 			  		<el-input v-model="ruleForm.unitPrice"  @change="inputFlag=1" ></el-input>
 			  	</el-form-item>
 			  	
@@ -159,12 +217,6 @@
 			  	
 			  	<el-form-item label="商品单位" prop="units">
 			  		<el-input v-model="ruleForm.units"  @change="inputFlag=1"></el-input>
-			  	</el-form-item>
-			  	
-			  	<el-form-item label="商品品牌" prop="brand">
-			  		<el-select v-model="ruleForm.brand" placeholder="请选择品牌"  @change="inputFlag=1">
-						<el-option v-for="(item,key) in ruleForm.brandList" :key="key" :label="item.brandName" :value="item.brandId+','+item.brandName"></el-option>
-					</el-select>
 			  	</el-form-item>
 			  	
 			  	<!--<el-form-item label="商品包" prop="package">
@@ -255,7 +307,49 @@
 				var unitPrice=this.ruleForm.unitPrice;
 				//console.log(unitPrice)
 				if(unitPrice!=parseFloat(unitPrice) || unitPrice.toString().indexOf('-')>-1){
-					callback(new Error('请输入正确的价格！'))
+					if(this.addGoodsFlag){
+						callback();
+					}else{						
+						callback(new Error('请输入正确的价格！'))
+					}
+				}else{
+					callback();
+				}
+			};
+			//商品类型
+			let checkGoodsType=(rule, value, callback)=>{
+				if(this.ruleForm.goodsType==""){
+					if(this.addGoodsFlag){
+						callback();
+					}else{						
+						callback(new Error('请选择商品类型！'))
+					}
+				}else{
+					callback();
+				}
+			};
+			//货号
+			let checkArticleNum=(rule, value, callback)=>{
+				if(value==""){
+					if(this.ruleForm.showArticleNum){						
+						callback(new Error('请输入货号！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//指导单价
+			let checkGuideUnitPrice=(rule, value, callback)=>{
+				//console.log(this.ruleForm.fileList)
+				var unitPrice=value;
+				if(unitPrice!=parseFloat(unitPrice) || unitPrice.toString().indexOf('-')>-1){
+					if(this.ruleForm.showGuideUnitPrice){						
+						callback(new Error('请输入正确的价格！'))
+					}else{
+						callback();
+					}
 				}else{
 					callback();
 				}
@@ -284,6 +378,10 @@
 		        goodsCode:'',//搜索编码
 		        goodsModel:'',//搜索型号
 		        goodsBrand:'',//搜索品牌
+		        addGoodsFlag:0,//新增商品标记
+		        child:{
+		        	goodsName:'',//父商品名称
+		        },//子商品
 		        rules:{
 		        	goodsName:[
 		        		{ required: true, message: '请输入商品名称', trigger: 'blur' }
@@ -293,6 +391,14 @@
 		        	],
 		        	unitPrice:[
 		        		{  required: true, validator: checkPrice, trigger: 'blur' }
+		        	],
+		        	//货号
+		        	articleNum:[
+		        		{  required: true, validator: checkArticleNum, trigger: 'blur' }
+		        	],
+		        	//指导单价
+		        	guideUnitPrice:[
+		        		{  required: true, validator: checkGuideUnitPrice, trigger: 'blur' }
 		        	],
 		        	specifications:[
 		        		{ required: true, message: '请输入商品规格', trigger: 'blur' }
@@ -316,7 +422,7 @@
 		        		{ required: true, message: '请输入商品单位', trigger: 'blur' }
 		        	],
 		        	goodsType:[
-		        		{ required: true, message: '请输入商品类型', trigger: 'blur' }
+		        		{ required: true, validator:checkGoodsType, trigger: 'blur' }
 		        	],
 		        	styleName:[
 		        		{ required: true, message: '请输入商品风格', trigger: 'blur' }
@@ -341,6 +447,10 @@
 			this.dialogVisible=false;
 		},
 		methods:{
+			//子商品
+			childTable({row, rowIndex}) {
+		        return 'childTableBg';
+		    },
 			//全选
 		    toggleSelection() {
 		    	//更改状态
@@ -429,9 +539,35 @@
 		      	this.dialogFlag=0;
 		      	brandList(this,function(){});
 		    },
+		    //修改品牌
+		    brandChange(){
+		    	this.inputFlag=1;
+		    	let arr=this.ruleForm.brand.split(',');
+		    	let list=this.ruleForm.brandList;
+		    	//console.log(list)
+		    	for(let i=0;i<list.length;i++){
+		    		if(list[i].brandId==parseInt(arr[0])){
+		    			if(list[i].articleNum || list[i].articleNum==0){
+		    				if(list[i].articleNum==0){
+		    					this.ruleForm.showArticleNum=true;
+		    				}else{
+		    					this.ruleForm.showArticleNum=false;
+		    				}
+		    			}
+		    			if(list[i].guideUnitPrice || list[i].guideUnitPrice==0){
+		    				if(list[i].guideUnitPrice==0){
+		    					this.ruleForm.showGuideUnitPrice=true;
+		    				}else{
+		    					this.ruleForm.showGuideUnitPrice=false;
+		    				}
+		    			}
+		    		}
+		    	}
+
+		    },
 		    //编辑
       		handleEdit(index, row) {
-      			console.log(row)
+      			//console.log(row)
 				this.ruleForm=formInit();
 				goodsTypeList(this);
 				styleList(this);
@@ -445,7 +581,7 @@
 				    that.ruleForm.goodsCode=row.goodsCode;//商品编码
 				    that.ruleForm.model=row.model;//产品型号
 				    that.ruleForm.brand=row.brandId+','+row.brandName;//商品品牌
-				    that.ruleForm.unitPrice=row.unitPrice;//商品价格
+				    that.ruleForm.unitPrice=row.unitPrice;//零售单价
 				    that.ruleForm.specifications=row.specifications;//商品规格
 				    that.ruleForm.material=row.material;//颜色材质
 				    that.ruleForm.goodsColor=row.goodsColor;//颜色
@@ -453,6 +589,33 @@
 				    that.ruleForm.package=row.packageId+','+row.packageName;//商品包
 				    that.ruleForm.goodsType=row.goodsType;//商品类型
 				    that.ruleForm.styleName=row.styleName.split(',');
+				    that.ruleForm.articleNum=row.articleNum;//货号
+				    that.ruleForm.guideUnitPrice=row.guideUnitPrice;//指导单价
+				    
+				    that.addGoodsFlag=0;
+				    if(row.parentId){
+				    	that.addGoodsFlag=row.parentId;
+				    	that.child.goodsName=row.parentGoodsName;
+				    	let list=that.ruleForm.brandList;
+			      		for(let i=0;i<list.length;i++){
+				    		if(list[i].brandId==parseInt(row.brandId)){
+				    			if(list[i].articleNum || list[i].articleNum==0){
+				    				if(list[i].articleNum==0){
+				    					that.ruleForm.showArticleNum=true;
+				    				}else{
+				    					that.ruleForm.showArticleNum=false;
+				    				}
+				    			}
+				    			if(list[i].guideUnitPrice || list[i].guideUnitPrice==0){
+				    				if(list[i].guideUnitPrice==0){
+				    					that.ruleForm.showGuideUnitPrice=true;
+				    				}else{
+				    					that.ruleForm.showGuideUnitPrice=false;
+				    				}
+				    			}
+				    		}
+				    	}
+				    }
 				    //图片列表
 				    if(row.goodsImages){
 				    	var pic=row.goodsImages;
@@ -485,6 +648,41 @@
 		          });          
 		        });
 	      	},
+	      	//子商品列表
+	      	childListBtn(index, row){
+	      		//console.log(index,row)
+	      		this.addGoodsFlag=row.goodsCode;
+	      		this.ruleForm=formInit();
+		    	goodsTypeList(this);
+		    	styleList(this);
+		      	this.dialogTitle="添加商品";
+		      	this.dialogVisible = true;//打开弹窗
+		      	this.dialogFlag=0;
+		      	var that=this;
+		      	brandList(this,function(){
+		      		that.child.goodsName=row.goodsName;
+		      		that.ruleForm.brand=row.brandId+','+row.brandName;//商品品牌
+		      		let list=that.ruleForm.brandList;
+		      		for(let i=0;i<list.length;i++){
+			    		if(list[i].brandId==parseInt(row.brandId)){
+			    			if(list[i].articleNum || list[i].articleNum==0){
+			    				if(list[i].articleNum==0){
+			    					that.ruleForm.showArticleNum=true;
+			    				}else{
+			    					that.ruleForm.showArticleNum=false;
+			    				}
+			    			}
+			    			if(list[i].guideUnitPrice || list[i].guideUnitPrice==0){
+			    				if(list[i].guideUnitPrice==0){
+			    					that.ruleForm.showGuideUnitPrice=true;
+			    				}else{
+			    					that.ruleForm.showGuideUnitPrice=false;
+			    				}
+			    			}
+			    		}
+			    	}
+		      	});
+	      	},
 	      	//图片上传
 		    uploadSuccess(response, file, fileList){
 		    	//console.log(response)
@@ -513,16 +711,21 @@
 				        model:this.ruleForm.model,//产品型号
 				        brandId:brandArr[0],//商品品牌ID
 				        brandName:brandArr[1],//商品品牌名称
-				        unitPrice:this.ruleForm.unitPrice,//商品价格
+				        unitPrice:this.ruleForm.unitPrice,//零售单价
 				        specifications:this.ruleForm.specifications,//商品规格
 				        material:this.ruleForm.material,//颜色材质
 				        goodsColor:this.ruleForm.goodsColor,//颜色
 				        styleName:this.ruleForm.styleName.join(','),
 				        goodsType:this.ruleForm.goodsType,//颜色材质
 				    	units:this.ruleForm.units,//单位
+				    	articleNum:this.ruleForm.articleNum,//货号
+				    	guideUnitPrice:this.ruleForm.guideUnitPrice,//指导单价
 				        /*packageId:packageArr[0],//商品包ID
 				        packageName:packageArr[1],//包名称*/
 				        goodsImages:coverPic//图片列表
+					}
+					if(this.addGoodsFlag){
+						data.parentId=this.addGoodsFlag;
 					}
 					addGoods(this,data);	
 	      		}
@@ -595,15 +798,20 @@
 						        brandId:brandArr[0],//商品品牌ID
 						        brandName:brandArr[1],//商品品牌名称
 						        styleName:this.ruleForm.styleName.join(','),
-						        unitPrice:this.ruleForm.unitPrice,//商品价格
+						        unitPrice:this.ruleForm.unitPrice,//零售单价
 						        specifications:this.ruleForm.specifications,//商品规格
 						        material:this.ruleForm.material,//颜色材质
 						        goodsType:this.ruleForm.goodsType,//颜色材质
 						      /*  packageId:packageArr[0],//商品包ID
 						        packageName:packageArr[1],//包名称*/
 						        goodsColor:this.ruleForm.goodsColor,//颜色
+						        articleNum:this.ruleForm.articleNum,//货号
+				    			guideUnitPrice:this.ruleForm.guideUnitPrice,//指导单价
 				    			units:this.ruleForm.units,//单位
 						        goodsImages:coverPic//图片列表
+							}
+							if(this.addGoodsFlag){
+								data.parentId=this.addGoodsFlag;
 							}
 							addGoods(this,data);	
 			        	}
@@ -675,6 +883,7 @@
 		    		done();
 		    		this.inputFlag=0;
 		    	}
+		    	this.addGoodsFlag=0;
 		    },
 		    //搜索
 		    searchUser(){
@@ -707,7 +916,7 @@
 		        model:'',//产品型号
 		        brand:'',//商品品牌
 		        brandList:[],//品牌列表
-		        unitPrice:'',//商品价格
+		        unitPrice:'',//零售单价
 		        specifications:'',//商品规格
 		        material:'',//颜色材质
 		        goodsColor:'',//商品颜色
@@ -718,7 +927,11 @@
 		        uploadData:{'token':''},//上传图片附带的token
 		        picNum:0,//标记
 		        inputDisabled:false,//表单禁用
-		        disabled:false
+		        disabled:false,
+		        articleNum:'',//货号
+		        guideUnitPrice:'',//指导单价
+		        showArticleNum:false,//展示货号
+		        showGuideUnitPrice:false//展示单价
 	        }
 		return data;
 	}
@@ -848,6 +1061,7 @@
 			//console.log(response)
 			obj.ruleForm.disabled=false;
 			if(response.data.retCode==0){
+				obj.addGoodsFlag=0;
 				obj.$message({
 				  message: '操作成功!',
 				  type: 'success'
