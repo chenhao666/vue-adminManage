@@ -596,22 +596,22 @@
 				    if(row.parentId){
 				    	that.addGoodsFlag=row.parentId;
 				    	that.child.goodsName=row.parentGoodsName;
-				    	let list=that.ruleForm.brandList;
-			      		for(let i=0;i<list.length;i++){
-				    		if(list[i].brandId==parseInt(row.brandId)){
-				    			if(list[i].articleNum || list[i].articleNum==0){
-				    				if(list[i].articleNum==0){
-				    					that.ruleForm.showArticleNum=true;
-				    				}else{
-				    					that.ruleForm.showArticleNum=false;
-				    				}
+				    }
+				    let list=that.ruleForm.brandList;
+			      	for(let i=0;i<list.length;i++){
+				    	if(list[i].brandId==parseInt(row.brandId)){
+				    		if(list[i].articleNum || list[i].articleNum==0){
+				    			if(list[i].articleNum==0){
+				    				that.ruleForm.showArticleNum=true;
+				    			}else{
+				    				that.ruleForm.showArticleNum=false;
 				    			}
-				    			if(list[i].guideUnitPrice || list[i].guideUnitPrice==0){
-				    				if(list[i].guideUnitPrice==0){
-				    					that.ruleForm.showGuideUnitPrice=true;
-				    				}else{
-				    					that.ruleForm.showGuideUnitPrice=false;
-				    				}
+				    		}
+				    		if(list[i].guideUnitPrice || list[i].guideUnitPrice==0){
+				    			if(list[i].guideUnitPrice==0){
+				    				that.ruleForm.showGuideUnitPrice=true;
+				    			}else{
+				    				that.ruleForm.showGuideUnitPrice=false;
 				    			}
 				    		}
 				    	}
@@ -718,14 +718,20 @@
 				        styleName:this.ruleForm.styleName.join(','),
 				        goodsType:this.ruleForm.goodsType,//颜色材质
 				    	units:this.ruleForm.units,//单位
-				    	articleNum:this.ruleForm.articleNum,//货号
-				    	guideUnitPrice:this.ruleForm.guideUnitPrice,//指导单价
+				    	/*articleNum:this.ruleForm.showArticleNum ? this.ruleForm.articleNum : '',//货号
+				    	guideUnitPrice:this.ruleForm.showGuideUnitPrice ? this.ruleForm.guideUnitPrice : '',//指导单价*/
 				        /*packageId:packageArr[0],//商品包ID
 				        packageName:packageArr[1],//包名称*/
 				        goodsImages:coverPic//图片列表
 					}
 					if(this.addGoodsFlag){
 						data.parentId=this.addGoodsFlag;
+					}
+					if(this.ruleForm.showArticleNum){
+						data.articleNum=this.ruleForm.articleNum;
+					}
+					if(this.ruleForm.showGuideUnitPrice){
+						data.guideUnitPrice=this.ruleForm.guideUnitPrice;
 					}
 					addGoods(this,data);	
 	      		}
@@ -805,14 +811,21 @@
 						      /*  packageId:packageArr[0],//商品包ID
 						        packageName:packageArr[1],//包名称*/
 						        goodsColor:this.ruleForm.goodsColor,//颜色
-						        articleNum:this.ruleForm.articleNum,//货号
-				    			guideUnitPrice:this.ruleForm.guideUnitPrice,//指导单价
+						       /*	articleNum:this.ruleForm.showArticleNum ? this.ruleForm.articleNum : '',//货号
+				    			guideUnitPrice:this.ruleForm.showGuideUnitPrice ? this.ruleForm.guideUnitPrice : '',//指导单价*/
 				    			units:this.ruleForm.units,//单位
 						        goodsImages:coverPic//图片列表
 							}
+
 							if(this.addGoodsFlag){
 								data.parentId=this.addGoodsFlag;
 							}
+							if(this.ruleForm.showArticleNum){
+						data.articleNum=this.ruleForm.articleNum;
+					}
+					if(this.ruleForm.showGuideUnitPrice){
+						data.guideUnitPrice=this.ruleForm.guideUnitPrice;
+					}
 							addGoods(this,data);	
 			        	}
 			        } else {

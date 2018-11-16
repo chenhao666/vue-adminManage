@@ -2,7 +2,7 @@
 	<div class="userPrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">套餐订单</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -117,7 +117,7 @@
 				</el-table-column>
 				<el-table-column  label="操作">
 					<template slot-scope="scope">
-						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)">详情</div>
+						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)">商品</div>
 						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)">采购</div>
 					</template>
 				</el-table-column>

@@ -1,15 +1,15 @@
 <template>
-	<div class="role">
+	<div class="editPower">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  <el-breadcrumb-item>管理员</el-breadcrumb-item>
-		  <el-breadcrumb-item class="fontWeight">角色管理</el-breadcrumb-item>
+		  <el-breadcrumb-item class="fontWeight">权限控制</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>角色管理</span>
+				<span>权限控制</span>
 			</div>
 			<div class="line"></div>
 			<div class="role_list">
@@ -17,7 +17,7 @@
 				<div class="editBtn">
 					<!--<el-button @click="toggleSelection" style="float: left;">全选</el-button>-->
 					<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
-					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加角色</el-button>
+					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加权限</el-button>
 					<div class="clear"></div>
 				</div>
 				
@@ -25,12 +25,15 @@
 					<el-table ref="multipleTable" border :data="tableData" :stripe="true" tooltip-effect="dark"   @selection-change="handleSelectionChange">
 						<el-table-column type="selection" width="55">
 						</el-table-column>
-						<!--<el-table-column label="角色ID" width="80" prop="id">
+						<!--<el-table-column label="权限ID" width="80" prop="id">
 							<template slot-scope="scope">{{ scope.row.id }}</template>
 						</el-table-column>-->
-						<el-table-column prop="roleName" label="角色名" min-width="150">
+						<el-table-column prop="roleOperation" label="权限名" min-width="150">
+							<template slot-scope="scope">	
+								<div>{{ options[parseInt(scope.row.roleOperation)] }}</div>
+							</template>	
 						</el-table-column>
-						<el-table-column prop="roleRemark" label="描述" min-width="300"  show-overflow-tooltip>
+						<el-table-column prop="remark" label="描述" min-width="300"  show-overflow-tooltip>
 						</el-table-column>
 						<el-table-column label="操作" v-if="editBtnShow || delBtnShow">
 					      <template slot-scope="scope">	
@@ -73,8 +76,15 @@
 			  :before-close="handleClose">
 			  <!--表单开始-->
 			  <el-form  v-loading="formLoading" ref="ruleForm" :model="form" :rules="rules" label-width="80px">
-			  	<el-form-item label="角色名称" prop="name">
-			  		<el-input v-model="form.name" @change="inputFlag=1"></el-input>
+			  	<el-form-item label="权限名称" prop="name">
+			  		<el-select v-model="form.name"  @change="inputFlag=1" placeholder="请选择">
+					    <el-option
+					      v-for="(item,key) in options"
+					      :key="key"
+					      :label="item"
+					      :value="key">
+					    </el-option>
+					</el-select>
 			  	</el-form-item>
 			  	<el-form-item label="备注">
 			  		<el-input v-model="form.desc" @change="inputFlag=1"></el-input>
@@ -105,9 +115,10 @@
 
 <script>
 export default {
-	name:'role',
+	name:'editPower',
 	data(){
 		return{
+			options:['查看','添加','删除','编辑','采购'],//权限列表
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
@@ -132,7 +143,7 @@ export default {
 	        //表单验证
 		    rules:{
 		    	name: [
-			        { required: true, message: '请输入角色名称', trigger: 'blur' }
+			        { required: true, message: '请输入权限名称', trigger: 'blur' }
 			    ]
 		    }
 		}
@@ -157,7 +168,7 @@ export default {
 		const h = this.$createElement;
 		this.$notify({
           title: '提示',
-           message: h('i', { style: 'color: teal'}, '当前角色权限修改将在下次登录时生效')
+           message: h('i', { style: 'color: teal'}, '当前权限权限修改将在下次登录时生效')
         });
 	},
 	methods: {
@@ -177,10 +188,10 @@ export default {
       handleSelectionChange(val) {
         this.multipleSelection = val;
       },
-      //添加角色
+      //添加权限
       addRole(){
       	this.form=formInit();
-      	this.dialogTitle="添加角色";
+      	this.dialogTitle="添加权限";
       	this.dialogVisible = true;
       	this.dialogMark=0;
       	//获取权限
@@ -190,28 +201,23 @@ export default {
       handleEdit(index, row) {
       	this.checkStrictly=true;
         //console.log(index, row);
-        this.dialogTitle="编辑角色";
+        this.dialogTitle="编辑权限";
         this.dialogVisible = true;//打开弹窗
         this.dialogMark=1;
         //获取id
         this.form.roleID=row.id;
-        //角色名称
-        this.form.name=row.roleName;
+        //权限名称
+        this.form.name=parseInt(row.roleOperation);
         //备注
-        this.form.desc=row.roleRemark;
+        this.form.desc=row.remark;
         roleList(this,function(obj){
         	//console.log(row)
-        	let list=row.operations;
+        	let list=row.funcAuthIDs;
         	//console.log(list)
         	let checkP=[];
         	for(let i=0;i<list.length;i++){
-        		checkP.push(list[i].functionAuthorityID);
-        		if(list[i].roleOperation){
-        			let arr=list[i].roleOperation.split(',');
-        			for(let j=0;j<arr.length;j++){
-        				checkP.push(list[i].functionAuthorityID+'_'+arr[j]);
-        			}
-        		}
+        		checkP.push(list[i]);
+        		
         	}
         	//console.log(checkP)
         	obj.form.checkedPower=checkP;
@@ -221,12 +227,12 @@ export default {
       //删除
       handleDelete(index, row) {
         //console.log(index, row);
-        this.$confirm('确定删除当前角色吗?', '提示', {
+        this.$confirm('确定删除当前权限吗?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-         	let data={"id":row.id};
+         	let data={"roleOperation":row.roleOperation};
           	delRole(this,data);
         }).catch(() => {
           this.$message({
@@ -245,7 +251,7 @@ export default {
 	          	type: 'warning'
 	        });
       	}else{
-	      	this.$confirm('确定删除当前角色吗?', '提示', {
+	      	this.$confirm('确定删除当前权限吗?', '提示', {
 	          confirmButtonText: '确定',
 	          cancelButtonText: '取消',
 	          type: 'warning'
@@ -253,9 +259,9 @@ export default {
 	        	let delArr=[];
 	        	let multi=this.multipleSelection;
 	        	for(let i=0;i<multi.length;i++){
-	        		delArr.push(multi[i].id);
+	        		delArr.push(multi[i].roleOperation);
 	        	}
-	        	let data={"id":delArr.join(',')};
+	        	let data={"roleOperation":delArr.join(',')};
 	        	delRole(this,data);
 	        }).catch(() => {
 	          this.$message({
@@ -306,61 +312,25 @@ export default {
       	//console.log(this.$refs.tree.getCheckedNodes());
       	//获取选中权限id
       	let powerArr=[];
-      	var childArr=[];
-      	let treeArr=this.$refs.tree.getCheckedNodes();
-      	//console.log(treeArr)
-      	for(let i=0;i<treeArr.length;i++){
-      		if(!treeArr[i].type){
-      			powerArr.push(treeArr[i].id);
-	      		if(treeArr[i].parentID){      			
-	      			if(powerArr.indexOf(treeArr[i].parentID)==-1){
-	      				powerArr.push(treeArr[i].parentID);
-	      			}
-	      		}
-      		}else{
-      			childArr.push(treeArr[i]);
-      			if(powerArr.indexOf(treeArr[i].parentID)==-1){
-	      			powerArr.push(treeArr[i].parentID);
-	      		}
-	      		if(powerArr.indexOf(treeArr[i].firstID)==-1){
-	      			powerArr.push(treeArr[i].firstID);
-	      		}
-      		}
+      	let childArr=this.$refs.tree.getCheckedNodes();
+      	for(var i=0;i<childArr.length;i++){
+      		powerArr.push(childArr[i].id);
       	}
       	//console.log(powerArr)
-      	var newPowerArr=[];
-      	for(let i=0;i<powerArr.length;i++){
-      		let list={
-      			funcIDs:powerArr[i],
-      			roleOperation:[]
-      		}
-      		for(let j=0;j<childArr.length;j++){
-      			if(powerArr[i]==childArr[j].parentID){
-      				let childID=parseInt(childArr[j].id.split('_')[1])
-      				list.roleOperation.push(childID);
-      			}
-      		}
-      		list.roleOperation=list.roleOperation.join(',');
-      		newPowerArr.push(list);
-      	}
-      	//console.log(newPowerArr)
         this.$refs[formName].validate((valid) => {
           if (valid) {
           	//按钮禁用
           	this.form.addDisabled=true;
-          	//提交角色信息
+          	//提交权限信息
           	let data={
-          		"roleName":this.form.name,
-          		"roleRemark":this.form.desc,
-          		"roleStatus":0,
-          		"operation":newPowerArr
+          		"roleOperation":parseInt(this.form.name),
+          		"remark":this.form.desc,
+          		"funcAuthIDs":powerArr
           	}
           	if(this.dialogMark){
           		data.id=this.form.roleID;
-          		updateList("updRoleInfo",this,data);
-          	}else{
-          		updateList("addRoleInfo",this,data);
           	}
+          	updateList("addRoleOperation ",this,data);
           } else {
             this.$message.error('表单提交失败！');
             return false;
@@ -399,7 +369,7 @@ function axiosRoleList(obj){
 		"start":(obj.currentPage-1)*obj.pageSize,
 		"length":obj.pageSize
 	}
-	obj.$ajax.post(obj.$store.state.localIP+"queryRoleInfo",data)
+	obj.$ajax.post(obj.$store.state.localIP+"queryRoleOperation",data)
 		.then((response)=>{
 			//console.log(response);
 			if(response.status==200){
@@ -408,7 +378,7 @@ function axiosRoleList(obj){
 					//总条数
 					obj.pageTotal=response.data.countNum;
 					//用户列表
-					obj.tableData=response.data.roleInfoList;
+					obj.tableData=response.data.roleOperations;
 				}else{
 					obj.$message.error(response.data.retMsg);
 				}
@@ -457,28 +427,12 @@ function roleList(obj,callback){
 					let objStr=response.data.funcList;
 					//console.log(objStr)
 					let str =JSON.stringify(objStr);
-					let newStr=str.replace(/(sonList|roleOperations)/g,"children");
+					let newStr=str.replace(/sonList/g,"children");
 					let newStr2=newStr.replace(/\"functionName\"/g,'"label"');
 					let newStr3=newStr2.replace(/\,\"children\"\:\[\]/g,'');
 					let newObj=JSON.parse(newStr3);
-					/*obj.form.powers=newObj;*/
-					let powerArr=['查看','添加','删除','编辑','采购'];
-					for(let i=0;i<newObj.length;i++){
-						if(newObj[i].children){
-							for(let j=0;j<newObj[i].children.length;j++){
-								if(newObj[i].children[j].children){
-									for(let x=0;x<newObj[i].children[j].children.length;x++){
-										newObj[i].children[j].children[x].id=newObj[i].children[j].id+'_'+newObj[i].children[j].children[x].roleOperation;
-										newObj[i].children[j].children[x].type=1;
-										newObj[i].children[j].children[x].parentID=newObj[i].children[j].id;
-										newObj[i].children[j].children[x].firstID=newObj[i].id;
-										newObj[i].children[j].children[x].label=powerArr[newObj[i].children[j].children[x].roleOperation];
-									}
-								}
-							}	
-						}
-					}
-					//console.log(newObj)
+				
+					
 					obj.form.powers=newObj;
 					callback(obj);
 					obj.form.addDisabled=false;
@@ -493,7 +447,7 @@ function roleList(obj,callback){
 			obj.$message.error("网络连接错误~~");
 		})
 }
-//添加与修改角色
+//添加与修改权限
 function updateList(url,obj,data){
 	let loading=openLoad(obj);
 	obj.$ajax.post(obj.$store.state.localIP+url,data)
@@ -522,10 +476,10 @@ function updateList(url,obj,data){
 		obj.$message.error('网络连接出错~~');
 	})
 }
-//删除角色
+//删除权限
 function delRole(obj,data){
 	const loading =openLoad(obj);
-	obj.$ajax.post(obj.$store.state.localIP+"delRoleInfo",data)
+	obj.$ajax.post(obj.$store.state.localIP+"deleteRoleOperation",data)
 	.then((response)=>{
     	//console.log(response)
 		if(response.status==200){
@@ -535,7 +489,7 @@ function delRole(obj,data){
 		          message: '删除成功!',
 		          type: 'success'
 		       });
-		       var list=data.id.toString();
+		       /*var list=data.id.toString();
 				if(list.indexOf(',')>-1){
 					var listArr=list.split(',');
 					obj.pageTotal-=listArr.length;
@@ -544,7 +498,7 @@ function delRole(obj,data){
 				}
 				if(obj.pageTotal==(obj.currentPage-1)*obj.pageSize && obj.pageTotal!=0){
 					obj.currentPage-=1;
-				}
+				}*/
 		       	//重新请求数据列表
 		       	axiosRoleList(obj);
 		    }else{

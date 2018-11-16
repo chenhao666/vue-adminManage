@@ -182,6 +182,9 @@ export default {
 		}
 		//方案列表
 		programeList(this);
+		//全景图数据获取
+		renderpic(this,"3FO4M465PGGS")
+		getPic(this);
 	},
 	beforeDestroy(){
 		this.dialogVisible=false;
@@ -407,15 +410,29 @@ function programeList(obj){
 		obj.$message.error("网络连接错误~~");
 	})
 }
+//获取全景图数据
+function getPic(obj){
+	let data={ 
+		'url':'https://openapi.kujiale.com/p/openapi/panodata',
+		'KujiaLe':{
+			'panopath':encodeURIComponent("https://yun.kujiale.com/design/3FO4LTPLO02I/show")
+		},
+		'params':'',
+		'method':'get'
+	}
+	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
+	.then(res=>{
+		console.log(res)
+	})
+	.catch((error)=>{
+		loading.close();
+		console.log(error);
+		obj.$message.error("网络连接错误~~");
+	})
+}
 ///获取方案渲染图列表
 function renderpic(obj,programmeID){
-	const loading=obj.$loading({
-       	lock: true,
-      	text: '渲染图生成中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
+
 	let data={
 		'url':'https://openapi.kujiale.com/v2/renderpic/list',
 		'KujiaLe':{
@@ -428,13 +445,13 @@ function renderpic(obj,programmeID){
 	}
 	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
 	.then(res=>{
-		loading.close();
 		if(res.data.c==0){
 			obj.$message({
 				message: '渲染图获取成功!',
 				type: 'success'
 			});
-			roamPic(obj,res.data.d.result);
+			console.log(res)
+			//roamPic(obj,res.data.d.result);
 			//console.log(obj.ruleForm.picArr)
 		}else{
 			obj.$message.error("获取渲染图列表出错~~");

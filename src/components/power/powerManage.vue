@@ -3,13 +3,13 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  <el-breadcrumb-item>管理员</el-breadcrumb-item>
-		  <el-breadcrumb-item class="fontWeight">权限管理</el-breadcrumb-item>
+		  <el-breadcrumb-item class="fontWeight">节点管理</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>权限管理</span>
+				<span>节点管理</span>
 			</div>
 			<div class="line"></div>
 			<div class="role_list">
@@ -17,7 +17,7 @@
 				<div class="editBtn">
 					<!--<el-button @click="toggleSelection" style="float: left;">全选</el-button>-->
 					<el-button type="danger" v-if="delBtnShow" @click="delQuery" style="float: left;">批量删除</el-button>
-					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加权限</el-button>
+					<el-button @click="addRole" v-if="addBtnShow" type="primary"><span class="iconfont icon-crm11"></span>添加节点</el-button>
 					<div class="clear"></div>
 				</div>
 				<div style="width: 100%;">
@@ -43,7 +43,7 @@
 					          type="danger"
 					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-					      </template>
+					      </template> 
 					    </el-table-column>
 					</el-table>
 				</div>
@@ -318,13 +318,15 @@ export default {
           	this.form.addDisabled=true;
           	//提交角色信息
           	let parentNode=this.form.parentNode;
+          	//console.log(parentNode)
           	let parentID="";
           	let data={};
-          	if(parentNode.length>0){
+          	/*if(parentNode.length>0){
           		parentID=parentNode[parentNode.length-1];
           	}else{
           		parentID=parentNode.join('');
-          	}
+          	}*/
+          	parentID=parentNode[0];
           	data={
           		"functionType":0,
           		"functionName":this.form.name,

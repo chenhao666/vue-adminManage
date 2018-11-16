@@ -12,6 +12,8 @@ import RoleManage from '@/components/power/roleManage'
 import PowerManage from '@/components/power/powerManage'
 //管理员列表
 import UserManage from '@/components/power/userManage'
+//权限控制
+import EditPower from '@/components/power/editPower'
 
 //客户管理-预约
 import Reservations from '@/components/customer/reservations'
@@ -142,6 +144,10 @@ export default new Router({
       		path:'userManage',
       		name:'员工管理',
       		component:UserManage
+      	},{
+      		path:'editPower',
+      		name:'权限控制',
+      		component:EditPower
       	},
       	{
       		path:'customer',

@@ -47,10 +47,12 @@
 							<el-button
 					          size="mini"
 					          v-if="editBtnShow"
+					          style="margin: 5px;"
 					          @click="handleEdit(scope.$index, scope.row)">方案设计</el-button>
 					        <el-button
 					          size="mini"
 					          v-if="editBtnShow"
+					          style="margin: 5px;"
 					          @click="handlePackageEdit(scope.$index, scope.row)">套餐编辑</el-button>
 					        <!--<el-button
 					          size="mini"

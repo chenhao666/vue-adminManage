@@ -2,7 +2,7 @@
 	<div class="userPrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">采购</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -135,7 +135,8 @@
 					</el-table-column>
 					<el-table-column prop="orderStatus" label="备注"  show-overflow-tooltip>
 						<template slot-scope="props">
-							<div><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.$index,props.row)">{{ props.row.descreption ? props.row.descreption : '备注' }}</a></div>
+							<div v-if="!props.row.goodsFlag"><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.$index,props.row)">{{ props.row.descreption ? props.row.descreption : '备注' }}</a></div>
+							<div v-if="props.row.goodsFlag"></div>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -144,7 +145,7 @@
 			<div class="right_footer">
 				<el-form>
 					<el-form-item label="税费：">
-						<el-input v-model="taxation" >
+						<el-input v-model="taxation" @change="taxationChange">
 							<template slot="append">元</template>
 						</el-input>
 					</el-form-item>
@@ -165,7 +166,7 @@
 			
 			<div class="btn_group">
 				<el-button type="success" @click="exportExcel">导出采购清单</el-button>
-				<el-button type="primary" @click="saveOrder">保存</el-button>
+				<el-button type="primary" @click="saveOrder('ruleForm')">保存</el-button>
 			</div>
 			
 		</el-card>
@@ -180,7 +181,7 @@
 			  :close-on-click-modal="false"
 			  >
 			  <!--表单开始-->
-			  <el-form ref="ruleForm" label-width="85px">
+			  <el-form label-width="85px">
 				
 			  	<el-form-item label="备注信息">
 			  		<el-input v-model="desc"  @change="inputFlag=1" :maxlength="255"></el-input>
@@ -190,7 +191,7 @@
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
-			    <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+			    <el-button type="primary" @click="submitForm">确 定</el-button>
 			  </span>
 			</el-dialog>
 		</div>
@@ -264,7 +265,17 @@
 		        //console.log(tab.index);
 		        var index=tab.index;
 		        this.brandSelect=this.goodsList[index].brandId.toString();
+		        var list=this.tableData;
+		        var len=list.length;
+		        list[len-1].taxation=this.taxation;
+		        list[len-1].shipmentTime=this.sendTime;
+		       
+		        this.goodsList[this.selectBrandIndex].goodsInfoList=list;
 		        this.tableData=totalPrice(this.goodsList[index].goodsInfoList || []);
+		       	var len=this.tableData.length;
+		       	this.taxation=this.tableData[len-1].taxation;
+		       	this.sendTime=this.tableData[len-1].shipmentTime;
+		        this.selectBrandIndex=index;
 		    },
 		    //监听输入框变化
 		    inputChange(index,row){
@@ -282,7 +293,7 @@
 		    	this.goodsList[this.selectBrandIndex].goodsInfoList=this.tableData;
 		    },
 		    //提交表单
-		    submitForm(formName) {
+		    submitForm(){
 		    	var list=this.tableData;
 		      	this.tableData=[];
 		      	list[this.selectGoodsIndex].descreption=this.desc;
@@ -296,65 +307,98 @@
 		      	//console.log(timeDate)
 		      	 return (new Date(timeDate)).Format("yyyy-MM-dd hh:mm:ss");
 		    },
+		    //监听税费
+		    taxationChange(val){
+		    	var price=0;
+		    	if(parseFloat(val)){
+		    		price=parseFloat(val)
+		    	}
+		    	this.taxation=Math.abs(price).toFixed(2);
+		    },
 		    //保存采购订单
-		    saveOrder(){
-		    	const loading =openLoad(this,"loading...");
-				var list=this.tableData;
-				var len=list.length;
-				var listAll=[];
-				for(var i=0;i<len-1;i++){
-					listAll.push(list[i]);
-				}
-				
-				var data={
-					"purchaseAddress":{
-						"houseNo":this.ruleForm.roomNum,
-						"consignee":this.ruleForm.reciveName,
-						"consMobileNum":this.ruleForm.telphone,
-						"consAddress":this.ruleForm.address,
-						
-					},
-					"purchasecost":{
-						"brandId":this.brandSelect,
-						"brandName":this.goodsList[this.selectBrandIndex].brandName,
-						"taxation":parseFloat(this.taxation || 0).toFixed(2),
-						"purchaseNum":list[len-1].goodsNum,
-						"purchaseTotal":list[len-1].purchaseTotal
-					},
-					"purchaseinfoList":listAll,
-					"orderNo":this.orderNum
-				}
-				if(this.sendTime){
-					var time = this.timeFomit(this.sendTime);
-					data.purchasecost.shipmentTime=time;
-				}
-				this.$ajax.post(this.$store.state.localIP+"savePurchaseInfo",data)
-				.then(response=>{
-					loading.close();
-					//console.log(response)
-					if(response.data.retCode==0){	
-						this.$message({
-				          	message: '操作成功!',
-				          	type: 'success'
-				       	});
-					}else{
-						this.$message.error(response.data.retMsg);
-					}
-				})
-				.catch((error)=>{
-					loading.close();
-			        console.log(error)
-					this.$message.error('网络连接错误~~');
-				})
+		    saveOrder(formName){
+		    	this.$refs[formName].validate((valid) => {
+			        if (valid) {
+				    	const loading =openLoad(this,"loading...");
+						var list=this.goodsList;
+						for(var i=0;i<list.length;i++){
+							var len=list[i].goodsInfoList.length;
+							var arr=[]
+							for(var j=0;j<len-1;j++){
+								arr.push(list[i].goodsInfoList[j])
+							}
+							list[i].taxation=list[i].goodsInfoList[len-1].taxation;
+							if(list[i].goodsInfoList[len-1].shipmentTime){								
+								list[i].shipmentTime=this.timeFomit(list[i].goodsInfoList[len-1].shipmentTime);
+							}else{
+								delete list[i]['shipmentTime'];
+							}
+							list[i].purchaseNum=list[i].goodsInfoList[len-1].goodsNum;
+							list[i].purchaseTotal=list[i].goodsInfoList[len-1].purchaseTotal;
+							list[i].goodsInfoList=arr;
+						}
+						list[this.selectBrandIndex].taxation=this.taxation;
+						if(this.sendTime){							
+							list[this.selectBrandIndex].shipmentTime=this.timeFomit(this.sendTime);
+						}
+						var data={
+							"purchaseAddress":{
+								"houseNo":this.ruleForm.roomNum,
+								"consignee":this.ruleForm.reciveName,
+								"consMobileNum":this.ruleForm.telphone,
+								"consAddress":this.ruleForm.address,
+								
+							},
+							/*"purchasecost":{
+								"brandId":this.brandSelect,
+								"brandName":this.goodsList[this.selectBrandIndex].brandName,
+								"taxation":parseFloat(this.taxation || 0).toFixed(2),
+								"purchaseNum":list[len-1].goodsNum,
+								"purchaseTotal":list[len-1].purchaseTotal
+							},*/
+							"purchaseinfoList":list,
+							"orderNo":this.orderNum
+						}
+						this.$ajax.post(this.$store.state.localIP+"savePurchaseInfo",data)
+						.then(response=>{
+							loading.close();
+							//console.log(response)
+							if(response.data.retCode==0){	
+								this.$message({
+						          	message: '操作成功!',
+						          	type: 'success'
+						       	});
+						      	orderList(this);
+							}else{
+								this.$message.error(response.data.retMsg);
+							}
+						})
+						.catch((error)=>{
+							loading.close();
+					        console.log(error)
+							this.$message.error('网络连接错误~~');
+						})
+					} else {
+			          	this.$message.error('表单提交失败！');
+			          	return false;
+			        }
+				});
 		    },
 		    //导出清单
 		    exportExcel(){
 		    	const loading =openLoad(this,"loading...");
-				var list=this.tableData;
+				var list=this.goodsList;
 				var len=list.length;
+				var brandId=this.brandSelect;
+				var brandName='';
+				for(var i=0;i<len;i++){
+					if(list[i].brandId==brandId){
+						brandName=list[i].brandName;
+					}
+				}
 				var data={
 					"orderNo":this.orderNum,
-					"brandId":this.brandSelect
+					"brandName":brandName
 				}
 				this.$ajax.post(this.$store.state.localIP+"downLoadPurchase",data)
 				.then(response=>{
@@ -408,17 +452,45 @@
 				obj.city=response.data.goodsOrder.city || '';
 				obj.remark=response.data.goodsOrder.remark || '';
 				
-				obj.taxation=response.data.goodsOrder.taxation || '';
-				obj.sendTime=response.data.goodsOrder.shipmentTime || '';
+				/*obj.taxation=response.data.goodsOrder.taxation || '';
+				obj.sendTime=response.data.goodsOrder.shipmentTime || '';*/
 				
 				var list=response.data.purchaseList;
 				if(list.length>0){
-					obj.goodsList=list;//商品列表
-					obj.brandSelect=list[0].brandId.toString();
-				}
-				var childList=list[0].goodsInfoList || [];
-				if(childList.length>0){
-					obj.tableData=totalPrice(childList);
+					for(var i=0;i<list.length;i++){
+						for(var j=0;j<list[i].goodsInfoList.length;j++){
+							if(list[i].goodsInfoList[j].goodsImages){
+								if(list[i].goodsInfoList[j].goodsImages.indexOf(',')>-1){
+									var arr=list[i].goodsInfoList[j].goodsImages.split(',');
+									list[i].goodsInfoList[j].goodsImages=arr[0];
+								}
+							}
+						}
+					}
+					
+					if(list.length>0){
+						for(var i=0;i<list.length;i++){
+							var taxation=0;
+							if(list[i].taxation){
+								taxation=list[i].taxation;
+							}
+							var info={
+								goodsFlag:1,
+								purchaseTotal:0,
+								goodsNum:0,
+								taxation:taxation.toFixed(2),
+								shipmentTime:list[i].shipmentTime || "",
+								descreption:''
+							}
+							list[i].goodsInfoList.push(info);
+							list[i].goodsInfoList=totalPrice(list[i].goodsInfoList);
+						}
+						obj.goodsList=list;//商品列表
+						obj.brandSelect=list[obj.selectBrandIndex].brandId.toString();
+						obj.taxation=list[obj.selectBrandIndex].taxation.toFixed(2);
+						obj.sendTime=list[obj.selectBrandIndex].shipmentTime;
+					}
+					obj.tableData=list[obj.selectBrandIndex].goodsInfoList || [];
 				}
 			}else{
 				obj.$message.error('获取订单列表失败！');
@@ -433,16 +505,9 @@
 	//计算合计
 	function totalPrice(list){
 		var len=list.length;
-		if(list[len-1].goodsFlag){
-			list.pop();
-		}
-		var info={
-			goodsFlag:1,
-			purchaseTotal:0,
-			goodsNum:0,
-			descreption:''
-		}
-		for(var i=0;i<list.length;i++){
+		var num=0;
+		var price=0;
+		for(var i=0;i<len-1;i++){
 			//格式统一
 			list[i].descreption=list[i].descreption || '';
 			if(list[i].purchaseTotal || parseFloat(list[i].purchaseTotal)==0){
@@ -455,11 +520,11 @@
 				list[i].purchasePrice=parseFloat(list[i].purchasePrice).toFixed(2)
 			}
 			
-			info.purchaseTotal +=parseFloat(list[i].purchaseTotal || 0);
-			info.goodsNum +=list[i].goodsNum;
+			price +=parseFloat(list[i].purchaseTotal || 0);
+			num +=list[i].goodsNum;
 		}
-		info.purchaseTotal=info.purchaseTotal.toFixed(2);
-		list.push(info)
+		list[len-1].goodsNum=num;
+		list[len-1].purchaseTotal=price.toFixed(2);
 		return list;
 	}
 </script>
