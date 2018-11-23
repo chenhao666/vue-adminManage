@@ -122,8 +122,8 @@
 				<el-table-column  label="操作">
 					<template slot-scope="scope">
 						<!--<div class="lookInfo" @click="handleShow(scope.$index, scope.row)">详情</div>-->
-						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)">商品</div>
-						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)">采购</div>
+						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)" v-if="editBtnShow">商品</div>
+						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)" v-if="purchaseBtnShow">采购</div>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -177,6 +177,7 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
+        purchaseBtnShow:false,
 				roleAuthList:sessionStorage.getItem('roleAuthList'),
 				dialogVisible:false,
 				selectOrderNum:'',
@@ -210,6 +211,9 @@
 			if(this.roleAuthList.indexOf('3')>-1){
 				this.editBtnShow=true;
 			}
+      if(this.roleAuthList.indexOf('4')>-1){
+        this.purchaseBtnShow=true;
+      }
 			//获取订单列表
 			orderList(this);
 		},

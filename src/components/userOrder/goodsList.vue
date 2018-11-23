@@ -477,7 +477,7 @@ export default {
 		};
 		return{
 			orderNo:'',
-			editBtnShow:true,
+			editBtnShow:false,
 			editGoodsFloag:0,
 			resizable:false,
 			selectGroupNum:-1,
@@ -621,20 +621,20 @@ export default {
 				var list=response.data.goodsList;
 				loading.close();
 				for(var i=0;i<list.length;i++){
-					for(var j=0;j<list[i].manualOrderGoods.length;j++){
-						list[i].manualOrderGoods[j].indexId=i;
-						if(list[i].manualOrderGoods[j].goodsImages){
-							if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
-								var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
-								list[i].manualOrderGoods[j].goodsSrc=arr[0];
+					for(var j=0;j<list[i].goodsInfos.length;j++){
+						list[i].goodsInfos[j].indexId=i;
+						if(list[i].goodsInfos[j].goodsImages){
+							if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+								var arr=list[i].goodsInfos[j].goodsImages.split(',');
+								list[i].goodsInfos[j].goodsSrc=arr[0];
 							}else{
-								list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
+								list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
 							}
 						}
 					}
 				}
 				if(list.length>0){
-					this.tableData=list[0].manualOrderGoods;
+					this.tableData=list[0].goodsInfos;
 					this.editableTabsValue=list[0].packageId.toString();
 				}
 				this.packageListVisible=false;
@@ -652,7 +652,7 @@ export default {
 		 	let list=this.editableTabs;
 		 	for(let i=0;i<list.length;i++){
 		 		if(list[i].packageId==activeName){
-		 			this.tableData=sortData(list[i].manualOrderGoods);
+		 			this.tableData=sortData(list[i].goodsInfos);
 		 		}
 		 	}
 		},
@@ -746,7 +746,7 @@ export default {
 	        let listAll=[];
 	        let list=this.editableTabs;
 	        for(let i=0;i<list.length;i++){
-	        	listAll=listAll.concat(list[i].manualOrderGoods);
+	        	listAll=listAll.concat(list[i].goodsInfos);
 	        }
 		    let data={
 		    	'orderNo':this.orderNo,
@@ -760,7 +760,7 @@ export default {
 	          	let listAll=[];
 		        let list=this.editableTabs;
 		        for(let i=0;i<list.length;i++){
-		        	listAll=listAll.concat(list[i].manualOrderGoods);
+		        	listAll=listAll.concat(list[i].goodsInfos);
 		        }
 				//样板
 				let modelTypeArr=this.ruleForm.modelType.split(',');
@@ -851,7 +851,7 @@ export default {
 		    	var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].manualOrderGoods=this.tableData;
+						tabs[i].goodsInfos=this.tableData;
 					}
 				}
 		    	//console.log(this.tableData)
@@ -961,7 +961,7 @@ export default {
       			var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].manualOrderGoods=this.tableData;
+						tabs[i].goodsInfos=this.tableData;
 					}
 				}
       		}else{
@@ -1213,7 +1213,7 @@ export default {
 				var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].manualOrderGoods=this.tableData;
+						tabs[i].goodsInfos=this.tableData;
 					}
 				}
 		    }).catch((e) => {
@@ -1281,6 +1281,7 @@ export default {
 									}
 								}
 							}
+							//console.log(listAll)
 							//console.log(typeFlag)
 							if(typeFlag.length>0){
 								if(typeFlag.indexOf(0)==-1){
@@ -1294,6 +1295,22 @@ export default {
 									}
 								}	
 							}
+							var locationFlag=[];
+							var locationGroup='';
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].typeName==child.typeName){
+									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+										locationGroup=listAll[i].groupId;
+										locationFlag.push(1);
+									}else{
+										locationFlag.push(0);
+									}
+								}
+							}
+							if(locationFlag.indexOf(0)==-1 && locationFlag.length>0){
+								child.groupId=locationGroup;
+								child.species='商品';
+							}
 							//console.log(child)
 							//this.tableData.push(child);
 							child.indexId=this.tableData.length;
@@ -1301,14 +1318,14 @@ export default {
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
 						 			emptyFlag=1;
-						 			tabs[i].manualOrderGoods.push(child);
+						 			tabs[i].goodsInfos.push(child);
 						 		}
 						 	}
 							if(emptyFlag==0){
 								var info={
 									packageName:child.packageName,
 									packageId:child.packageId,
-									manualOrderGoods:[child]
+									goodsInfos:[child]
 								}
 								tabs.push(info);
 							}
@@ -1316,7 +1333,7 @@ export default {
 							this.editableTabs=tabs;
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].manualOrderGoods);
+						 			this.tableData=sortData(tabs[i].goodsInfos);
 						 		}
 						 }
 							this.selectGoods={};
@@ -1334,20 +1351,20 @@ export default {
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
 						 			emptyFlag=1;
-						 			tabs[i].manualOrderGoods.push(child);
+						 			tabs[i].goodsInfos.push(child);
 						 		}
 						 	}
 							if(emptyFlag==0){
 								var info={
 									packageName:child.packageName,
 									packageId:child.packageId,
-									manualOrderGoods:child
+									goodsInfos:child
 								}
 								tabs.push(info);
 							}
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].manualOrderGoods);
+						 			this.tableData=sortData(tabs[i].goodsInfos);
 						 		}
 						 	}
 						}
@@ -1379,7 +1396,7 @@ export default {
 				   	
 				   	for(let i=0;i<tabs.length;i++){
 				 		if(tabs[i].packageId==this.editableTabsValue){
-				 			tabs[i].manualOrderGoods=this.tableData;
+				 			tabs[i].goodsInfos=this.tableData;
 				 		}
 				 	}
 				   	this.editableTabs=tabs;
@@ -1534,20 +1551,20 @@ function goodsList(obj){
 		var list=response.data.goodsList;
 		loading.close();
 		for(var i=0;i<list.length;i++){
-			for(var j=0;j<list[i].manualOrderGoods.length;j++){
-				list[i].manualOrderGoods[j].indexId=i;
-				if(list[i].manualOrderGoods[j].goodsImages){
-					if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
-						var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
-						list[i].manualOrderGoods[j].goodsSrc=arr[0];
+			for(var j=0;j<list[i].goodsInfos.length;j++){
+				list[i].goodsInfos[j].indexId=i;
+				if(list[i].goodsInfos[j].goodsImages){
+					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].goodsInfos[j].goodsImages.split(',');
+						list[i].goodsInfos[j].goodsSrc=arr[0];
 					}else{
-						list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
+						list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
 					}
 				}
 			}
 		}
 		if(list.length>0){
-			obj.tableData=list[0].manualOrderGoods;
+			obj.tableData=list[0].goodsInfos;
 			obj.editableTabsValue=list[0].packageId.toString();
 		}
 		
@@ -1671,28 +1688,28 @@ function goodsOrderInfo(obj,callback){
 		//console.log(response);
 		obj.goodsOrder=response.data.goodsOrder || {};
 		if(response.data.goodsOrder){
-			if(response.data.goodsOrder.orderStatus==1 || response.data.goodsOrder.orderStatus==10){
-				obj.editBtnShow=false;
+			if(response.data.goodsOrder.orderStatus==0 || response.data.goodsOrder.orderStatus==11){
+				obj.editBtnShow=true;
 			}
 		}
 		obj.editableTabs=response.data.orderGoodsList;
 		var list=response.data.orderGoodsList;
 		loading.close();
 		for(var i=0;i<list.length;i++){
-			for(var j=0;j<list[i].manualOrderGoods.length;j++){
-				list[i].manualOrderGoods[j].indexId=i;
-				if(list[i].manualOrderGoods[j].goodsImages){
-					if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
-						var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
-						list[i].manualOrderGoods[j].goodsSrc=arr[0];
+			for(var j=0;j<list[i].goodsInfos.length;j++){
+				list[i].goodsInfos[j].indexId=i;
+				if(list[i].goodsInfos[j].goodsImages){
+					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].goodsInfos[j].goodsImages.split(',');
+						list[i].goodsInfos[j].goodsSrc=arr[0];
 					}else{
-						list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
+						list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
 					}
 				}
 			}
 		}
 		if(list.length>0){
-			obj.tableData=list[0].manualOrderGoods;
+			obj.tableData=list[0].goodsInfos;
 			obj.editableTabsValue=list[0].packageId.toString();
 		}
 	})

@@ -2,7 +2,7 @@
 	<div class="orderInfo">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">订单详情</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -102,7 +102,7 @@
 				currentPage: 1,//分页当前页数
 		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
-		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
+		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭','待审核','未通过'],
 		        state:0,//状态
 			}
 		},

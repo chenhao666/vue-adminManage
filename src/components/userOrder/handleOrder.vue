@@ -1,5 +1,5 @@
 <template>
-  <div class="handleOrder">
+  <div class="handleOrder" v-if="showBtnShow">
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ path: '/userOrder/handleOrder' }">订单管理</el-breadcrumb-item>
@@ -58,7 +58,7 @@
         </div>
       </div>
       <div class="addBtn">
-        <el-button type="primary" @click="handleAdd(true,'新增订单')">新增</el-button>
+        <el-button type="primary" @click="handleAdd(true,'新增订单')" v-if="addBtnShow">新增</el-button>
         <div class="clear"></div>
       </div>
       <!--订单列表-->
@@ -83,10 +83,19 @@
         <el-table-column prop="orderStatus" label="状态" min-width="80" show-overflow-tooltip>
           <template slot-scope="props">
             <div v-if="props.row.orderStatus == 0">草稿</div>
+            <div v-if="props.row.orderStatus == 1">已付款</div>
+            <div v-if="props.row.orderStatus == 2">已发货</div>
+            <div v-if="props.row.orderStatus == 3">已签收</div>
+            <div v-if="props.row.orderStatus == 4">退货申请</div>
+            <div v-if="props.row.orderStatus == 5">退货中</div>
+            <div v-if="props.row.orderStatus == 6">已退货</div>
+            <div v-if="props.row.orderStatus == 7">取消订单</div>
+            <div v-if="props.row.orderStatus == 8">订单完成</div>
+            <div v-if="props.row.orderStatus == 9">关闭订单</div>
             <div v-if="props.row.orderStatus == 10">待审核</div>
             <div v-if="props.row.orderStatus == 11">未通过</div>
-            <div v-if="props.row.orderStatus == 1">已付款</div>
-            <div v-if="props.row.orderStatus == 7">取消订单</div>
+
+
           </template>
         </el-table-column>
         <el-table-column prop="empName" label="销售" show-overflow-tooltip>
@@ -95,21 +104,20 @@
           <template slot-scope="scope">
             <el-button class="buttonStyle" size="mini"
                        @click="showDetail(scope.row.orderNo)"
-                        v-if="scope.row.orderStatus == 10||scope.row.orderStatus == 11||scope.row.orderStatus == 1||scope.row.orderStatus == 7">详情</el-button>
+                       v-if="(scope.row.orderStatus !== 0 && scope.row.orderStatus !== 11)&&detailBtnShow">详情</el-button>
             <el-button class="buttonStyle" size="mini" @click="handleAdd(scope.row,'编辑订单')"
-                        v-if="scope.row.orderStatus==0||scope.row.orderStatus == 11">编辑</el-button>
-            <el-button class="buttonStyle" size="mini" @click="jumpProjectList(scope.row.orderNo)"
-                       v-if="scope.row.orderStatus==0||scope.row.orderStatus == 10||scope.row.orderStatus == 11||scope.row.orderStatus == 1||scope.row.orderStatus == 7">商品</el-button>
+                        v-if="(scope.row.orderStatus==0||scope.row.orderStatus == 11)&&editBtnShow">编辑</el-button>
+            <el-button class="buttonStyle" size="mini" @click="jumpProjectList(scope.row)">商品</el-button>
             <el-button class="buttonStyle" size="mini" @click="handleSubmit(scope.row)"
-                       v-if="scope.row.orderStatus == 0||scope.row.orderStatus == 11">提交</el-button>
-            <el-button class="buttonStyle" size="mini" @click="handleCheck"
-                       v-if="scope.row.orderStatus == 10||scope.row.orderStatus == 11">审核</el-button>
+                       v-if="(scope.row.orderStatus == 0||scope.row.orderStatus == 11)&&submitBtnShow">提交</el-button>
+            <el-button class="buttonStyle" size="mini" @click="handleCheck(scope.row.orderNo)"
+                       v-if="(scope.row.orderStatus == 10||scope.row.orderStatus == 11)&&checkBtnShow">审核</el-button>
             <el-button class="buttonStyle" size="mini" @click="handleBack(scope.row)"
-                       v-if="scope.row.orderStatus == 10" >撤回</el-button>
-            <el-button class="buttonStyle" size="mini" @click="handleBack(scope.row)"
-                      v-if="scope.row.orderStatus == 1||scope.row.orderStatus == 7">采购</el-button>
+                       v-if="(scope.row.orderStatus == 10)&&submitShowData">撤回</el-button>
+            <el-button class="buttonStyle" size="mini" @click="handlePurchase(scope.row)"
+                      v-if="(scope.row.orderStatus !== 0&&scope.row.orderStatus !== 10&&scope.row.orderStatus !== 11)&&purchaseBtnShow">采购</el-button>
             <el-button class="buttonStyle" size="mini" type="danger" @click="handleCancel(scope.row)"
-                       v-if="scope.row.orderStatus == 0||scope.row.orderStatus == 11" >删除</el-button>
+                       v-if="(scope.row.orderStatus == 0||scope.row.orderStatus == 11)&&delBtnShow" >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -143,36 +151,40 @@
           <el-row :gutter="20">
             <el-col :span="14">
               <el-form-item label="提交审核时间：">
-                {{ ruleForm.time }}
+                {{ checkListData.createTime }}
               </el-form-item>
             </el-col>
             <el-col :span="10">
               <el-form-item label="状态：">
-                {{ ruleForm.status }}
+                <span v-if="checkListData.orderStatus==0">草稿</span>
+                <span v-if="checkListData.orderStatus==10">待审核</span>
+                <span v-if="checkListData.orderStatus==11">未通过</span>
+                <span v-if="checkListData.orderStatus==1">已付款</span>
+                <span v-if="checkListData.orderStatus==7">取消订单</span>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="20">
             <el-col :span="14">
               <el-form-item label="姓名：">
-                {{ ruleForm.name }}
+                {{ checkListData.linkman }}
               </el-form-item>
             </el-col>
             <el-col :span="10">
               <el-form-item label="楼盘：">
-                {{ ruleForm.house }}
+                {{ checkListData.houseName }}
               </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="20">
             <el-col :span="14">
               <el-form-item label="地址：">
-                {{ ruleForm.address }}
+                {{ checkListData.address }}
               </el-form-item>
             </el-col>
             <el-col :span="10">
               <el-form-item label="订单金额：">
-                ￥{{ ruleForm.price }}
+                ￥{{ checkListData.totalAmout }}
               </el-form-item>
             </el-col>
           </el-row>
@@ -181,47 +193,54 @@
             <span>订单信息</span>
           </div>
           <el-table
-            :data="orderDetailData"
+            :data="checkWayList"
             style="width: 100%">
             <el-table-column
-              prop="date"
+              prop="payTime"
               label="付款日期"
               width="180">
               <template slot-scope="scope">
                 <el-date-picker
-                  v-model="scope.row.date"
+                  v-model="scope.row.payTime"
                   type="date"
-                  placeholder="选择日期"
-                  style="width: auto">
+                  :maxlength="255"
+                  style="width: 100%"
+                  value-format="yyyy-MM-dd HH:mm">
                 </el-date-picker>
               </template>
             </el-table-column>
             <el-table-column
-              prop="money"
+              prop="alreadyAmount"
               label="付款金额"
               width="180">
             </el-table-column>
             <el-table-column
-              prop="ways"
+              prop="payType"
               label="付款方式">
+              <template slot-scope="scope">
+                <span v-if="scope.row.payType ==0">支付宝</span>
+                <span v-if="scope.row.payType ==1">微信</span>
+                <span v-if="scope.row.payType ==2">银行卡</span>
+                <span v-if="scope.row.payType ==3">现金</span>
+              </template>
             </el-table-column>
           </el-table>
           <div class="line"></div>
           <div class="desc order_title">
             <span>销售备注：</span>
-            <span>{{ruleForm.resc}}</span>
+            <span>{{checkListData.salesRemark}}</span>
           </div>
         </el-form>
         <!--表单结束-->
         <span slot="footer" class="dialog-footer">
-			    <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
-			    <el-button @click="refuseForm">拒 绝</el-button>
+			    <el-button type="primary" @click="refuseForm('审核通过')">确 定</el-button>
+			    <el-button @click="refuseForm('审核失败')">拒 绝</el-button>
 			    <el-button @click="dialogVisible = false">取 消</el-button>
 			  </span>
       </el-dialog>
       <!--拒绝提示弹窗-->
       <el-dialog
-        title="审核不通过"
+        :title=checkTitle
         :visible.sync="refuseVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
@@ -229,11 +248,11 @@
         <el-input
           type="textarea"
           :rows="4"
-          placeholder="不通过原因"
-          v-model="textarea">
+          :placeholder="checkReason"
+          v-model="financialRemark">
         </el-input>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="refuseVisible = false">确 定</el-button>
+          <el-button type="primary" @click="handleResult">确 定</el-button>
           <el-button @click="refuseVisible = false">取 消</el-button>
         </span>
       </el-dialog>
@@ -295,10 +314,10 @@
             </el-select>
           </el-form-item>
           <el-form-item label="风格">
-            <el-select v-model="addParams.styleName" placeholder="请选择" :maxlength="255">
+            <el-select v-model="addParams.styleName" placeholder="请选择" :maxlength="255" @change="showVal()">
               <el-option
                 v-for="item in houseStyleList"
-                :key="item.styleId"
+                :key="item.styleName"
                 :label="item.styleName"
                 :value="item.styleName">
               </el-option>
@@ -364,7 +383,7 @@
           <div class="form_time_list form_item">
             <div class="time_item">
               <span>订单金额：</span>
-              <span>{{submitShowData.linkMobileNum}}</span>
+              <span>{{submitShowData.totalAmout}}</span>
             </div>
           </div>
           <div class="pay_message">
@@ -414,20 +433,29 @@
         name: "handleOrder",
         data(){
           return{
+            showBtnShow:false,
+            addBtnShow:false,
+            delBtnShow:false,
+            editBtnShow:false,
+            purchaseBtnShow:false,
+            detailBtnShow:false,
+            submitBtnShow:false,
+            checkBtnShow:false,
+            roleAuthList:sessionStorage.getItem('roleAuthList'),
             value1:'',
             payType:[
               {
                 id:0,
-                val:"支付宝支付"
+                val:"支付宝"
               },{
                 id:1,
-                val:"微信支付"
+                val:"微信"
               },{
                 id:2,
-                val:'银行卡支付'
+                val:'银行卡'
               },{
                 id:3,
-                val:'现金支付'
+                val:'现金'
               }
             ],
             countArr:[],//提交审核列表的数据长度
@@ -443,7 +471,7 @@
               salesRemark:'',//备注
             },
             currentPage: 1,//分页当前页数
-            pageSize:8,//分页默认每页条数
+            pageSize:10,//分页默认每页条数
             pageTotal:0,//页数总数
             title:"",
             tableData:[],//列表数据
@@ -517,9 +545,41 @@
             timeValue:'',
             submitShowData:{},//提交订单页面数据，
             salesRemark:'',//备注
+            checkListData:{},
+            checkWayList:[],//审核信息的列表数组
+            checkTitle:'',//审核标题
+            checkReason:'',//审核placeholder提示
+            financialRemark:'',//审核原因
+            checkid:'',//审核orderNo
+            orderStatusType:'',//订单（不）通过状态，1通过，11不通过
           }
         },
         mounted(){
+          console.log(this.roleAuthList)
+          if(this.roleAuthList.indexOf('0')>-1){
+            this.showBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('1')>-1){
+            this.addBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('2')>-1){
+            this.delBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('3')>-1){
+            this.editBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('4')>-1){
+            this.purchaseBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('5')>-1){
+            this.detailBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('6')>-1){
+            this.submitBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('7')>-1){
+            this.checkBtnShow=true;
+          }
           this.getProvince();
           this.getHouseStyle();
           this.getData();
@@ -527,12 +587,17 @@
         methods:{
           //分页方法
           handleSizeChange(val) {
-            //console.log(`每页 ${val} 条`);
+            // console.log(`每页 ${val} 条`);
             this.pageSize=val;
+            this.getData()
           },
           handleCurrentChange(val) {
-            //console.log(`当前页: ${val}`);
+            // console.log(`当前页: ${val}`);
             this.currentPage=val;
+            this.getData()
+          },
+          showVal(){
+            console.log(this.addParams)
           },
           //tab 切换
           handleClick(tab, event) {
@@ -604,26 +669,48 @@
             // if(sessionStorage.getItem('chat')){
             //   list=JSON.parse(sessionStorage.getItem('chat'));
             // }
-            this.editVisible = false;
-            this.$ajax.post(this.$store.state.localIP+'addManualOrders',this.addParams)
-              .then(response=>{
-                if(response.data.retCode==0){
-                  this.$message({
-                    message: this.messageTitle,
-                    type: 'success'
-                  });
-                  this.getData();
-                }else{
-                  this.$message.error('操作失败！');
-                }
+            var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+            if(this.addParams.linkMobileNum==''){
+              this.$message({
+                message:'手机号不能为空',
+                type:'warning'
               })
-              .catch((error)=>{
-                this.$message.error('网络连接错误~~');
+            }else if(!(myreg.test(this.addParams.linkMobileNum))){
+              this.$message({
+                message:'手机号格式不正确',
+                type:'warning'
               })
+            }else{
+              this.editVisible = false;
+              this.$ajax.post(this.$store.state.localIP+'addManualOrders',this.addParams)
+                .then(response=>{
+                  if(response.data.retCode==0){
+                    this.$message({
+                      message: this.messageTitle,
+                      type: 'success'
+                    });
+                    this.getData();
+                  }else{
+                    this.$message.error('操作失败！');
+                  }
+                })
+                .catch((error)=>{
+                  this.$message.error('网络连接错误~~');
+                })
+            }
           },
           //审批拒绝事件
-          refuseForm(){
+          refuseForm(val){
             this.refuseVisible = true;
+            this.checkTitle = val;
+            if(val=="审核通过"){
+              this.checkReason = "通过原因";
+              this.orderStatusType=1;
+            }else if(val=="审核失败"){
+              this.checkReason = "不通过原因"
+              this.orderStatusType=11;
+            }
+
           },
           showDetail(id){
             console.log(id)
@@ -635,10 +722,41 @@
           //   // this.title= "编辑订单";
           //   // this.editVisible = true;
           // },
-          jumpProjectList(orderNo){
-          	var num=Base64.encode(orderNo);
+          jumpProjectList(row){
+            var num=Base64.encode(row.orderNo);
            /* console.log("跳转到商品列表事件");*/
           	this.$router.push({path:'/userOrder/goodsList/'+num})
+          },
+          //审核，提交审核原因
+          handleResult(){
+            let data={
+              financialRemark:this.financialRemark,
+              orderNo:this.checkid,
+              orderStatus:this.orderStatusType
+            }
+            const loading =openLoad(this,"Loading...");
+            this.refuseVisible = false;
+            this.dialogVisible = false;
+            this.$ajax.post(this.$store.state.localIP+'updateManualOrders',data)
+              .then(response=>{
+                loading.close();
+                if(response.data.retCode==0){
+                  this.$message({
+                    type: 'success',
+                    message: '审核成功'
+                  });
+                  //初始化数据
+                  this.financialRemark='';
+                  this.orderStatus='';
+                  this.checkid='';
+                  this.getData();
+                }
+                loading.close();
+              })
+              .catch((error)=>{
+                loading.close();
+                this.$message.error('网络连接错误~~');
+              })
           },
           handleSubmit(data){
             //重置数据
@@ -649,10 +767,37 @@
             }];
             this.salesRemark = '';
             this.submitShowData = data;
+            console.log(this.submitShowData)
             this.payVisible = true;
           },
-          handleCheck(){
+          handlePurchase(row){
+            var num = Base64.encode(row.orderNo);
+            this.$router.push({path:'/userOrder/purchase/'+num})
+          },
+          handleCheck(id){
+            const loading =openLoad(this,"Loading...");
             this.dialogVisible = true;
+            this.checkid = id;
+            this.$ajax.post(this.$store.state.localIP+'manualOrderDetail',{orderNo:id})
+              .then(response=>{
+                loading.close();
+                if(response.data.retCode==0){
+                  this.checkListData = response.data.manualOrderDetail;
+                  this.checkListData.createTime = this.checkListData.createTime.split('.')[0];
+                  if(response.data.manualOrderDetail.auditDetail.payMentList){
+                    this.checkWayList = response.data.manualOrderDetail.auditDetail.payMentList
+                    for(let i=0;i<this.checkWayList.length;i++){
+                      this.checkWayList[i].payTime = this.checkWayList[i].payTime.split('.')[0];
+                    }
+                  }
+
+                }
+                loading.close();
+              })
+              .catch((error)=>{
+                loading.close();
+                this.$message.error('网络连接错误~~');
+              })
           },
           handleBack(data){
             let orderData={
@@ -685,7 +830,7 @@
           handleCancel(data){
             let orderData={
               orderNo: data.orderNo,
-              orderStatus: 4
+              orderStatus: 7
             }
             this.$confirm('确定删除该条订单吗?', '提示', {
               confirmButtonText: '确定',
@@ -713,11 +858,20 @@
             const loading =openLoad(this,"Loading...");
             this.searchParams.beginTime = this.timeValue[0];
             this.searchParams.endTime = this.timeValue[1];
+            this.searchParams.userCode = this.$store.state.userCode;
+            this.searchParams.userName = this.$store.state.userName;
+            this.searchParams.start = (this.currentPage-1)*this.pageSize;
+            this.searchParams.length = this.pageSize;
+            if(this.searchParams.empId){
+              this.searchParams.empId = this.$store.state.roleID;
+            }
+            this.searchParams.empName = this.$store.state.roleName;
             this.$ajax.post(this.$store.state.localIP+'queryManualOrders',this.searchParams)
               .then(response=>{
                 loading.close();
                 if(response.data.retCode==0){
                   this.tableData = response.data.goodsOrders;
+                  this.pageTotal = response.data.countNum;
                 }
                 loading.close();
               })

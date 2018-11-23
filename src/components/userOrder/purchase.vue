@@ -6,13 +6,13 @@
 		  	<el-breadcrumb-item class="fontWeight">采购</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
+
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
 				<span>采购详情</span>
 			</div>
 			<div class="line"></div>
-			
+
 			<!--基础信息-->
 			<div class="userInfo">
 				<el-form>
@@ -38,7 +38,7 @@
 							</el-form-item>
 						</el-col>
 					</el-row>
-					
+
 					<el-row :gutter="20">
 						<el-col :span="6">
 							<el-form-item label="订单金额：">
@@ -57,7 +57,7 @@
 						</el-col>
 					</el-row>
 				</el-form>
-				<el-form label-width="130px" :rules="rules" ref="ruleForm" :model="ruleForm" style="margin-top: 20px;">	
+				<el-form label-width="130px" :rules="rules" ref="ruleForm" :model="ruleForm" style="margin-top: 20px;">
 					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="房号：" prop='roomNum'>
@@ -70,7 +70,7 @@
 							</el-form-item>
 						</el-col>
 					</el-row>
-					
+
 					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="收货人联系电话：" prop='telphone'>
@@ -85,7 +85,7 @@
 					</el-row>
 				</el-form>
 			</div>
-			
+
 			<!--品牌-->
 			<el-tabs v-model="brandSelect" type="card" @tab-click="handleClick">
 			    <el-tab-pane v-for="(item,key) in goodsList" :key='key' :label="item.brandName" :name="item.brandId.toString()"></el-tab-pane>
@@ -141,7 +141,7 @@
 					</el-table-column>
 				</el-table>
 			</div>
-			
+
 			<div class="right_footer">
 				<el-form>
 					<el-form-item label="税费：">
@@ -151,7 +151,7 @@
 					</el-form-item>
 				</el-form>
 			</div>
-			
+
 			<div class="right_footer">
 				<el-form>
 					<el-form-item label="期望出货时间：" style="width:320px;">
@@ -163,14 +163,14 @@
 					</el-form-item>
 				</el-form>
 			</div>
-			
+
 			<div class="btn_group">
 				<el-button type="success" @click="exportExcel">导出采购清单</el-button>
 				<el-button type="primary" @click="saveOrder('ruleForm')">保存</el-button>
 			</div>
-			
+
 		</el-card>
-		
+
 		<!--dialog弹窗-->
 		<div class="edit_dialog">
 			<el-dialog
@@ -182,12 +182,12 @@
 			  >
 			  <!--表单开始-->
 			  <el-form label-width="85px">
-				
+
 			  	<el-form-item label="备注信息">
 			  		<el-input v-model="desc"  @change="inputFlag=1" :maxlength="255"></el-input>
 			  	</el-form-item>
-			  	
-			  	
+
+
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -222,7 +222,7 @@
 					roomNum:'',//房号
 					reciveName:'',//收货人
 					telphone:'',//联系电话
-					address:'',//地址	
+					address:'',//地址
 				},
 				userName:'',//姓名
 				mobile:'',//电话
@@ -269,7 +269,7 @@
 		        var len=list.length;
 		        list[len-1].taxation=this.taxation;
 		        list[len-1].shipmentTime=this.sendTime;
-		       
+
 		        this.goodsList[this.selectBrandIndex].goodsInfoList=list;
 		        this.tableData=totalPrice(this.goodsList[index].goodsInfoList || []);
 		       	var len=this.tableData.length;
@@ -285,7 +285,7 @@
 		    	if(val == parseFloat(val)){
 		    		price=Math.abs(parseFloat(val));
 		    	}
-		    	
+
 		    	list[index].purchasePrice=price.toFixed(2);
 		    	list[index].purchaseTotal=(price* list[index].goodsNum).toFixed(2);
 		    	this.tableData=[];
@@ -328,7 +328,7 @@
 								arr.push(list[i].goodsInfoList[j])
 							}
 							list[i].taxation=list[i].goodsInfoList[len-1].taxation;
-							if(list[i].goodsInfoList[len-1].shipmentTime){								
+							if(list[i].goodsInfoList[len-1].shipmentTime){
 								list[i].shipmentTime=this.timeFomit(list[i].goodsInfoList[len-1].shipmentTime);
 							}else{
 								delete list[i]['shipmentTime'];
@@ -338,7 +338,7 @@
 							list[i].goodsInfoList=arr;
 						}
 						list[this.selectBrandIndex].taxation=this.taxation;
-						if(this.sendTime){							
+						if(this.sendTime){
 							list[this.selectBrandIndex].shipmentTime=this.timeFomit(this.sendTime);
 						}
 						var data={
@@ -347,7 +347,7 @@
 								"consignee":this.ruleForm.reciveName,
 								"consMobileNum":this.ruleForm.telphone,
 								"consAddress":this.ruleForm.address,
-								
+
 							},
 							/*"purchasecost":{
 								"brandId":this.brandSelect,
@@ -363,7 +363,7 @@
 						.then(response=>{
 							loading.close();
 							//console.log(response)
-							if(response.data.retCode==0){	
+							if(response.data.retCode==0){
 								this.$message({
 						          	message: '操作成功!',
 						          	type: 'success'
@@ -404,7 +404,7 @@
 				.then(response=>{
 					loading.close();
 					//console.log(response)
-					if(response.data.retCode==0){	
+					if(response.data.retCode==0){
 						window.location.href=this.$store.state.localIP+response.data.excelUrl;
 					}else{
 						this.$message.error(response.data.retMsg);
@@ -439,22 +439,22 @@
 		.then(response=>{
 			loading.close();
 			//console.log(response)
-			if(response.data.retCode==0){	
+			if(response.data.retCode==0){
 				obj.ruleForm.roomNum=response.data.goodsOrder.address || '';
 				obj.ruleForm.reciveName=response.data.goodsOrder.consignee || '';
 				obj.ruleForm.telphone=response.data.goodsOrder.consMobileNum || '';
 				obj.ruleForm.address=response.data.goodsOrder.consAddress || '';
-	
+
 				obj.userName=response.data.goodsOrder.linkman || '';
 				obj.mobile=response.data.goodsOrder.linkMobileNum || '';
 				obj.payTime=response.data.goodsOrder.updateTime.split('.')[0];
 				obj.orderPrice=response.data.goodsOrder.actualAmount ? '￥'+response.data.goodsOrder.actualAmount : '';
 				obj.city=response.data.goodsOrder.city || '';
 				obj.remark=response.data.goodsOrder.remark || '';
-				
+
 				/*obj.taxation=response.data.goodsOrder.taxation || '';
 				obj.sendTime=response.data.goodsOrder.shipmentTime || '';*/
-				
+
 				var list=response.data.purchaseList;
 				if(list.length>0){
 					for(var i=0;i<list.length;i++){
@@ -467,7 +467,7 @@
 							}
 						}
 					}
-					
+
 					if(list.length>0){
 						for(var i=0;i<list.length;i++){
 							var taxation=0;
@@ -519,7 +519,7 @@
 			if(list[i].purchasePrice || parseFloat(list[i].purchasePrice)==0){
 				list[i].purchasePrice=parseFloat(list[i].purchasePrice).toFixed(2)
 			}
-			
+
 			price +=parseFloat(list[i].purchaseTotal || 0);
 			num +=list[i].goodsNum;
 		}

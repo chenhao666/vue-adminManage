@@ -76,10 +76,17 @@
           <div class="form_item">
             <span>订单状态：</span>
             <span class="order_price" v-if="listData.orderStatus == 0">草稿</span>
+            <span class="order_price" v-if="listData.orderStatus == 1">已付款</span>
+            <span class="order_price" v-if="listData.orderStatus == 2">已发货</span>
+            <span class="order_price" v-if="listData.orderStatus == 3">已签收</span>
+            <span class="order_price" v-if="listData.orderStatus == 4">退货申请</span>
+            <span class="order_price" v-if="listData.orderStatus == 5">退货中</span>
+            <span class="order_price" v-if="listData.orderStatus == 6">已退货</span>
+            <span class="order_price" v-if="listData.orderStatus == 7">取消订单</span>
+            <span class="order_price" v-if="listData.orderStatus == 8">订单完成</span>
+            <span class="order_price" v-if="listData.orderStatus == 9">关闭订单</span>
             <span class="order_price" v-if="listData.orderStatus == 10">待审核</span>
             <span class="order_price" v-if="listData.orderStatus == 11">未通过</span>
-            <span class="order_price" v-if="listData.orderStatus == 1">已付款</span>
-            <span class="order_price" v-if="listData.orderStatus == 7">取消订单</span>
           </div>
           <div class="form_time_list form_item">
             <div class="time_item">
@@ -108,12 +115,12 @@
               <span class="time_detail" @click="handleSubmitCheck">明细</span>
             </div>
           </div>
-          <div class="form_time_list form_item">
-            <div class="time_item">
-              <span>下单时间：</span>
-              <span>{{form.exp}}</span>
-            </div>
-          </div>
+          <!--<div class="form_time_list form_item">-->
+            <!--<div class="time_item">-->
+              <!--<span>下单时间：</span>-->
+              <!--<span>{{form.exp}}</span>-->
+            <!--</div>-->
+          <!--</div>-->
           <div class="form_time_list form_item">
             <div class="time_item">
               <span>发货时间：</span>
@@ -222,7 +229,11 @@
           </div>
           <div class="pay_mark">
             <span>未通过原因:</span>
-            <span style="color: red">{{payListData.salesRemark}}</span>
+            <span style="color: red">{{payListData.financialRemark}}</span>
+          </div>
+          <div class="pay_mark">
+            <span>通过原因:</span>
+            <span style="color: red">{{payListData.financialRemark}}</span>
           </div>
         </el-form>
 
@@ -292,8 +303,14 @@
                   if(this.listData.createTime){
                     this.listData.createTime = this.listData.createTime.split('.')[0];
                   }
+                  if(this.listData.submitAuditTime){
+                    this.listData.submitAuditTime = this.listData.submitAuditTime.split('.')[0];
+                  }
                   if(this.listData.shipmenTime){
                     this.listData.shipmenTime = this.listData.shipmenTime.split('.')[0];
+                  }
+                  if(this.listData.paymentTime){
+                    this.listData.paymentTime = this.listData.paymentTime.split('.')[0];
                   }
                   // if(listData.amountDetail.totalAmout){
                   //   listData.totalAmout = listData.amountDetail.totalAmout;

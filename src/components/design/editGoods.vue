@@ -18,11 +18,24 @@
 					
 					<!--组合编辑-->
 					<div class="edit_btn">
+						<el-button  type="primary" @click="importGoods">导入套餐商品</el-button>
 						<el-button  type="primary" @click="addGoodsFun">新增</el-button>
 						<el-button  type="primary" @click="goGroup">组合</el-button>
 						<el-button  type="primary" @click="removeGroup">拆分</el-button>
 						<el-button  type="primary" @click="changeGoods">替换</el-button>
 						<el-button  type="danger" @click="deleteGoods">删除</el-button>
+					</div>
+					
+					<div class="packageList">
+						<el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="handleTabsRemove" :before-leave="handleTabsEdit">
+							<el-tab-pane
+							    :key="item.name"
+							    v-for="(item, index) in editableTabs"
+							    :label="item.packageName"
+							    :name="item.packageId.toString()"
+							  >
+						  	</el-tab-pane>
+						</el-tabs>
 					</div>
 					
 					<div class="goodsList">
@@ -368,6 +381,18 @@ export default {
 			uploadData:{'token':''},
 			uploadPic:"https://up.qbox.me/",//图片上传
 			goods:initGoods(),
+			editableTabsValue: '',//tab值
+			editableTabs: [],//tab数组
+			packageListVisible:false,//套餐方案弹窗
+			packageListData:[],//套餐方案数据
+			searchData:{
+				floorName:'',//楼盘名
+				floorList:[],//楼盘列表
+				houseName:'',//户型名
+				houseList:[],//户型列表
+				styleName:'',//风格名
+				styleList:[]
+			},
 			form:{
 				areaType:'',//区域类型
 				desc:'',//区域描述
@@ -417,6 +442,121 @@ export default {
 		this.dialogVisible=false;
 	},
 	methods: {
+		//导入套餐商品
+		importGoods(){
+			this.packageListVisible=true;
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'designInfoConditionList',{})
+			.then(res=>{
+				//console.log(res)
+				this.searchData.houseList=res.data.houseModelList || [];
+				this.searchData.floorList=res.data.houseNameList || [];
+				this.searchData.styleList=res.data.styleNameList || [];
+				loading.close();
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+		},
+		//搜索套餐包
+		searchPackage(){
+			let data={
+				"styleName":this.searchData.styleName,
+				"houseModel":this.searchData.houseName,
+				"houseName":this.searchData.floorName
+			}	
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'queryDesignInfoList',data)
+			.then(res=>{
+				//console.log(res)
+				this.packageListData=res.data.list || [];
+				loading.close();
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+		},
+		//选择套餐包
+		handlePackageEdit(index, row){
+			//console.log(row.designId)
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'queryGoodsDesignList',{designId:row.designId,type:'1'})
+			.then(response=>{
+				//console.log(response);
+				this.editableTabs=response.data.goodsList;
+				var list=response.data.goodsList;
+				loading.close();
+				for(var i=0;i<list.length;i++){
+					for(var j=0;j<list[i].goodsInfos.length;j++){
+						list[i].goodsInfos[j].indexId=i;
+						if(list[i].goodsInfos[j].goodsImages){
+							if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+								var arr=list[i].goodsInfos[j].goodsImages.split(',');
+								list[i].goodsInfos[j].goodsSrc=arr[0];
+							}else{
+								list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+							}
+						}
+					}
+				}
+				if(list.length>0){
+					this.tableData=list[0].goodsInfos;
+					this.editableTabsValue=list[0].packageId.toString();
+				}
+				this.packageListVisible=false;
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+			
+		},
+		//tabs
+		handleTabsEdit(activeName, oldActiveName) {
+		 	//console.log(activeName);
+		 	let list=this.editableTabs;
+		 	for(let i=0;i<list.length;i++){
+		 		if(list[i].packageId==activeName){
+		 			this.tableData=sortData(list[i].goodsInfos);
+		 		}
+		 	}
+		},
+		//删除tabs
+		handleTabsRemove(name){
+			let list=this.editableTabs;
+			this.editableTabs=[];
+			//console.log(name)
+			this.$confirm('确定删除当前套餐包吗?', '提示', {
+		      	confirmButtonText: '确定',
+		      	cancelButtonText: '取消',
+	        	type: 'warning'
+	        })
+	      	.then(_ => {
+		        let newList=[];
+			 	for(let i=0;i<list.length;i++){
+			 		if(list[i].packageId!=name){
+			 			newList.push(list[i]);
+			 		}
+			 	}
+			 	
+			 	this.editableTabs=newList;
+			 	if(newList.length>0){
+			 		this.editableTabsValue=this.editableTabs[0].packageId.toString();
+			 	}else{
+			 		this.editableTabs=[];
+			 		this.tableData=[];
+			 	}
+		    })
+		    .catch((e) => {
+		    	console.log(e)
+		    	this.editableTabs=list;
+		    });
+		},
 		//分页方法
 		handleSizeChange(val) {
 		  //console.log(`每页 ${val} 条`);
@@ -456,8 +596,13 @@ export default {
       	
       	//提交
       	submitForm() {
+      		let listAll=[];
+		    let list=this.editableTabs;
+		    for(let i=0;i<list.length;i++){
+		    	listAll=listAll.concat(list[i].goodsInfos);
+		    }
 		    let data={
-		    	"designGoodsArray":this.tableData,
+		    	"designGoodsArray":listAll,
 		        'designId':this.programmeID
 		    }
 		    addPackage(this,data);
@@ -503,6 +648,62 @@ export default {
 		    	console.log(this.tableData)
 		    	this.tableData=sortData(this.tableData);
 		    	console.log(this.tableData)
+		    	this.$refs.multipleTable.clearSelection();
+		    }).catch((e) => {
+		    	console.log(e)
+		      	this.$message({
+		        	type: 'info',
+		        	message: '已取消操作'
+		      	});          
+		    });
+			
+      	},
+      	//拆分组合
+      	removeGroup(){
+      		if(this.multipleSelection.length!=1){
+				this.$message({
+				   	showClose: true,
+				   	message: '请选择一个需要拆分的商品！',
+				   	type: 'warning'
+				});
+				return;
+			}
+      		if(this.multipleSelection.length>0){
+      			if(this.multipleSelection[0].species!='组合'){
+      				this.$message({
+					   	showClose: true,
+					   	message: '请选择组合的商品！',
+					   	type: 'warning'
+					});
+					return;	
+      			}
+			}
+			
+			this.$confirm('确定拆分所选组合吗?', '提示', {
+		      confirmButtonText: '确定',
+		      cancelButtonText: '取消',
+		      type: 'warning'
+		    }).then(() => {
+		    	var list=this.multipleSelection;
+				var listAll=this.tableData;
+		    	for(var i=0;i<listAll.length;i++){
+					if(listAll[i].indexId==list[0].indexId){
+						this.tableData.splice(i,1);
+					}
+					if(listAll[i].groupId==list[0].indexId){
+						this.tableData[i].groupId=null;
+						this.tableData[i].species='单品';
+					}
+				}
+		    	//console.log(this.tableData)
+		    	this.tableData=sortData(this.tableData);
+		    	var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
+		    	//console.log(this.tableData)
 		    	this.$refs.multipleTable.clearSelection();
 		    }).catch((e) => {
 		    	console.log(e)
@@ -606,6 +807,12 @@ export default {
 	      			}
 	      		}
       			this.tableData=sortData(listAll);
+      			var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
       		}else{
       			this.goods=initGoods();
       			this.groupVisible=true;
@@ -646,37 +853,47 @@ export default {
 	    			coverPicArr.push(list[i].url);
 	    		}
 	    		coverPic=coverPicArr.join(',');
-	
-	    		var chirld={
-	    			indexId:this.tableData.length,
-	    			goodsImages:coverPic,
-	    			goodsSrc:coverPicArr[0],
-	    			goodsName:this.goods.name,
-	    			unitPrice:this.goods.price,
-	    			goodsNum:this.goods.num,
-	    			packageId:this.multipleSelection[0].packageId,
-	    			packageName:this.multipleSelection[0].packageName,
-	    			typeName:this.multipleSelection[0].typeName,
-	    			species:'组合',
-	    			designId:this.multipleSelection[0].designId,
-	    			roomId:this.multipleSelection[0].roomId,
-	    			packageOrder:this.multipleSelection[0].packageOrder,
-	    			typeOrder:this.multipleSelection[0].typeOrder
-	    		}
-	    		var list=this.multipleSelection;
-				var listAll=this.tableData;
-				for(var i=0;i<list.length;i++){
-					for(var j=0;j<listAll.length;j++){
-						if(listAll[j].indexId==list[i].indexId){
-							this.tableData[j].groupId=chirld.indexId;
-							this.tableData[j].species='商品';
+				if(this.selectGroupNum==-1){
+		    		var chirld={
+		    			indexId:this.tableData.length,
+		    			goodsImages:coverPic,
+		    			goodsSrc:coverPicArr[0],
+		    			goodsName:this.goods.name,
+		    			unitPrice:this.goods.price,
+		    			goodsNum:this.goods.num,
+		    			packageId:this.multipleSelection[0].packageId,
+		    			packageName:this.multipleSelection[0].packageName,
+		    			typeName:this.multipleSelection[0].typeName,
+		    			species:'组合',
+		    			designId:this.multipleSelection[0].designId,
+		    			roomId:this.multipleSelection[0].roomId,
+		    			packageOrder:this.multipleSelection[0].packageOrder,
+		    			typeOrder:this.multipleSelection[0].typeOrder
+		    		}
+		    		var list=this.multipleSelection;
+					var listAll=this.tableData;
+					for(var i=0;i<list.length;i++){
+						for(var j=0;j<listAll.length;j++){
+							if(listAll[j].indexId==list[i].indexId){
+								this.tableData[j].groupId=chirld.indexId;
+								this.tableData[j].species='商品';
+							}
 						}
 					}
-				}
-	    		this.tableData.push(chirld);
-	    		//console.log(this.tableData)
-	    		this.tableData=sortData(this.tableData);
-	    		//console.log(this.tableData)
+		    		this.tableData.push(chirld);
+		    		//console.log(this.tableData)
+		    		this.tableData=sortData(this.tableData);
+		    		//console.log(this.tableData)
+		    	}else{
+					var index=this.selectGroupNum;	
+					this.tableData[index].unitPrice=this.goods.price;
+					this.tableData[index].goodsName=this.goods.name;
+					this.tableData[index].goodsNum=this.goods.num;
+					this.tableData[index].goodsImages=coverPic;
+					this.tableData[index].goodsSrc=coverPicArr[0];
+					//console.log(coverPic)
+					this.selectGroupNum=-1;
+		    	}
 	    		this.groupVisible=false;
 	    		this.$refs.multipleTable.clearSelection();
 	    		this.goods.picChange=0;
@@ -695,7 +912,6 @@ export default {
 					}
 		        	const loading =openLoad(this,"Loading...");
 		        	if(this.goods.picChange){
-			        	//console.log(2)
 			        	this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
 					    .then((response)=>{
 					    	//console.log(response);
@@ -724,7 +940,9 @@ export default {
 						this.tableData[index].goodsName=this.goods.name;
 						this.tableData[index].goodsNum=this.goods.num;
 						this.tableData[index].goodsImages=this.goods.fileList[0].url;
+						this.selectGroupNum=-1
 						this.groupVisible=false;
+						this.goods.picChange=0;
 					}
 		        } else {
 		          	this.$message.error('表单提交失败！');
@@ -739,6 +957,7 @@ export default {
 		},
 		//选择商品
 		selectGoodsFun(val){
+			//console.log(val)
 			queryGoodsPackageList(this);
 			querySpaceInfo(this,function(){});
 			this.addGoods=initAddGoods();
@@ -751,10 +970,14 @@ export default {
 				var list=this.multipleSelection;
 				this.addGoods.num=list[0].goodsNum || '1';
 			}
+			if(val.packageId){				
+				this.addGoods.selectPackage=val.packageId+','+val.packageName+','+val.packageOrder
+			}
 		},
 		//新增商品
 		addGoodsFun(){
 			this.selectGoodsType=0;
+			this.editGoodsFloag=0;
 			this.goodsSearch='';
 			this.goodsData=[];
 			this.pageTotal=0;
@@ -793,6 +1016,9 @@ export default {
       		this.selectGoodsType=0;
       		this.editGoodsFloag=0;
       		done();
+      	},
+      	handleClosePackage(done){
+      		this	
       	},
 		//返回
 		goGoodsList(){
@@ -833,6 +1059,12 @@ export default {
 				}
 				
 				this.tableData=sortData(this.tableData);
+				var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
 		    }).catch((e) => {
 		    	console.log(e)
 		      	this.$message({
@@ -845,6 +1077,7 @@ export default {
 		addGoodsSave(formName){
 			this.$refs[formName].validate((valid) => {
 			    if (valid) {
+			    	var tabs=this.editableTabs;
 					var listAll=this.tableData;
 					var child=this.selectGoods;
 					var selectList=this.multipleSelection;
@@ -897,6 +1130,7 @@ export default {
 									}
 								}
 							}
+							//console.log(listAll)
 							//console.log(typeFlag)
 							if(typeFlag.length>0){
 								if(typeFlag.indexOf(0)==-1){
@@ -910,10 +1144,47 @@ export default {
 									}
 								}	
 							}
+							var locationFlag=[];
+							var locationGroup='';
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].typeName==child.typeName){
+									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+										locationGroup=listAll[i].groupId;
+										locationFlag.push(1);
+									}else{
+										locationFlag.push(0);
+									}
+								}
+							}
+							if(locationFlag.indexOf(0)==-1 && locationFlag.length>0){
+								child.groupId=locationGroup;
+								child.species='商品';
+							}
 							//console.log(child)
 							//this.tableData.push(child);
 							child.indexId=this.tableData.length;
-							this.tableData.push(child);
+							var emptyFlag=0;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==child.packageId){
+						 			emptyFlag=1;
+						 			tabs[i].goodsInfos.push(child);
+						 		}
+						 	}
+							if(emptyFlag==0){
+								var info={
+									packageName:child.packageName,
+									packageId:child.packageId,
+									goodsInfos:[child]
+								}
+								tabs.push(info);
+							}
+							this.editableTabsValue=child.packageId.toString();
+							this.editableTabs=tabs;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==this.editableTabsValue){
+						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 		}
+						 }
 							this.selectGoods={};
 						}else{
 							child.species="替换";
@@ -925,8 +1196,28 @@ export default {
 								}
 							}*/
 							child.indexId=this.tableData.length;
-							this.tableData.push(child);
+							var emptyFlag=0;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==child.packageId){
+						 			emptyFlag=1;
+						 			tabs[i].goodsInfos.push(child);
+						 		}
+						 	}
+							if(emptyFlag==0){
+								var info={
+									packageName:child.packageName,
+									packageId:child.packageId,
+									goodsInfos:child
+								}
+								tabs.push(info);
+							}
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==this.editableTabsValue){
+						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 		}
+						 	}
 						}
+						this.editableTabs=tabs;
 						//console.log(child)
 				   	}else{
 				   		for(var i=0;i<listAll.length;i++){
@@ -950,6 +1241,14 @@ export default {
 				   		this.editGoodsFloag=0;
 				   	}
 				   	this.tableData=sortData(this.tableData);
+				   	
+				   	
+				   	for(let i=0;i<tabs.length;i++){
+				 		if(tabs[i].packageId==this.editableTabsValue){
+				 			tabs[i].goodsInfos=this.tableData;
+				 		}
+				 	}
+				   	this.editableTabs=tabs;
 				   	//console.log(this.tableData)
 				   	this.$refs.multipleTable.clearSelection();
 					this.addGoodsVisible=false;
@@ -982,6 +1281,7 @@ export default {
 			}
 			if(val.species=='组合'){
 				//console.log(val)
+				this.goods.picChange=0;
 				this.selectGroupNum=val.indexId;
 				this.groupVisible=true;
 				this.goods.fileList=[{name:'pic',url:val.goodsSrc}];
@@ -1041,18 +1341,27 @@ function goodsList(obj){
 	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.programmeID})
 	.then(response=>{
 		//console.log(response);
+		obj.editableTabs=response.data.goodsList;
 		var list=response.data.goodsList;
 		loading.close();
-		for(var i=0;i<list.length;i++){			
-			list[i].indexId=i;
-			if(list[i].goodsImages.indexOf(',')>-1){
-				var arr=list[i].goodsImages.split(',');
-				list[i].goodsSrc=arr[0];
-			}else{
-				list[i].goodsSrc=list[i].goodsImages;
+		for(var i=0;i<list.length;i++){
+			for(var j=0;j<list[i].goodsInfos.length;j++){
+				list[i].goodsInfos[j].indexId=i;
+				if(list[i].goodsInfos[j].goodsImages){
+					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].goodsInfos[j].goodsImages.split(',');
+						list[i].goodsInfos[j].goodsSrc=arr[0];
+					}else{
+						list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+					}
+				}
 			}
 		}
-		obj.tableData=list;
+		if(list.length>0){
+			obj.tableData=list[0].goodsInfos;
+			obj.editableTabsValue=list[0].packageId.toString();
+		}
+		
 	})
 	.catch((error)=>{
 		loading.close();
@@ -1335,6 +1644,9 @@ function duplicate(arr){
 </script>
 
 <style scoped>
+	.packageList{
+		margin-top: 20px;
+	}
 	.edit_btn{
 		margin-top: 30px;
 		text-align: right;
@@ -1457,9 +1769,7 @@ function duplicate(arr){
 	.addPackageForm .edit_btn .el-button{
 		width: 100px;
 	}
-	.goodsList{
-		margin-top: 20px;
-	}
+
 	.dialogFilter{
 		margin-bottom: 20px;
 	}

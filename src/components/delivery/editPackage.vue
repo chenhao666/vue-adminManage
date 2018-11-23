@@ -1710,6 +1710,7 @@ export default {
 									}
 								}
 							}
+							//console.log(listAll)
 							//console.log(typeFlag)
 							if(typeFlag.length>0){
 								if(typeFlag.indexOf(0)==-1){
@@ -1722,6 +1723,22 @@ export default {
 										}
 									}
 								}	
+							}
+							var locationFlag=[];
+							var locationGroup='';
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].typeName==child.typeName){
+									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+										locationGroup=listAll[i].groupId;
+										locationFlag.push(1);
+									}else{
+										locationFlag.push(0);
+									}
+								}
+							}
+							if(locationFlag.indexOf(0)==-1 && locationFlag.length>0){
+								child.groupId=locationGroup;
+								child.species='商品';
 							}
 							//console.log(child)
 							//this.tableData.push(child);
@@ -1741,12 +1758,13 @@ export default {
 								}
 								tabs.push(info);
 							}
+							this.editableTabsValue=child.packageId.toString();
+							this.editableTabs=tabs;
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
 						 			this.tableData=sortData(tabs[i].goodsInfos);
 						 		}
-						 	}
-							
+						 }
 							this.selectGoods={};
 						}else{
 							child.species="替换";
@@ -1773,8 +1791,6 @@ export default {
 								}
 								tabs.push(info);
 							}
-							this.editableTabsValue=child.packageId.toString();
-							this.editableTabs=tabs;
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
 						 			this.tableData=sortData(tabs[i].goodsInfos);

@@ -1663,6 +1663,7 @@ export default {
 									}
 								}
 							}
+							//console.log(listAll)
 							//console.log(typeFlag)
 							if(typeFlag.length>0){
 								if(typeFlag.indexOf(0)==-1){
@@ -1675,6 +1676,22 @@ export default {
 										}
 									}
 								}	
+							}
+							var locationFlag=[];
+							var locationGroup='';
+							for(var i=0;i<listAll.length;i++){
+								if(listAll[i].typeName==child.typeName){
+									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+										locationGroup=listAll[i].groupId;
+										locationFlag.push(1);
+									}else{
+										locationFlag.push(0);
+									}
+								}
+							}
+							if(locationFlag.indexOf(0)==-1 && locationFlag.length>0){
+								child.groupId=locationGroup;
+								child.species='商品';
 							}
 							//console.log(child)
 							//this.tableData.push(child);
@@ -1700,8 +1717,7 @@ export default {
 						 		if(tabs[i].packageId==this.editableTabsValue){
 						 			this.tableData=sortData(tabs[i].goodsInfos);
 						 		}
-						 	}
-							
+						 }
 							this.selectGoods={};
 						}else{
 							child.species="替换";
@@ -2068,18 +2084,27 @@ function goodsList(obj){
 	obj.$ajax.post(obj.$store.state.localIP+'queryGoodsDesignList',{designId:obj.ruleForm.programmeID,type:'0'})
 	.then(response=>{
 		//console.log(response);
+		obj.editableTabs=response.data.goodsList;
 		var list=response.data.goodsList;
 		loading.close();
-		for(var i=0;i<list.length;i++){			
-			list[i].indexId=i;
-			if(list[i].goodsImages.indexOf(',')>-1){
-				var arr=list[i].goodsImages.split(',');
-				list[i].goodsSrc=arr[0];
-			}else{
-				list[i].goodsSrc=list[i].goodsImages;
+		for(var i=0;i<list.length;i++){
+			for(var j=0;j<list[i].goodsInfos.length;j++){
+				list[i].goodsInfos[j].indexId=i;
+				if(list[i].goodsInfos[j].goodsImages){
+					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].goodsInfos[j].goodsImages.split(',');
+						list[i].goodsInfos[j].goodsSrc=arr[0];
+					}else{
+						list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+					}
+				}
 			}
 		}
-		obj.tableData=list;
+		if(list.length>0){
+			obj.tableData=list[0].goodsInfos;
+			obj.editableTabsValue=list[0].packageId.toString();
+		}
+		
 	})
 	.catch((error)=>{
 		loading.close();
