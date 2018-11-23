@@ -462,7 +462,7 @@ function roleList(obj,callback){
 					let newStr3=newStr2.replace(/\,\"children\"\:\[\]/g,'');
 					let newObj=JSON.parse(newStr3);
 					/*obj.form.powers=newObj;*/
-					let powerArr=['查看','添加','删除','编辑','采购'];
+					let powerArr=['查看','添加','删除','编辑','采购','详情','提交','审核'];//权限列表
 					for(let i=0;i<newObj.length;i++){
 						if(newObj[i].children){
 							for(let j=0;j<newObj[i].children.length;j++){

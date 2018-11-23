@@ -338,6 +338,9 @@ table,table td,table th{
 .el-dialog .el-button{
 	width: 200px;
 }
+.el-dialog .el-table .el-button{
+	width: auto;
+}
 .icon-search,.icon-crm11{
 	font-size: 12px;
 }
@@ -387,4 +390,8 @@ table,table td,table th{
 }
 .childTableBg{
 	background: #E4E4E4 !important;	
+}
+
+.packageList .el-tabs--card>.el-tabs__header{
+	border: none;
 }

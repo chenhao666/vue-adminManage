@@ -1,163 +1,229 @@
 <template>
 	<div class="orderInfo">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
-			<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-			<el-breadcrumb-item :to="{ path: '/orderManage/orderList' }">订单管理</el-breadcrumb-item>
-			<el-breadcrumb-item class="fontWeight">详情</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">订单详情</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
-		<!--基本信息-->
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>基本信息</span>
+				<span>订单详情</span>
 			</div>
 			<div class="line"></div>
 			
-			<el-form>
-				<el-row :gutter="20">
-					<el-col :span="8">
-						<el-form-item label="账号：">
-							{{ form.username }}
-						</el-form-item>
-					</el-col>
-					<el-col :span="8">
-						<el-form-item label="联系人：">
-							{{ form.name }}
-						</el-form-item>
-					</el-col>
-					<el-col :span="8">
-						<el-form-item label="性别：">
-							{{ form.sex }}
-						</el-form-item>
-					</el-col>
-				</el-row>
-				
-				<el-row :gutter="20">
-					<el-col :span="8">
-						<el-form-item label="联系电话：">
-							{{ form.mobile }}
-						</el-form-item>
-					</el-col>
-					<el-col :span="16">
-						<el-form-item label="房屋地址：">
-							{{ form.address }}
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-card>
-		
-		<!--订单信息-->
-		<el-card class="box-card">
-			<div slot="header" class="clearfix">
-				<span>订单信息</span>
+			<!--筛选条件-->
+			<div class="filter">
+				<div class="inlineBlock">
+					<div class="left" style="width: 200px;margin-left: 10px;">
+						<el-select v-model="state" placeholder="请选择">
+						    <el-option
+						      v-for="(item,index) in stateList"
+						      :key="index"
+						      :label="item"
+						      :value="index">
+						    </el-option>
+						</el-select>
+					</div>
+					<div class="left" style="margin-left: 10px;">
+						<el-button v-if="editBtnShow" type="primary" @click="updateState"><span class="iconfont icon-search"></span>修改</el-button>
+					</div>
+					<div class="clear"></div>
+				</div>
 			</div>
-			<div class="line"></div>
+			<!--品牌列表-->
+			<el-table border :data="tableData" :stripe="true" tooltip-effect="dark" >
+				<!--<el-table-column type="selection" width="55">
+				</el-table-column>-->
+				<!--<el-table-column label="ID" width="80"  prop="id">
+					<template slot-scope="scope">{{ scope.row.id }}</template>
+				</el-table-column>-->
+				<el-table-column prop="name" label="商品" min-width="120" show-overflow-tooltip>
+				</el-table-column>
+				<el-table-column prop="imageUrl" label="商品图">
+					<template slot-scope="props">
+						<div><img :src="props.row.goodsImg" alt="" width="90%"/></div>
+					</template>
+				</el-table-column>
+				<el-table-column prop="typeName" label="空间名">
+				</el-table-column>
+				<el-table-column prop="packageName" label="套餐包">
+				</el-table-column>
+				<el-table-column prop="species" label="类型">
+				</el-table-column>
+				<el-table-column prop="goodsCode" label="编号">
+				</el-table-column>
+				<el-table-column prop="model" label="型号">
+				</el-table-column>
+				<el-table-column prop="goodsColor" label="颜色">
+				</el-table-column>
+				<el-table-column prop="material" label="材质">
+				</el-table-column>
+				<el-table-column prop="units" label="单位">
+				</el-table-column>
+				<el-table-column prop="number" label="数量" >
+				</el-table-column>
+				<el-table-column prop="unitPrice" label="单价">
+					<template slot-scope="props">
+						<div>￥{{ props.row.unitPrice }}</div>
+					</template>
+				</el-table-column>
+			</el-table>
 			
-			<div class="orderInfo_info">
-				<p style="margin-top: 20px;">订单号：{{ order.num }}</p>
-				<p>定金：￥{{ order.money }}</p>
-				<p>首付：￥{{ order.downPayments }}</p>
-				<p>尾款：￥{{ order.retainage }}</p>
+			<!--分页-->
+			<div class="curPageCss">
+			    <el-pagination
+			      @size-change="handleSizeChange"
+			      @current-change="handleCurrentChange"
+			      :current-page="currentPage"
+			      :page-sizes="[5, 10, 15, 20]"
+			      :page-size="pageSize"
+			      layout="total, sizes, prev, pager, next, jumper"
+			      :total="pageTotal">
+			    </el-pagination>
 			</div>
+			<div class="clear"></div>
 		</el-card>
 	</div>
 </template>
 
 <script>
-export default{
-	name:'orderInfo',
-	data () {
-		return {
-			orderID:'',
-			form:{
-				username:'无',
-				name:'无',
-				sex:'无',
-				mobile:'无',
-				address:'无'
-			},
-			order:{
-				num:'82376487231',
-				money:'1000',
-				downPayments:'98000',
-				retainage:'21600'
+	export default{
+		name:'orderInfo',
+		data(){
+			return{
+				addBtnShow:false,
+				delBtnShow:false,
+				editBtnShow:false,
+				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				tableData:[],
+				orderNum:'',//订单编号
+				currentPage: 1,//分页当前页数
+		        pageSize:10,//分页默认每页条数
+		        pageTotal:0,//页数总数
+		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
+		        state:0,//状态
 			}
-		}
-	},
-	mounted(){
-		let orderID=this.$route.params.code || '';
-		if(orderID){
-			//let Base64=new Base64();
-			this.orderID=Base64.decode(orderID);
-			//console.log(orderID)
-		}
-		orderListInfo(this);
-	},
-	methods:{
-		
-	}
-}
-//获取订单详情
-function orderListInfo(obj){
-	const loading =openLoad(obj);	
-	obj.$ajax.post(obj.$store.state.localIP+"queryOrderDetails",{orderID:obj.orderID})
-		.then((response)=>{
-			//console.log(response);
-			if(response.status==200){
-				loading.close();
-				if(response.data.retCode==0){
-					let list=response.data.orderDetail;
-					obj.form.username=list.mobileNum || '无';
-					obj.form.name=list.linkman || '无';
-					if(list.linkmanSex==0){
-						obj.form.sex="男";
-					}else if(list.linkmanSex==1){
-						obj.form.sex="女";
+		}, 
+		mounted(){
+			if(this.roleAuthList.indexOf('1')>-1){
+				this.addBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('2')>-1){
+				this.delBtnShow=true;
+			}
+			if(this.roleAuthList.indexOf('3')>-1){
+				this.editBtnShow=true;
+			}
+			//console.log(this.$route)
+			this.orderNum=Base64.decode(this.$route.params.code);
+			this.state=parseInt(Base64.decode(this.$route.query.state));
+			orderList(this);
+		},
+		methods:{
+			//分页方法
+		    handleSizeChange(val) {
+		      	//console.log(`每页 ${val} 条`);
+		      	this.pageSize=val;
+		      	orderList(this)
+		    },
+		    handleCurrentChange(val) {
+		      	//console.log(`当前页: ${val}`);
+		      	this.currentPage=val;
+		     	orderList(this)
+		    },
+		    //时间格式化
+		    timeFomit(timeDate){
+		    	//console.log(timeDate)
+		    	let time=(new Date(timeDate)).Format("yyyy-MM-dd hh:mm:ss");
+		    	let timeArr=time.split(' ');
+		    	return timeArr;
+		    },
+		    //修改状态
+		    updateState(){
+		    	const loading =openLoad(this,"Loading...");
+		    	this.$ajax.post(this.$store.state.localIP+'updateGoodsOrder',{
+		    		orderNo:this.orderNum,
+		    		orderStatus:this.state
+		    	})
+		    	.then(response=>{
+					loading.close();
+					//console.log(response)
+					if(response.data.retCode==0){
+						this.$message({
+				          	message: '操作成功!',
+				          	type: 'success'
+				       	});
+				       	this.$router.push({path:'/userOrder/packageOrder'})
 					}else{
-						obj.form.sex="无";
+						this.$message.error('操作失败！');
 					}
-					obj.form.mobile=list.linkmanPhone || '无';
-					obj.form.address=(list.province || '')+(list.city || '')+(list.district || '');
-					if(!obj.form.address){
-						obj.form.address="无";
+					loading.close();
+				})
+				.catch((error)=>{
+					loading.close();
+			        console.log(error)
+					this.$message.error('网络连接错误~~');
+				})
+		    }
+		}
+	}
+	//打开loading
+	function openLoad(obj,txt){
+		const loading=obj.$loading({
+	      lock: true,
+	      text: txt,
+	      fullscreen:false,
+	      spinner: 'el-icon-loading',
+	      background: 'rgba(0, 0, 0, 0.6)'
+	    });
+	    return loading;
+	}
+	//获取订单详情
+	function orderList(obj){
+		const loading =openLoad(obj,"获取列表中...");
+		obj.$ajax.post(obj.$store.state.localIP+"queryOrderDetailByNoForWeb",{
+			"orderNo":obj.orderNum,
+			"start":(obj.currentPage-1)*obj.pageSize,
+			"length":obj.pageSize
+		})
+		.then(response=>{
+			loading.close();
+			//console.log(response)
+			if(response.data.retCode==0){
+				var list=response.data.goodsOrderDetailList;
+				for(var i=0;i<list.length;i++){
+					if(list[i].imageUrl.indexOf(',')>-1){
+						var arr=list[i].imageUrl.split(',');
+						list[i].goodsImg=arr[0];
+					}else{
+						list[i].goodsImg=list[i].imageUrl;
 					}
-					/*form:{
-				username:'无',
-				name:'无',
-				sex:'无',
-				mobile:'无',
-				address:'无'
-			},*/
-				}else{
-					obj.$message.error(response.data.retMsg);
 				}
+				obj.tableData=list;
+				obj.pageTotal=response.data.countNum;
+			}else{
+				obj.$message.error('获取订单详情失败！');
 			}
 		})
 		.catch((error)=>{
 			loading.close();
-			console.log(error);
-			obj.$message.error("网络连接错误~~");
+	        console.log(error)
+			obj.$message.error('网络连接错误~~');
 		})
-}
-//打开loading
-function openLoad(obj){
-	const loading=obj.$loading({
-      lock: true,
-      text: 'Loading',
-      fullscreen:false,
-      spinner: 'el-icon-loading',
-      background: 'rgba(0, 0, 0, 0.6)'
-    });
-    return loading;
-}
+	}
 </script>
 
-<style scoped>
-.orderInfo_info p{
-	height: 40px;
-	line-height: 40px;
-	font-size: 14px;
-}
+<style scoped="scoped">
+	.filter{
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.inlineBlock{
+		margin:20px 0px;
+	}
+	.filter .left{
+		float: left;
+	}	
 </style>

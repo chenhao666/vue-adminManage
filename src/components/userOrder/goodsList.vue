@@ -2,233 +2,114 @@
 	<div class="editPackage">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  <el-breadcrumb-item>信息发布</el-breadcrumb-item>
-		  <el-breadcrumb-item class="fontWeight">编辑套餐模板</el-breadcrumb-item>
+		  <el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
+		  <el-breadcrumb-item class="fontWeight">商品列表</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 		
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
-				<span>编辑套餐模板</span>
+				<span>商品列表</span>
 			</div>
 			<div class="line"></div>
 			
-			<div class="text item addPackageForm">
-				<el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="85px" class="demo-ruleForm">
+			<div class="orderInfo">
+				<el-form>
 					<el-row :gutter="20">
 						<el-col :span="12">
-							<el-form-item label="方案名：" class="widthLager">
-								<el-input v-model="ruleForm.programmeName" :maxlength="50" :disabled="true"></el-input>
+							<el-form-item label="楼盘：">
+								{{ goodsOrder.houseName }}
 							</el-form-item>
 						</el-col>
-						<!--<el-col :span="12">
-							<el-form-item label="样板类型：" class="widthLager">
-								<el-select v-model="ruleForm.modelType" placeholder="请选择类型">
-									<el-option label="软装定制" value="1,软装定制"></el-option>
-									<el-option label="全屋定制" value="2,全屋定制"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>-->
+					
 						<el-col :span="12">
-							<el-form-item label="楼盘名：">
-								<el-select v-model="ruleForm.home" placeholder="请选择楼盘">
-									<el-option v-for="(item,key) in ruleForm.homeNameArr" :key="key"  :label="item.houseName" :value="item.id+','+item.houseName"></el-option>
-								</el-select>
+							<el-form-item label="地址：">
+								{{ goodsOrder.address }}
 							</el-form-item>
 						</el-col>
 					</el-row>
-					
 					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="户型：">
-								<el-input v-model="ruleForm.apartmentLayout" :maxlength="50" :disabled="true"></el-input>
+								{{ goodsOrder.houseModel }}
 							</el-form-item>
 						</el-col>
-						
+					
 						<el-col :span="12">
-							<el-form-item label="面积：">
-								<el-input v-model="ruleForm.homeArea" :maxlength="50" :disabled="true"></el-input>
+							<el-form-item label="风格：">
+								{{ goodsOrder.styleName }}
 							</el-form-item>
 						</el-col>
 					</el-row>
-					
-					
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="户型名称：">
-								<el-input v-model="ruleForm.houseModel" :maxlength="50"></el-input>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="套餐名称：">
-								<el-input v-model="ruleForm.name" :maxlength="20"></el-input>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="品牌选择：">
-								<el-select v-model="ruleForm.selectBrand" placeholder="请选择品牌">
-									<el-option v-for="(item,key) in brandList" :key="key" :label="item.brandName" :value="item.brandId+','+item.brandName"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="风格选择：">
-								<el-select v-model="ruleForm.selectStyle" placeholder="请选择风格">
-									<el-option v-for="(item,key) in styleList" :key="key" :label="item.styleName" :value="item.styleId+','+item.styleName"></el-option>
-								</el-select>
-							</el-form-item>
-						</el-col>
-
-					</el-row>
-					
-					<!--<el-row :gutter="20">	
-						<el-col :span="12">
-							<el-form-item label="套餐简介：">
-								<el-input v-model="ruleForm.introduction" :maxlength="100"></el-input>
-							</el-form-item>
-						</el-col>
-						
-						<el-col :span="12">
-							<el-form-item label="套餐价格：">
-								<el-input v-model="ruleForm.price" :maxlength="10"></el-input>
-							</el-form-item>
-						</el-col>
-						
-					</el-row>-->
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="封面选择：" class="picList">
-								<ul v-model="ruleForm.picShow">
-									<li v-for="(item,key) in ruleForm.picArr" :key="key" v-show="(ruleForm.picShow===key || ruleForm.picShow==='')?true:false" @click="selectPaic(key,item.img)">
-										<img :src="item.img" alt="" />
-									</li>
-									<li v-if="ruleForm.picArr.length==0" style="margin-top: 0px;">无</li>
-									<div class="clear"></div>
-								</ul>
-								<el-button style="margin-top: 20px;" @click="reSelect" type="primary" v-if="ruleForm.selectBtn">重新选择</el-button>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<!--<el-row :gutter="20">
-						
-					</el-row>-->
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="套餐描述" prop="desc">
-								<el-input type="textarea" v-model="ruleForm.desc" :rows="6"></el-input>
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<el-row :gutter="20">
-						<el-col :span="24">
-							<el-form-item label="描述介绍：">
-							</el-form-item>
-						</el-col>
-					</el-row>
-					
-					<div class="line"></div>
-					
-					<div class="item_container">
-						<ul id="list" v-model="cardInfo">
-							<li v-for='(item,key) in cardInfo' :key="key" v-dragging="{ item: item, list: cardInfo, group: 'cardInfo' }">
-								<el-tooltip class="item" effect="dark" content="编辑" placement="top-start">
-									<span class="editCard" alt="编辑" @click="editCard(key)"><i class="iconfont icon-bianji"></i></span>
-								</el-tooltip>
-								<el-tooltip class="item" effect="dark" content="删除" placement="top-start">
-									<span class="delCard" alt="删除" @click="delCard(key)"><i class="iconfont icon-shanchu"></i></span>
-								</el-tooltip>
-								
-								<el-card class="box-card">
-									<span class="area_type">{{ item.areaTypeName }}</span>
-									
-									<span class="cardPic">
-										<img :src="item.coverPic" alt="" />
-									</span>
-								</el-card>
-							</li>
-							
-							<span class="addInfo" @click="showDilog">+</span>
-							<div class="clear"></div>
-						</ul>
-					</div>
-					
-					<input name="listSortOrder" type="hidden" />
-					
-					<!--组合编辑-->
-					<div class="edit_btn">
-						<el-button  type="primary" @click="importGoods">导入套餐商品</el-button>
-						<el-button  type="primary" @click="addGoodsFun">新增</el-button>
-						<el-button  type="primary" @click="goGroup">组合</el-button>
-						<el-button  type="primary" @click="removeGroup">拆分</el-button>
-						<el-button  type="primary" @click="changeGoods">替换</el-button>
-						<el-button  type="danger" @click="deleteGoods">删除</el-button>
-					</div>
-					
-					<div class="packageList">
-						<el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="handleTabsRemove" :before-leave="handleTabsEdit">
-							<el-tab-pane
-							    :key="item.name"
-							    v-for="(item, index) in editableTabs"
-							    :label="item.packageName"
-							    :name="item.packageId.toString()"
-							  >
-						  	</el-tab-pane>
-						</el-tabs>
-					</div>
-					<div class="goodsList">
-						<el-table border 
-							ref="multipleTable" 
-							:data="tableData" 
-							:stripe="true" 
-							tooltip-effect="dark" 
-							style="width: 100%;" 
-							@selection-change="handleSelectionChange">
-							<el-table-column type="selection" width="55" :resizable="resizable" >
-							</el-table-column>
-							<!--<el-table-column prop="id" :resizable="resizable"   label="ID" width="100" show-overflow-tooltip>
-							</el-table-column>-->
-							<el-table-column prop="packageName" :resizable="resizable"    label="套餐包" min-width="100" show-overflow-tooltip>
-							</el-table-column>
-							<el-table-column prop="typeName" :resizable="resizable"   label="位置" width="75">
-							</el-table-column>
-							<el-table-column prop="species" :resizable="resizable"   label="类型" width="75">
-							</el-table-column>
-							<el-table-column prop="title" :resizable="resizable"   label="图片" width="150">
-								<template slot-scope="props">
-									<div><img :src="props.row.goodsSrc" alt="" style="width: 150px;height: auto;"/></div>
-								</template>
-							</el-table-column>
-							<el-table-column prop="goodsCode" :resizable="resizable"   label="编号" min-width="60">
-							</el-table-column>
-							<el-table-column prop="goodsName" :resizable="resizable"   label="商品名称" min-width="80" show-overflow-tooltip>
-								<template slot-scope="props">
-									<div><span @click="editGoods(props.row)" class="hrefA">{{ props.row.goodsName }}</span></div>
-								</template>
-							</el-table-column>
-							<el-table-column prop="material" :resizable="resizable"   label="材质" width="100" show-overflow-tooltip>
-							</el-table-column>
-							<el-table-column prop="unitPrice" :resizable="resizable"   label="单价" width="75">
-							</el-table-column>
-							<el-table-column prop="goodsNum" :resizable="resizable"   label="数量" width="60">
-							</el-table-column>
-						</el-table>
-					</div>
-					
-					<div style="text-align: center;padding: 30px 0px;">
-						<el-button  @click="goBack">返回</el-button>
-						<el-button type="primary" @click="submitForm('ruleForm')">发布</el-button>
-						<el-button type="primary" @click="saveForm('ruleForm')">存草稿</el-button>
-					</div>
 				</el-form>
+			</div>
+			
+			<div class="text item addPackageForm">
+				<!--组合编辑-->
+				<div class="edit_btn">
+					<el-button  type="primary" @click="importGoods">导入套餐商品</el-button>
+					<el-button  type="primary" @click="addGoodsFun">新增</el-button>
+					<el-button  type="primary" @click="goGroup">组合</el-button>
+					<el-button  type="primary" @click="removeGroup">拆分</el-button>
+					<el-button  type="primary" @click="changeGoods">替换</el-button>
+					<el-button  type="danger" @click="deleteGoods">删除</el-button>
+				</div>
+				
+				<div class="packageList">
+					<el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="handleTabsRemove" :before-leave="handleTabsEdit">
+						<el-tab-pane
+						    :key="item.name"
+						    v-for="(item, index) in editableTabs"
+						    :label="item.packageName"
+						    :name="item.packageId.toString()"
+						  >
+					  	</el-tab-pane>
+					</el-tabs>
+				</div>
+				<div class="goodsList">
+					<el-table border 
+						ref="multipleTable" 
+						:data="tableData" 
+						:stripe="true" 
+						tooltip-effect="dark" 
+						style="width: 100%;" 
+						@selection-change="handleSelectionChange">
+						<el-table-column type="selection" width="55" :resizable="resizable" >
+						</el-table-column>
+						<!--<el-table-column prop="id" :resizable="resizable"   label="ID" width="100" show-overflow-tooltip>
+						</el-table-column>-->
+						<el-table-column prop="packageName" :resizable="resizable"    label="套餐包" min-width="100" show-overflow-tooltip>
+						</el-table-column>
+						<el-table-column prop="typeName" :resizable="resizable"   label="位置" width="75">
+						</el-table-column>
+						<el-table-column prop="species" :resizable="resizable"   label="类型" width="75">
+						</el-table-column>
+						<el-table-column prop="title" :resizable="resizable"   label="图片" width="150">
+							<template slot-scope="props">
+								<div><img :src="props.row.goodsSrc" alt="" style="width: 150px;height: auto;"/></div>
+							</template>
+						</el-table-column>
+						<el-table-column prop="goodsCode" :resizable="resizable"   label="编号" min-width="60">
+						</el-table-column>
+						<el-table-column prop="goodsName" :resizable="resizable"   label="商品名称" min-width="80" show-overflow-tooltip>
+							<template slot-scope="props">
+								<div><span @click="editGoods(props.row)" class="hrefA">{{ props.row.goodsName }}</span></div>
+							</template>
+						</el-table-column>
+						<el-table-column prop="material" :resizable="resizable"   label="材质" width="100" show-overflow-tooltip>
+						</el-table-column>
+						<el-table-column prop="unitPrice" :resizable="resizable"   label="单价" width="75">
+						</el-table-column>
+						<el-table-column prop="goodsNum" :resizable="resizable"   label="数量" width="60">
+						</el-table-column>
+					</el-table>
+				</div>
+				
+				<div style="text-align: center;padding: 30px 0px;">
+					<el-button  @click="goBack">返回</el-button>
+					<el-button type="primary" @click="submitForm('ruleForm')">发布</el-button>
+					<el-button type="primary" @click="saveForm('ruleForm')">存草稿</el-button>
+				</div>
 			</div>
 		</el-card>
 		
@@ -433,52 +314,7 @@
 			</el-dialog>
 			
 		</div>
-		<!--dialog弹窗-->
-		<div class="edit_dialog">
-			<el-dialog
-			  :title="dialogTitle"
-			  :visible.sync="dialogVisible"
-			  width="600px"
-			  :append-to-body="true"
-			  :close-on-click-modal="false"
-			  :before-close="handleClose">
-			  <!--表单开始-->
-			  	<el-form :model="form" label-width="85px" v-if='dialogVisible'>
-			  		<el-form-item label="区域类型：">
-						<el-select v-model="form.areaType" placeholder="请选择位置"  @change="inputFlag=1">
-							<el-option label="无" value=""></el-option>
-							<el-option v-for="(item,key) in addGoods.locationList" :key="key" :label="item.typeName" :value="item.id+','+item.typeName"></el-option>
-						</el-select>
-			  		</el-form-item>
-			  		<el-form-item label="图片上传：">
-			  			<el-upload
-						  :action="uploadPic"
-						  list-type="picture-card"
-						  :data="uploadData"
-						  :limit="1"
-						  :file-list="fileList"
-						  :on-error="uploadError"
-						  :on-exceed="onExceed"
-						  :on-change="beforeUpload"
-						  :on-success="handlePictureCardPreview"
-						  ref="uploadCard"
-						  :auto-upload="false"
-						  :on-remove="handleRemove">
-						  <i class="el-icon-plus"></i>
-						</el-upload>
-			  		</el-form-item>
-			  		<el-form-item label="区域描述">
-			  			<el-input type="textarea" v-model="form.desc" @change="inputFlag=1" :rows="6"></el-input>
-			  		</el-form-item>
-				</el-form>
-			  <!--表单结束-->
-				<span slot="footer" class="dialog-footer">
-			   		<el-button type="primary" @click="addCard" :disabled="form.addDisabled">确 定</el-button>
-				</span>
-			</el-dialog>
-			
-		</div>
-		
+
 		<!--商品套餐列表-->
 		<div class="edit_dialog">
 			<el-dialog
@@ -640,7 +476,7 @@ export default {
 			}
 		};
 		return{
-			id:0,
+			orderNo:'',
 			editGoodsFloag:0,
 			resizable:false,
 			selectGroupNum:-1,
@@ -662,8 +498,6 @@ export default {
 			dialogVisible:false,//弹窗显示
 			inputFlag:0,//表单修改标记
 			lookPic:false,//图片查看
-			cardInfo:[],//描述卡片信息
-			cardKey:'',//卡片id
 			dialogFlag:0,//弹窗状态
 			styleList:[],//风格列表
 			brandList:[],//品牌列表
@@ -682,37 +516,8 @@ export default {
 				styleName:'',//风格名
 				styleList:[]
 			},
-			ruleForm:{
-				//listingId:'',//清单ID
-				//programmeArr:[],//方案列表
-				programmeID:'',//选中方案
-				programmeName:'',//方案名
-				modelType:'',//样板类型
-				homeNameArr:[],
-				home:'',//楼盘信息
-				apartmentLayout:'',//户型信息
-				homeArea:'',//面积
-				roamPic:'',//漫游图
-				name:'',//套餐名称
-				//price:'',//套餐价格
-				houseModel:'',//标题
-				introduction:'',//简介
-				picArr:[],//渲染图数组
-				selectPic:"",//选中渲染图
-				selectBtn:false,//重新选择
-				picShow:'',//渲染图展示
-				selectStyle:'',//风格
-				selectBrand:'',//选择品牌
-				desc:'',//套餐描述
-				planPic:'',//户型图Url
-				//content:''//内容
-			},
-			form:{
-				areaType:'',//区域类型
-				desc:'',//区域描述
-				picurl:''
-			},
 			rules:{},
+			goodsOrder:{},//订单基本信息
 			goodsRules:{
 				name:[
 		        		{ required: true, message: '请输入商品名称', trigger: 'blur' }
@@ -745,55 +550,14 @@ export default {
 		let obj=this;
 		//let Base64=new Base64();
 		if(this.$route.params.code){			
-			this.id=Base64.decode(this.$route.params.code);
+			this.orderNo=Base64.decode(this.$route.params.code);
 		}else{
 			window.history.go(-1);
 		}
-		//获取方案信息
-		packageInfo(this,function(res){
+		//获取订单信息
+		goodsOrderInfo(this,function(res){
 			//console.log(res)
 			if(res.data.retCode==0){
-				let list=res.data.designInfoList;
-				//方案ID
-				obj.ruleForm.programmeID=list[0].designId || "";
-				//方案名
-				obj.ruleForm.programmeName=list[0].designName || "";
-				//样板类型
-				if(list[0].templateTypeId && list[0].templateTypeName){					
-					obj.ruleForm.modelType=list[0].templateTypeId+','+list[0].templateTypeName;
-				}
-				//楼盘信息
-				if(list[0].houseId && list[0].houseName){					
-					obj.ruleForm.home=list[0].houseId+','+list[0].houseName;
-				}
-				//漫游图
-				obj.ruleForm.roamPic=list[0].threeDurl || "";
-				//套餐名称
-				obj.ruleForm.name=list[0].comboName || "";
-				//套餐价格
-				//obj.ruleForm.price=list[0].comboPrice || "";
-				//标题
-				obj.ruleForm.houseModel=list[0].houseModel || "";
-				//简介
-				obj.ruleForm.introduction=list[0].intro || "";
-				
-				//风格
-				if(list[0].styleId && list[0].styleName){					
-					obj.ruleForm.selectStyle=list[0].styleId+','+list[0].styleName;
-				}
-				//品牌
-				if(list[0].brandId && list[0].brandName){					
-					obj.ruleForm.selectBrand=list[0].brandId+','+list[0].brandName;
-				}
-				//描述
-				obj.ruleForm.desc=list[0].details || "";
-				
-				//具体描述
-				obj.cardInfo=list[0].templateList || [];
-				//获取户型和面积
-				programeInfo(obj);
-				//获取渲染图
-				renderpic(obj,list[0]);//渲染图列表
 				roamPicInfo(obj);
 				styleList(obj);//获取风格列表
 				brandList(obj);//获取品牌列表
@@ -802,13 +566,6 @@ export default {
 				obj.$message.error(res.data.retMsg)
 			}
 		})
-		//拖动
-		this.$dragging.$on('dragged', ({ value }) => {
-	      	//console.log(value.item)
-	      	//console.log(value.list);
-	      	this.cardInfo=value.list;
-	   })
-
 	},
 	beforeDestroy(){
 		this.dialogVisible=false;
@@ -863,20 +620,20 @@ export default {
 				var list=response.data.goodsList;
 				loading.close();
 				for(var i=0;i<list.length;i++){
-					for(var j=0;j<list[i].goodsInfos.length;j++){
-						list[i].goodsInfos[j].indexId=i;
-						if(list[i].goodsInfos[j].goodsImages){
-							if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
-								var arr=list[i].goodsInfos[j].goodsImages.split(',');
-								list[i].goodsInfos[j].goodsSrc=arr[0];
+					for(var j=0;j<list[i].manualOrderGoods.length;j++){
+						list[i].manualOrderGoods[j].indexId=i;
+						if(list[i].manualOrderGoods[j].goodsImages){
+							if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
+								var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
+								list[i].manualOrderGoods[j].goodsSrc=arr[0];
 							}else{
-								list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+								list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
 							}
 						}
 					}
 				}
 				if(list.length>0){
-					this.tableData=list[0].goodsInfos;
+					this.tableData=list[0].manualOrderGoods;
 					this.editableTabsValue=list[0].packageId.toString();
 				}
 				this.packageListVisible=false;
@@ -894,7 +651,7 @@ export default {
 		 	let list=this.editableTabs;
 		 	for(let i=0;i<list.length;i++){
 		 		if(list[i].packageId==activeName){
-		 			this.tableData=sortData(list[i].goodsInfos);
+		 			this.tableData=sortData(list[i].manualOrderGoods);
 		 		}
 		 	}
 		},
@@ -915,14 +672,15 @@ export default {
 			 			newList.push(list[i]);
 			 		}
 			 	}
-			 	
 			 	this.editableTabs=newList;
+			 	//console.log(newList)
 			 	if(newList.length>0){
 			 		this.editableTabsValue=this.editableTabs[0].packageId.toString();
 			 	}else{
 			 		this.editableTabs=[];
 			 		this.tableData=[];
 			 	}
+			 	//console.log(this.editableTabs)
 		    })
 		    .catch((e) => {
 		    	console.log(e)
@@ -957,46 +715,13 @@ export default {
 	    	//console.log(val)	
 	        this.multipleSelection = val;
 	    },
-		//选择方案
-		/*programmeChange(){
-			this.ruleForm.selectBtn=false;
-			this.ruleForm.picShow='';
-			this.ruleForm.selectPic='';
-			this.ruleForm.picArr=[];
-			//获取渲染图
-			renderpic(this);
-		},*/
-	
-		//重新选择
-		reSelect(){
-			this.ruleForm.selectBtn=false;
-			this.ruleForm.picShow='';
-			this.ruleForm.selectPic='';
-		},
-		//选择封面图
-		selectPaic(picKey,picUrl){
-			this.ruleForm.picShow=picKey;
-			this.ruleForm.selectPic=picUrl;
-			this.ruleForm.selectBtn=true;
-			//console.log(this.ruleForm.picShow)
-		},
+		uploadError(err, file, fileList){
+	    	this.$message.error("图片上传失败");
+	    	console.log(err);
+	    },
 		//返回
       	goBack(){
       		window.history.go(-1);
-      	},
-      	//dialog弹窗
-      	showDilog(){
-      		querySpaceInfo(this,function(){});
-      		this.inputFlag=0;
-      		this.dialogFlag=0;
-	    	this.dialogTitle="新增描述";
-      		this.dialogVisible=true;
-      		this.form={
-      			areaType:'',//区域类型
-				desc:'',//区域描述
-				picurl:''
-      		}
-      		this.fileList=[];
       	},
 	    handleClose(done) {
 	      	if(this.inputFlag){
@@ -1015,173 +740,18 @@ export default {
 	      		this.inputFlag=0;
 	      	}
 	    },
-	    //图片上传与删除
-	    handleRemove(file, fileList) {
-        	//console.log(file, fileList);
-      	},
-      	beforeUpload(file,fileList){
-      		//console.log(fileList)
-      		const loading =openLoad(this);
-      		this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
-	       .then((response)=>{
-		       	//console.log(response);
-		       	loading.close();
-		       	if(response.data.retCode==0){
-		       		var qiniutoken=response.data.token;
-		       		this.uploadData.token=response.data.token;
-		       		this.$refs.uploadCard.submit();
-		       		//console.log(this.uploadData)
-		       	}else{
-		       		loading.close();
-		       		this.$message.error('获取token失败！');
-		       	}
-	       })
-	       .catch((error)=>{
-		       	console.log(error)
-		       	loading.close();
-				this.$message.error('获取token失败！');
-			})
-      	},
-      	
-	    handlePictureCardPreview(response, file, fileList) {
-	    	this.$message({
-				message: '图片上传成功!',
-				type: 'success'
-			});
-			this.form.picurl = this.$store.state.qiniuUrl+response.key;
-	    	//console.log(response)
-	    },
-	    uploadError(err, file, fileList){
-	    	this.$message.error("图片上传失败");
-	    	console.log(err);
-	    },
-	    onExceed(){
-	    	this.$message({
-				message: '前先删除图片在进行上传操作',
-				type: 'warning'
-			});
-	    },
-	    //添加卡片
-	    addCard(){
-	    	let cardKey=this.cardKey;
-	    	let areaTypeArr=['','']
-	    	if(this.form.areaType){
-	    		areaTypeArr=this.form.areaType.split(',');
-	    	}
-	    	if(this.dialogFlag){
-	    		this.cardInfo[cardKey].areaTypeId=areaTypeArr[0];
-	    		this.cardInfo[cardKey].areaTypeName=areaTypeArr[1];
-	    		if(this.form.picurl){	    			
-	    			this.cardInfo[cardKey].coverPic=this.form.picurl;
-	    		}
-	    		this.cardInfo[cardKey].details=this.form.desc;
-	    	}else{
-	    		let info={
-	    			'areaTypeId':areaTypeArr[0],
-	    			'areaTypeName':areaTypeArr[1],
-	    			'coverPic':this.form.picurl,
-	    			'details':this.form.desc
-	    		}
-	    		this.cardInfo.push(info);
-	    	}
-	    	this.dialogVisible=false;	
-	    	this.cardKey='';
-	    },
-	    //删除卡片
-	    delCard(cardKey){
-	    	//cardInfo
-	    	this.$confirm('确定删除当前信息吗?', '提示', {
-	          	confirmButtonText: '确定',
-	          	cancelButtonText: '取消',
-	          	type: 'warning'
-	        }).then(() => {
-	         	this.cardInfo.splice(cardKey,1);
-	        }).catch(() => {
-	          	this.$message({
-	            	type: 'info',
-	            	message: '已取消删除'
-	          	});          
-	        });
-	    },
-	    //编辑卡片
-	    editCard(cardKey){
-	    	this.cardKey=cardKey;
-	    	this.dialogFlag=1;
-	    	this.dialogTitle="编辑描述";
-	    	this.dialogVisible=true;
-	    	/*form:{
-				areaType:'',//区域类型
-				desc:'',//区域描述
-				picurl:''
-			},*/
-			var that=this;
-			querySpaceInfo(this,function(){
-				if(that.cardInfo[cardKey].areaTypeId){
-					that.form.areaType=that.cardInfo[cardKey].areaTypeId+','+that.cardInfo[cardKey].areaTypeName;
-				}else{
-					that.form.areaType='';
-				}
-				
-	    		that.form.desc=that.cardInfo[cardKey].details;
-	    		that.fileList=[{name:that.cardInfo[cardKey].areaTypeName,url:that.cardInfo[cardKey].coverPic}];
-			});
-	    	
-	    },
       	//提交
       	submitForm(formName) {
-	        this.$refs[formName].validate((valid) => {
-	          	if (valid) {
-	          		let listAll=[];
-	          		let list=this.editableTabs;
-	          		for(let i=0;i<list.length;i++){
-	          			listAll=listAll.concat(list[i].goodsInfos);
-	          		}
-					//样板
-					let modelTypeArr=this.ruleForm.modelType.split(',');
-					//楼盘
-					let homeArr=this.ruleForm.home.split(',');
-					//户型
-					let apartmentLayout=this.ruleForm.apartmentLayout;
-			        //面积
-			        let homeArea=this.ruleForm.homeArea;
-			        //风格
-			        let styleArr=this.ruleForm.selectStyle.split(',');
-			        //品牌
-			        let brandArr=this.ruleForm.selectBrand.split(',');
-		            let data={
-		            	'id':this.id,
-		            	'designId':this.ruleForm.programmeID,
-		            	'designName':this.ruleForm.programmeName,
-		            	'templateTypeId':modelTypeArr[0],
-		            	'templateTypeName':modelTypeArr[1],
-		            	'houseId':homeArr[0],
-		            	'houseName':homeArr[1],
-		            	'houseTypeName':apartmentLayout,
-		            	'houseArea':homeArea,
-		            	'threeDurl':this.ruleForm.roamPic,
-		            	'comboName':this.ruleForm.name,
-		            	//'comboPrice':this.ruleForm.price,
-		            	'styleId':styleArr[0],
-		            	'styleName':styleArr[1],
-		            	"brandId":brandArr[0],
-		            	"brandName":brandArr[1],
-		            	'houseModel':this.ruleForm.houseModel,
-		            	'intro':this.ruleForm.introduction,
-		            	'details':this.ruleForm.desc,
-		            	'coverPic':this.ruleForm.selectPic,
-		            	'tempInfo':this.cardInfo,
-		            	"houseModelUrl":this.ruleForm.planPic,
-		            	"designGoodsArray":listAll,
-		            	//'listingId':this.ruleForm.listingId,
-		            	'isUsed':0
-		            }
-		            addPackage(this,data);
-	          	} else {
-		          	this.$message.error("表单提交失败！");
-		            //console.log('error submit!!');
-		            return false;
-		        }
-	        });
+	        let listAll=[];
+	        let list=this.editableTabs;
+	        for(let i=0;i<list.length;i++){
+	        	listAll=listAll.concat(list[i].manualOrderGoods);
+	        }
+		    let data={
+		    	'orderNo':this.orderNo,
+		    	"orderGoodsArray":listAll
+		    }
+		    addPackage(this,data);
       	},
       	saveForm(formName){
       		 this.$refs[formName].validate((valid) => {
@@ -1189,7 +759,7 @@ export default {
 	          	let listAll=[];
 		        let list=this.editableTabs;
 		        for(let i=0;i<list.length;i++){
-		        	listAll=listAll.concat(list[i].goodsInfos);
+		        	listAll=listAll.concat(list[i].manualOrderGoods);
 		        }
 				//样板
 				let modelTypeArr=this.ruleForm.modelType.split(',');
@@ -1280,7 +850,7 @@ export default {
 		    	var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].goodsInfos=this.tableData;
+						tabs[i].manualOrderGoods=this.tableData;
 					}
 				}
 		    	//console.log(this.tableData)
@@ -1390,7 +960,7 @@ export default {
       			var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].goodsInfos=this.tableData;
+						tabs[i].manualOrderGoods=this.tableData;
 					}
 				}
       		}else{
@@ -1642,7 +1212,7 @@ export default {
 				var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
 					if(tabs[i].packageId==this.editableTabsValue){
-						tabs[i].goodsInfos=this.tableData;
+						tabs[i].manualOrderGoods=this.tableData;
 					}
 				}
 		    }).catch((e) => {
@@ -1730,23 +1300,24 @@ export default {
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
 						 			emptyFlag=1;
-						 			tabs[i].goodsInfos.push(child);
+						 			tabs[i].manualOrderGoods.push(child);
 						 		}
 						 	}
 							if(emptyFlag==0){
 								var info={
 									packageName:child.packageName,
 									packageId:child.packageId,
-									goodsInfos:[child]
+									manualOrderGoods:[child]
 								}
 								tabs.push(info);
 							}
+							this.editableTabsValue=child.packageId.toString();
+							this.editableTabs=tabs;
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 			this.tableData=sortData(tabs[i].manualOrderGoods);
 						 		}
-						 	}
-							
+						 }
 							this.selectGoods={};
 						}else{
 							child.species="替换";
@@ -1762,22 +1333,20 @@ export default {
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
 						 			emptyFlag=1;
-						 			tabs[i].goodsInfos.push(child);
+						 			tabs[i].manualOrderGoods.push(child);
 						 		}
 						 	}
 							if(emptyFlag==0){
 								var info={
 									packageName:child.packageName,
 									packageId:child.packageId,
-									goodsInfos:child
+									manualOrderGoods:child
 								}
 								tabs.push(info);
 							}
-							this.editableTabsValue=child.packageId.toString();
-							this.editableTabs=tabs;
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 			this.tableData=sortData(tabs[i].manualOrderGoods);
 						 		}
 						 	}
 						}
@@ -1809,7 +1378,7 @@ export default {
 				   	
 				   	for(let i=0;i<tabs.length;i++){
 				 		if(tabs[i].packageId==this.editableTabsValue){
-				 			tabs[i].goodsInfos=this.tableData;
+				 			tabs[i].manualOrderGoods=this.tableData;
 				 		}
 				 	}
 				   	this.editableTabs=tabs;
@@ -1867,29 +1436,6 @@ function openLoad(obj){
     });
     return loading;
 }
-//获取户型和面积
-function programeInfo(obj){
-	const loading =openLoad(obj);
-	let data={
-		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
-		'KujiaLe':{},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		//console.log(res)
-		obj.ruleForm.apartmentLayout=res.data.d.specName;
-		obj.ruleForm.homeArea=res.data.d.srcArea;
-		obj.ruleForm.planPic=res.data.d.planPic;
-		loading.close();
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
 //获取风格列表
 function styleList(obj){
 	obj.$ajax.post(obj.$store.state.localIP+'selectStyleInfo')
@@ -1922,152 +1468,10 @@ function brandList(obj){
 		obj.$message.error("获取品牌列表失败！");
 	})
 }
-//获取方案渲染图列表
-function renderpic(obj,list){
-	const loading=obj.$loading({
-       	lock: true,
-      	text: '渲染图获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	let data={
-		'url':'https://openapi.kujiale.com/v2/renderpic/list',
-		'KujiaLe':{
-			'design_id':obj.ruleForm.programmeID,
-			'start':0,
-			'num':50
-		},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		loading.close();
-		if(res.data.c==0){
-			obj.$message({
-				message: '渲染图获取成功!',
-				type: 'success'
-			});
-			obj.ruleForm.picArr=res.data.d.result;
-			//选中渲染图
-			if(list.coverPic){					
-				var arr=obj.ruleForm.picArr;
-				obj.ruleForm.selectPic=list.coverPic || "";
-				for(var i=0;i<arr.length;i++){
-					if(arr[i].img==list.coverPic){
-						obj.ruleForm.picShow=i;
-						break;
-					}
-				}
-				obj.ruleForm.selectBtn=true;
-			}
-			//roamPic(obj,res.data.d.result);
-			//console.log(obj.ruleForm.picArr)
-		}else{
-			obj.$message.error("获取渲染图列表出错~~");
-		}
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//获取方案信息列表
-function roamPicInfo(obj){
-	const loading=obj.$loading({
-       	lock: true,
-      	text: '信息获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-	let data={
-		'url':'https://openapi.kujiale.com/v2/design/'+obj.ruleForm.programmeID+'/basic',
-		'KujiaLe':{
-			'designId':obj.ruleForm.programmeID
-		},
-		'params':'',
-		'method':'get'
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		//console.log(res)
-		loading.close();
-		if(res.data.c==0){
-			obj.$message({
-				message: '获取方案详情成功!',
-				type: 'success'
-			});
-			var fpid=res.data.d.planId;
-			//console.log(obj.ruleForm.picArr)
-			roamPic(obj,fpid);
-		}else{
-			obj.$message.error("获取方案详情失败~~");
-		}
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
-//生成全屋漫游图
-function roamPic(obj,fpid){
-	let loading=obj.$loading({
-       	lock: true,
-      	text: '漫游图获取中',
-      	fullscreen:false,
-      	spinner: 'el-icon-loading',
-      	background: 'rgba(0, 0, 0, 0.6)'
-   });
-    let data={
-		'url':'https://openapi.kujiale.com/v2/renderpic/pano',
-		'KujiaLe':{
-			'start':0,
-			'num':50,
-			'appuid':hex_md5(obj.$store.state.userCode)
-		},
-		'params':'',
-		'method':'get',
-		'appuid':obj.$store.state.userCode
-	}
-	obj.$ajax.post(obj.$store.state.localIP+'queryKujiaLeInfo',data)
-	.then(res=>{
-		loading.close();
-		//console.log(res)
-		if(res.data.c==0){
-			obj.$message({
-				message: '获取全屋漫游图成功!',
-				type: 'success'
-			});
-			if(res.data.d){
-				if(res.data.d.result.length>0){
-					var index=res.data.d.result.indexOf('https://yun.kujiale.com/design/'+fpid+'/show');
-					if(index>-1){
-						obj.ruleForm.roamPic=res.data.d.result[index];
-						//console.log(obj.ruleForm.roamPic)
-					}else{
-						obj.$message.error("获取全屋漫游图失败！");	
-					}
-				}
-			}
-		}else{
-			obj.$message.error("获取全屋漫游图失败~~");
-		}
-		homeInfo(obj);
-	})
-	.catch((error)=>{
-		loading.close();
-		console.log(error);
-		obj.$message.error("网络连接错误~~");
-	})
-}
 //新增套餐
 function addPackage(obj,data){
 	const loading =openLoad(obj);
-	obj.$ajax.post(obj.$store.state.localIP+'saveDesigInfo',data)
+	obj.$ajax.post(obj.$store.state.localIP+'saveManualOrderGoods',data)
 	.then(response=>{
 		loading.close();
 		if(response.data.retCode==0){
@@ -2075,7 +1479,7 @@ function addPackage(obj,data){
 				message: '套餐新增成功!',
 				type: 'success'
 			});
-			obj.$router.push({path:'/delivery/package'})
+			obj.$router.push({path:'/userOrder/handleOrder'})
         }else{
            	obj.$message.error(response.data.retMsg);
         }
@@ -2129,20 +1533,20 @@ function goodsList(obj){
 		var list=response.data.goodsList;
 		loading.close();
 		for(var i=0;i<list.length;i++){
-			for(var j=0;j<list[i].goodsInfos.length;j++){
-				list[i].goodsInfos[j].indexId=i;
-				if(list[i].goodsInfos[j].goodsImages){
-					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
-						var arr=list[i].goodsInfos[j].goodsImages.split(',');
-						list[i].goodsInfos[j].goodsSrc=arr[0];
+			for(var j=0;j<list[i].manualOrderGoods.length;j++){
+				list[i].manualOrderGoods[j].indexId=i;
+				if(list[i].manualOrderGoods[j].goodsImages){
+					if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
+						list[i].manualOrderGoods[j].goodsSrc=arr[0];
 					}else{
-						list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+						list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
 					}
 				}
 			}
 		}
 		if(list.length>0){
-			obj.tableData=list[0].goodsInfos;
+			obj.tableData=list[0].manualOrderGoods;
 			obj.editableTabsValue=list[0].packageId.toString();
 		}
 		
@@ -2252,19 +1656,40 @@ function querySpaceInfo(obj,callback){
 	})
 }
 //获取套餐信息
-function packageInfo(obj,callback){
+function goodsOrderInfo(obj,callback){
 	let loading=obj.$loading({
        	lock: true,
-      	text: '获取套餐信息',
+      	text: '获取订单信息',
       	fullscreen:false,
       	spinner: 'el-icon-loading',
       	background: 'rgba(0, 0, 0, 0.6)'
    });
-	obj.$ajax.post(obj.$store.state.localIP+'queryDsignMsgById',{id:obj.id})
+	obj.$ajax.post(obj.$store.state.localIP+'queryManualOrderGoods',{orderNo:obj.orderNo})
 	.then(response=>{
-		//console.log(response);
 		loading.close();
-		callback(response);
+		console.log(response);
+		obj.goodsOrder=response.data.goodsOrder || {};
+		
+		obj.editableTabs=response.data.orderGoodsList;
+		var list=response.data.orderGoodsList;
+		loading.close();
+		for(var i=0;i<list.length;i++){
+			for(var j=0;j<list[i].manualOrderGoods.length;j++){
+				list[i].manualOrderGoods[j].indexId=i;
+				if(list[i].manualOrderGoods[j].goodsImages){
+					if(list[i].manualOrderGoods[j].goodsImages.indexOf(',')>-1){
+						var arr=list[i].manualOrderGoods[j].goodsImages.split(',');
+						list[i].manualOrderGoods[j].goodsSrc=arr[0];
+					}else{
+						list[i].manualOrderGoods[j].goodsSrc=list[i].manualOrderGoods[j].goodsImages;
+					}
+				}
+			}
+		}
+		if(list.length>0){
+			obj.tableData=list[0].manualOrderGoods;
+			obj.editableTabsValue=list[0].packageId.toString();
+		}
 	})
 	.catch((error)=>{
 		loading.close();
@@ -2453,7 +1878,6 @@ function duplicate(arr){
 		margin-top: 20px;
 	}
 	.edit_btn{
-		margin-top: 30px;
 		text-align: right;
 	}
 	.el-select,.el-input{

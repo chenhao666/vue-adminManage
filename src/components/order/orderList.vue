@@ -6,17 +6,17 @@
 		  <el-breadcrumb-item class="fontWeight">订单列表</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
-		
+
+
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
 				<span>订单列表</span>
 			</div>
 			<el-tabs  @tab-click="handleClick">
 				<el-tab-pane label="进行中" name="0"></el-tab-pane>
-				<el-tab-pane label="已结束" name="1" ></el-tab-pane>
+				<el-tab-pane label="已结束" name="1"></el-tab-pane>
 			</el-tabs>
-			
+
 			<div class="search_form">
 				<el-input v-model="form.name" placeholder="联系人"></el-input>
 				<el-input v-model="form.mobile" placeholder="联系电话"></el-input>
@@ -34,13 +34,13 @@
 			   <el-button type="success" @click="searchOrder"><span class="iconfont icon-search"></span>搜索</el-button>
 			   <div class="clear"></div>
 			</div>
-			
+
 			<div class="orderListInfo">
-				<el-table 
-					border 
-					:data="tableData" 
-					:stripe="true" 
-					tooltip-effect="dark" 
+				<el-table
+					border
+					:data="tableData"
+					:stripe="true"
+					tooltip-effect="dark"
 					style="width: 100%;">
 					<!--<el-table-column label="ID" width="60" prop="id">
 						<template slot-scope="scope">{{ scope.row.orderID }}</template>
@@ -71,16 +71,16 @@
 						</template>
 					</el-table-column>
 				</el-table>
-				
+
 				<!--分页-->
 				<div class="curPageCss">
-					<el-pagination 
-						@size-change="handleSizeChange" 
-						@current-change="handleCurrentChange" 
-						:current-page="currentPage" 
-						:page-sizes="[5, 10, 15, 20]" 
-						:page-size="pageSize" 
-						layout="total, sizes, prev, pager, next, jumper" 
+					<el-pagination
+						@size-change="handleSizeChange"
+						@current-change="handleCurrentChange"
+						:current-page="currentPage"
+						:page-sizes="[5, 10, 15, 20]"
+						:page-size="pageSize"
+						layout="total, sizes, prev, pager, next, jumper"
 						:total="pageTotal">
 					</el-pagination>
 				</div>
@@ -200,7 +200,7 @@ export default {
 }
 //获取订单列表
 function orderList(obj){
-	const loading =openLoad(obj);	
+	const loading =openLoad(obj);
 	let data={
 		"start":(obj.currentPage-1)*obj.pageSize,
 		"length":obj.pageSize,
@@ -232,7 +232,7 @@ function orderList(obj){
 
 						list[i].address=(list[i].buildingName || "")+(list[i].doorPlate || "")
 						//表格修改
-						if($(window).width()>1600){		
+						if($(window).width()>1600){
 							$("colgroup").eq(0).find("col").eq(4).prop("width","300");
 							$("colgroup").eq(1).find("col").eq(4).prop("width","300");
 						}

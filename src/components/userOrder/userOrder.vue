@@ -3,16 +3,20 @@
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
 		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">套餐订单</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">线上订单</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
+
 		<el-card class="box-card">
-			<div slot="header" class="clearfix">
-				<span>套餐订单</span>
-			</div>
+			<!--<div slot="header" class="clearfix">-->
+				<!--<span>套餐订单</span>-->
+			<!--</div>-->
+      <el-tabs  @tab-click="handleClick">
+        <el-tab-pane label="线上订单" name="0"></el-tab-pane>
+        <el-tab-pane label="手工订单" name="1" ></el-tab-pane>
+      </el-tabs>
 			<div class="line"></div>
-			
+
 			<!--筛选条件-->
 			<div class="filter">
 				<div class="inlineBlock">
@@ -26,14 +30,14 @@
 						<el-input v-model="searchCity" placeholder="请输入城市"></el-input>
 					</div>
 					<div class="left">
-						<el-date-picker 
-							v-model="searchTime" 
-							type="daterange" 
-							align="right" 
-							unlink-panels 
-							range-separator="至" 
-							start-placeholder="开始日期" 
-							end-placeholder="结束日期" 
+						<el-date-picker
+							v-model="searchTime"
+							type="daterange"
+							align="right"
+							unlink-panels
+							range-separator="至"
+							start-placeholder="开始日期"
+							end-placeholder="结束日期"
 							value-format="yyyy-MM-dd HH:mm:ss">
 						</el-date-picker>
 					</div>
@@ -117,12 +121,13 @@
 				</el-table-column>
 				<el-table-column  label="操作">
 					<template slot-scope="scope">
+						<!--<div class="lookInfo" @click="handleShow(scope.$index, scope.row)">详情</div>-->
 						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)">商品</div>
 						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)">采购</div>
 					</template>
 				</el-table-column>
 			</el-table>
-			
+
 			<!--分页-->
 			<div class="curPageCss">
 			    <el-pagination
@@ -148,12 +153,12 @@
 			  >
 			  <!--表单开始-->
 			  <el-form ref="ruleForm" :model="ruleForm" label-width="85px">
-				
+
 			  	<el-form-item label="备注信息">
 			  		<el-input v-model="ruleForm.desc"  @change="inputFlag=1" :maxlength="255"></el-input>
 			  	</el-form-item>
-			  	
-			  	
+
+
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -178,7 +183,7 @@
 				tableData:[],
 				searchName:'',//搜索客户
 				searchNum:'',//搜索订单编号
-				searchCity:'',//搜索城市  
+				searchCity:'',//搜索城市
 				searchTime:'',//搜索时间
 				searchAddress:'',//搜索地址
 				searchUsername:'',//搜索账号
@@ -191,7 +196,8 @@
 		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        ruleForm:{
 		        	desc:''
-		        }
+		        },
+        // showDetailType:0,//0是线上订单,1是手工订单
 			}
 		},
 		mounted(){
@@ -219,6 +225,15 @@
 		      	this.currentPage=val;
 		     	orderList(this)
 		    },
+        //tab切换
+        handleClick(tab, event) {
+          if(tab.index=="0"){
+            this.$router.push({path:'/userOrder/packageOrder'})
+          }else if(tab.index=="1"){
+            this.$router.push({path:'/userOrder/handleOrder'})
+          }
+          orderList(this);
+        },
 		    //时间格式化
 		    timeFomit(timeDate){
 		    	//console.log(timeDate)
@@ -239,6 +254,10 @@
 		    	/*var state=Base64.encode(row.orderStatus)*/
 		    	this.$router.push({path:'/userOrder/purchase/'+num})
 		    },
+        //详情,需要传一个参数区分手工订单还是线上订单
+        // handleShow(){
+        //   this.$router.push({path:'/userOrder/orderDetail',query:{detailType:0}})
+        // },
 		    //搜索订单
 		    searchOrder(){
 		    	this.currentPage=1;
@@ -279,7 +298,7 @@
 					        console.log(error)
 							this.$message.error('网络连接错误~~');
 						})
-			        	
+
 			        } else {
 			          	this.$message.error('表单提交失败！');
 			          	return false;

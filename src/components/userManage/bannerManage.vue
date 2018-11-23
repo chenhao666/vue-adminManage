@@ -35,11 +35,13 @@
 				          @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
 				        <el-button
 				          size="mini"
+				          style="margin: 5px 5px;"
 				          v-if="editBtnShow"
 				          @click="handleEdit(scope.$index, scope.row)">{{ scope.row.isUsed==0 ? "撤回" : "使用" }}</el-button>
 				        <el-button
 				          size="mini"
 				          type="danger"
+				          style="margin: 5px 5px;"
 				          v-if="delBtnShow"
 				          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 				      </template>

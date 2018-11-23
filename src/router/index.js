@@ -97,6 +97,12 @@ import PackageOrder from '@/components/userOrder/userOrder'
 import userOrderInfo from '@/components/userOrder/orderInfo'
 //订单-订单管理-采购
 import Purchase from '@/components/userOrder/purchase'
+//订单-手工订单-商品列表
+import GoodsList from '@/components/userOrder/goodsList'
+//订单管理-手工订单
+import HandleOrder from '@/components/userOrder/handleOrder'
+//订单管理-订单明细
+import OrderDetail from '@/components/userOrder/orderDetail'						   
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -303,6 +309,18 @@ export default new Router({
       		name:'订单-采购',
       		component:Purchase		
       	},{
+      		path:'userOrder/goodsList/:code',
+      		name:'手工订单-商品列表',
+      		component:GoodsList		
+      	},{
+          path:'userOrder/handleOrder',
+          name:'订单-手工订单',
+          component:HandleOrder
+        },{
+          path:'userOrder/orderDetail',
+          name:'订单-订单明细',
+          component:OrderDetail
+        },{
       		path:'commodityManage/commodityEntry',
       		name:'商品管理-商品录入',
       		component:CommodityEntry		

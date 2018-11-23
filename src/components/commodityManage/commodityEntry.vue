@@ -53,7 +53,7 @@
 				</el-table-column>
 				<el-table-column type="expand" label="展开" width="80">
       				<template slot-scope="props">
-      					<el-table ref="multipleTable" border  :data="props.row.goodsInfoList"  tooltip-effect="dark" :row-class-name="childTable" :header-row-class-name="childTable">
+      					<el-table ref="multipleTable" border  :data="props.row.childInfomations"  tooltip-effect="dark" :row-class-name="childTable" :header-row-class-name="childTable">
       						<el-table-column prop="goodsName" label="商品名称" min-width="150" show-overflow-tooltip>
 							</el-table-column>
 							<el-table-column prop="goodsCode" label="商品编码">
@@ -80,7 +80,7 @@
 							          style="margin: 5px 5px;"
 							          type="danger"
 							          v-if="delBtnShow"
-							          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+							          @click="handleDelete(scope.$index, scope.row,1)">删除</el-button>
 						      	</template>
 						    </el-table-column>
       					</el-table>
@@ -115,7 +115,7 @@
 			          style="margin: 5px 5px;"
 			          type="danger"
 			          v-if="delBtnShow"
-			          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+			          @click="handleDelete(scope.$index, scope.row,0)">删除</el-button>
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
@@ -488,7 +488,7 @@
 			      		delArr.push(multi[i].id);
 			      	}
 			      	let data={"id":delArr.join(',')};
-			      	delGoods(this,data);
+			      	delGoods(this,data,'deleteGoodsInfomation');
 			      }).catch(() => {
 			        this.$message({
 			          type: 'info',
@@ -633,14 +633,20 @@
 		      	});
       		},
 	     	//删除
-	      	handleDelete(index, row) {
+	      	handleDelete(index,row,type) {
+	      		var url='';
+	      		if(type){
+	      			url='deleteChildInfomation';
+	      		}else{
+	      			url='deleteGoodsInfomation';
+	      		}
 	      		this.$confirm('确定删除当前商品吗?', '提示', {
 		          confirmButtonText: '确定',
 		          cancelButtonText: '取消',
 		          type: 'warning'
 		        }).then(() => {
 		          let data={"id":row.id};
-		          delGoods(this,data);
+		          delGoods(this,data,url);
 		        }).catch(() => {
 		          this.$message({
 		            type: 'info',
@@ -685,6 +691,7 @@
 	      	},
 	      	//图片上传
 		    uploadSuccess(response, file, fileList){
+		    	var url='saveGoodsInfomation';
 		    	//console.log(response)
 		    	//console.log(this.ruleForm.fileList)
 		    	var list=this.ruleForm.fileList;
@@ -726,6 +733,7 @@
 					}
 					if(this.addGoodsFlag){
 						data.parentId=this.addGoodsFlag;
+						url="saveChildInfomation";
 					}
 					if(this.ruleForm.showArticleNum){
 						data.articleNum=this.ruleForm.articleNum;
@@ -733,7 +741,7 @@
 					if(this.ruleForm.showGuideUnitPrice){
 						data.guideUnitPrice=this.ruleForm.guideUnitPrice;
 					}
-					addGoods(this,data);	
+					addGoods(this,data,url);	
 	      		}
 		    },
 		    //改变图片
@@ -786,6 +794,7 @@
 								this.$message.error('获取token失败！');
 							})
 			        	}else{
+			        		var url='saveGoodsInfomation';
 			        		//console.log(1)
 			        		loading.close();
 			        		var list=this.ruleForm.fileList;
@@ -818,15 +827,16 @@
 							}
 
 							if(this.addGoodsFlag){
+								url="saveChildInfomation";
 								data.parentId=this.addGoodsFlag;
 							}
 							if(this.ruleForm.showArticleNum){
-						data.articleNum=this.ruleForm.articleNum;
-					}
-					if(this.ruleForm.showGuideUnitPrice){
-						data.guideUnitPrice=this.ruleForm.guideUnitPrice;
-					}
-							addGoods(this,data);	
+								data.articleNum=this.ruleForm.articleNum;
+							}
+							if(this.ruleForm.showGuideUnitPrice){
+								data.guideUnitPrice=this.ruleForm.guideUnitPrice;
+							}
+							addGoods(this,data,url);	
 			        	}
 			        } else {
 			          	this.$message.error('表单提交失败！');
@@ -978,9 +988,9 @@
 		})
 	}
 	//删除商品
-	function delGoods(obj,data){
+	function delGoods(obj,data,url){
 		const loading =openLoad(obj,"Loading...");
-		obj.$ajax.post(obj.$store.state.localIP+"deleteGoodsInfomation",data)
+		obj.$ajax.post(obj.$store.state.localIP+url,data)
 		.then(response=>{
 			loading.close();
 			//console.log(response)
@@ -1064,12 +1074,12 @@
 		})
 	}
 	//新增商品
-	function addGoods(obj,data){
+	function addGoods(obj,data,url){
 		//console.log(data)
 		if(obj.dialogFlag!=0){
 			data.id=obj.dialogFlag;
 		}
-		obj.$ajax.post(obj.$store.state.localIP+"saveGoodsInfomation",data)
+		obj.$ajax.post(obj.$store.state.localIP+url,data)
 		.then(response=>{
 			//console.log(response)
 			obj.ruleForm.disabled=false;

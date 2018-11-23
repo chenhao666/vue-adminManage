@@ -165,11 +165,24 @@
 					
 					<!--组合编辑-->
 					<div class="edit_btn">
+						<el-button  type="primary" @click="importGoods">导入套餐商品</el-button>
 						<el-button  type="primary" @click="addGoodsFun">新增</el-button>
 						<el-button  type="primary" @click="goGroup">组合</el-button>
 						<el-button  type="primary" @click="removeGroup">拆分</el-button>
 						<el-button  type="primary" @click="changeGoods">替换</el-button>
 						<el-button  type="danger" @click="deleteGoods">删除</el-button>
+					</div>
+					
+					<div class="packageList">
+						<el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="handleTabsRemove" :before-leave="handleTabsEdit">
+							<el-tab-pane
+							    :key="item.name"
+							    v-for="(item, index) in editableTabs"
+							    :label="item.packageName"
+							    :name="item.packageId.toString()"
+							  >
+						  	</el-tab-pane>
+						</el-tabs>
 					</div>
 					
 					<div class="goodsList">
@@ -466,6 +479,96 @@
 			</el-dialog>
 			
 		</div>
+		
+		<!--商品套餐列表-->
+		<div class="edit_dialog">
+			<el-dialog
+			  title="套餐方案列表"
+			  :visible.sync="packageListVisible"
+			  width="600px"
+			  :append-to-body="true"
+			  :close-on-click-modal="false"
+			  >
+			  <!--表单开始-->
+			  	<div class="dialogFilter">
+			  		<el-row :gutter="20">
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.floorName" placeholder="楼盘">
+							    <el-option
+							      v-for="(item,key) in searchData.floorList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.houseName" placeholder="户型">
+							    <el-option
+							      v-for="(item,key) in searchData.houseList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  		</el-row>
+			  		<el-row :gutter="20" style="margin-top: 20px;">
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.styleName" placeholder="风格">
+							    <el-option
+							      v-for="(item,key) in searchData.styleList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  			<el-col :span="12">
+			  				<el-button type="primary" @click="searchPackage">搜索</el-button>
+			  			</el-col>
+			  		</el-row>			  		
+			  	</div>
+			  	
+			  	
+				<el-table border 
+					:data="packageListData" 
+					:stripe="true" 
+					tooltip-effect="dark" 
+					style="width: 100%;">
+					<el-table-column prop="designName" label="方案名称" min-width="100" show-overflow-tooltip>
+					</el-table-column>
+					<el-table-column prop="houseName" label="楼盘">
+					</el-table-column>
+					<el-table-column prop="houseModel" label="户型">
+					</el-table-column>
+					<el-table-column prop="styleName" label="风格">
+					</el-table-column>
+					<el-table-column label="操作">
+						<template slot-scope="scope">
+					        <el-button
+					          size="mini"
+					          style="margin: 5px;"
+					          @click="handlePackageEdit(scope.$index, scope.row)">选择</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+				
+				<!--分页-->
+				<!--<div class="curPageCss">
+				    <el-pagination
+				      @size-change="handleSizeChange"
+				      @current-change="handleCurrentChange"
+				      :current-page="currentPage"
+				      :page-sizes="[5, 10, 15, 20]"
+				      :page-size="pageSize"
+				      layout="total,prev, pager, next, jumper"
+				      :total="pageTotal">
+				    </el-pagination>
+				</div>-->
+				<div class="clear"></div>
+			</el-dialog>	
+		</div>
 	</div>
 </template>
 
@@ -568,6 +671,18 @@ export default {
 			uploadData:{'token':''},
 			uploadPic:"https://up.qbox.me/",//图片上传
 			goods:initGoods(),
+			editableTabsValue: '',//tab值
+			editableTabs: [],//tab数组
+			packageListVisible:false,//套餐方案弹窗
+			packageListData:[],//套餐方案数据
+			searchData:{
+				floorName:'',//楼盘名
+				floorList:[],//楼盘列表
+				houseName:'',//户型名
+				houseList:[],//户型列表
+				styleName:'',//风格名
+				styleList:[]
+			},
 			ruleForm:{
 				//listingId:'',//清单ID
 				//programmeArr:[],//方案列表
@@ -658,6 +773,121 @@ export default {
 		this.dialogVisible=false;
 	},
 	methods: {
+		//导入套餐商品
+		importGoods(){
+			this.packageListVisible=true;
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'designInfoConditionList',{})
+			.then(res=>{
+				//console.log(res)
+				this.searchData.houseList=res.data.houseModelList || [];
+				this.searchData.floorList=res.data.houseNameList || [];
+				this.searchData.styleList=res.data.styleNameList || [];
+				loading.close();
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+		},
+		//搜索套餐包
+		searchPackage(){
+			let data={
+				"styleName":this.searchData.styleName,
+				"houseModel":this.searchData.houseName,
+				"houseName":this.searchData.floorName
+			}	
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'queryDesignInfoList',data)
+			.then(res=>{
+				//console.log(res)
+				this.packageListData=res.data.list || [];
+				loading.close();
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+		},
+		//选择套餐包
+		handlePackageEdit(index, row){
+			//console.log(row.designId)
+			const loading =openLoad(this);
+			this.$ajax.post(this.$store.state.localIP+'queryGoodsDesignList',{designId:row.designId,type:'1'})
+			.then(response=>{
+				//console.log(response);
+				this.editableTabs=response.data.goodsList;
+				var list=response.data.goodsList;
+				loading.close();
+				for(var i=0;i<list.length;i++){
+					for(var j=0;j<list[i].goodsInfos.length;j++){
+						list[i].goodsInfos[j].indexId=i;
+						if(list[i].goodsInfos[j].goodsImages){
+							if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
+								var arr=list[i].goodsInfos[j].goodsImages.split(',');
+								list[i].goodsInfos[j].goodsSrc=arr[0];
+							}else{
+								list[i].goodsInfos[j].goodsSrc=list[i].goodsInfos[j].goodsImages;
+							}
+						}
+					}
+				}
+				if(list.length>0){
+					this.tableData=list[0].goodsInfos;
+					this.editableTabsValue=list[0].packageId.toString();
+				}
+				this.packageListVisible=false;
+			})
+			.catch((error)=>{
+				loading.close();
+				console.log(error);
+				this.$message.error("网络连接错误~~");
+			})
+			
+		},
+		//tabs
+		handleTabsEdit(activeName, oldActiveName) {
+		 	//console.log(activeName);
+		 	let list=this.editableTabs;
+		 	for(let i=0;i<list.length;i++){
+		 		if(list[i].packageId==activeName){
+		 			this.tableData=sortData(list[i].goodsInfos);
+		 		}
+		 	}
+		},
+		//删除tabs
+		handleTabsRemove(name){
+			let list=this.editableTabs;
+			this.editableTabs=[];
+			//console.log(name)
+			this.$confirm('确定删除当前套餐包吗?', '提示', {
+		      	confirmButtonText: '确定',
+		      	cancelButtonText: '取消',
+	        	type: 'warning'
+	        })
+	      	.then(_ => {
+		        let newList=[];
+			 	for(let i=0;i<list.length;i++){
+			 		if(list[i].packageId!=name){
+			 			newList.push(list[i]);
+			 		}
+			 	}
+			 	
+			 	this.editableTabs=newList;
+			 	if(newList.length>0){
+			 		this.editableTabsValue=this.editableTabs[0].packageId.toString();
+			 	}else{
+			 		this.editableTabs=[];
+			 		this.tableData=[];
+			 	}
+		    })
+		    .catch((e) => {
+		    	console.log(e)
+		    	this.editableTabs=list;
+		    });
+		},
 		//分页方法
 		handleSizeChange(val) {
 		  //console.log(`每页 ${val} 条`);
@@ -859,6 +1089,11 @@ export default {
       	submitForm(formName) {
 	        this.$refs[formName].validate((valid) => {
 	          	if (valid) {
+	          		let listAll=[];
+	          		let list=this.editableTabs;
+	          		for(let i=0;i<list.length;i++){
+	          			listAll=listAll.concat(list[i].goodsInfos);
+	          		}
 					//样板
 					let modelTypeArr=this.ruleForm.modelType.split(',');
 					//楼盘
@@ -893,7 +1128,7 @@ export default {
 		            	'coverPic':this.ruleForm.selectPic,
 		            	'tempInfo':this.cardInfo,
 		            	"houseModelUrl":this.ruleForm.planPic,
-		            	"designGoodsArray":this.tableData,
+		            	"designGoodsArray":listAll,
 		            	//'listingId':this.ruleForm.listingId,
 		            	'isUsed':0
 		            }
@@ -908,6 +1143,11 @@ export default {
       	saveForm(formName){
       		 this.$refs[formName].validate((valid) => {
 	          if (valid) {
+	          	let listAll=[];
+		        let list=this.editableTabs;
+		        for(let i=0;i<list.length;i++){
+		        	listAll=listAll.concat(list[i].goodsInfos);
+		        }
 				//样板
 				let modelTypeArr=this.ruleForm.modelType.split(',');
 				//楼盘
@@ -942,7 +1182,7 @@ export default {
 	            	'coverPic':this.ruleForm.selectPic,
 	            	'tempInfo':this.cardInfo,
 	            	"houseModelUrl":this.ruleForm.planPic,
-	            	"designGoodsArray":this.tableData,
+	            	"designGoodsArray":listAll,
 	            	//'listingId':this.ruleForm.listingId,
 	            	'isUsed':1
 	            }
@@ -991,9 +1231,15 @@ export default {
 						this.tableData[i].species='单品';
 					}
 				}
-		    	console.log(this.tableData)
+		    	//console.log(this.tableData)
 		    	this.tableData=sortData(this.tableData);
-		    	console.log(this.tableData)
+		    	var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
+		    	//console.log(this.tableData)
 		    	this.$refs.multipleTable.clearSelection();
 		    }).catch((e) => {
 		    	console.log(e)
@@ -1097,6 +1343,12 @@ export default {
 	      			}
 	      		}
       			this.tableData=sortData(listAll);
+      			var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
       		}else{
       			this.goods=initGoods();
       			this.groupVisible=true;
@@ -1195,7 +1447,7 @@ export default {
 						return;
 					}
 		        	const loading =openLoad(this,"Loading...");
-		        	if(this.goods.picChange){	
+		        	if(this.goods.picChange){
 			        	this.$ajax.post(this.$store.state.localIP+'qiNiuToken',{})
 					    .then((response)=>{
 					    	//console.log(response);
@@ -1241,6 +1493,7 @@ export default {
 		},
 		//选择商品
 		selectGoodsFun(val){
+			//console.log(val)
 			queryGoodsPackageList(this);
 			querySpaceInfo(this,function(){});
 			this.addGoods=initAddGoods();
@@ -1252,6 +1505,9 @@ export default {
 			if(this.selectGoodsType==1){
 				var list=this.multipleSelection;
 				this.addGoods.num=list[0].goodsNum || '1';
+			}
+			if(val.packageId){				
+				this.addGoods.selectPackage=val.packageId+','+val.packageName+','+val.packageOrder
 			}
 		},
 		//新增商品
@@ -1336,6 +1592,12 @@ export default {
 				}
 				
 				this.tableData=sortData(this.tableData);
+				var tabs=this.editableTabs
+				for(let i=0;i<tabs.length;i++){
+					if(tabs[i].packageId==this.editableTabsValue){
+						tabs[i].goodsInfos=this.tableData;
+					}
+				}
 		    }).catch((e) => {
 		    	console.log(e)
 		      	this.$message({
@@ -1348,6 +1610,7 @@ export default {
 		addGoodsSave(formName){
 			this.$refs[formName].validate((valid) => {
 			    if (valid) {
+			    	var tabs=this.editableTabs;
 					var listAll=this.tableData;
 					var child=this.selectGoods;
 					var selectList=this.multipleSelection;
@@ -1416,7 +1679,29 @@ export default {
 							//console.log(child)
 							//this.tableData.push(child);
 							child.indexId=this.tableData.length;
-							this.tableData.push(child);
+							var emptyFlag=0;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==child.packageId){
+						 			emptyFlag=1;
+						 			tabs[i].goodsInfos.push(child);
+						 		}
+						 	}
+							if(emptyFlag==0){
+								var info={
+									packageName:child.packageName,
+									packageId:child.packageId,
+									goodsInfos:[child]
+								}
+								tabs.push(info);
+							}
+							this.editableTabsValue=child.packageId.toString();
+							this.editableTabs=tabs;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==this.editableTabsValue){
+						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 		}
+						 	}
+							
 							this.selectGoods={};
 						}else{
 							child.species="替换";
@@ -1428,8 +1713,28 @@ export default {
 								}
 							}*/
 							child.indexId=this.tableData.length;
-							this.tableData.push(child);
+							var emptyFlag=0;
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==child.packageId){
+						 			emptyFlag=1;
+						 			tabs[i].goodsInfos.push(child);
+						 		}
+						 	}
+							if(emptyFlag==0){
+								var info={
+									packageName:child.packageName,
+									packageId:child.packageId,
+									goodsInfos:child
+								}
+								tabs.push(info);
+							}
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==this.editableTabsValue){
+						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 		}
+						 	}
 						}
+						this.editableTabs=tabs;
 						//console.log(child)
 				   	}else{
 				   		for(var i=0;i<listAll.length;i++){
@@ -1453,6 +1758,14 @@ export default {
 				   		this.editGoodsFloag=0;
 				   	}
 				   	this.tableData=sortData(this.tableData);
+				   	
+				   	
+				   	for(let i=0;i<tabs.length;i++){
+				 		if(tabs[i].packageId==this.editableTabsValue){
+				 			tabs[i].goodsInfos=this.tableData;
+				 		}
+				 	}
+				   	this.editableTabs=tabs;
 				   	//console.log(this.tableData)
 				   	this.$refs.multipleTable.clearSelection();
 					this.addGoodsVisible=false;
@@ -2056,6 +2369,9 @@ function duplicate(arr){
 </script>
 
 <style scoped>
+	.packageList{
+		margin-top: 20px;
+	}
 	.edit_btn{
 		margin-top: 30px;
 		text-align: right;
@@ -2178,9 +2494,7 @@ function duplicate(arr){
 	.addPackageForm .edit_btn .el-button{
 		width: 100px;
 	}
-	.goodsList{
-		margin-top: 20px;
-	}
+
 	.dialogFilter{
 		margin-bottom: 20px;
 	}

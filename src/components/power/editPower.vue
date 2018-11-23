@@ -118,7 +118,7 @@ export default {
 	name:'editPower',
 	data(){
 		return{
-			options:['查看','添加','删除','编辑','采购'],//权限列表
+			options:['查看','添加','删除','编辑','采购','详情','提交','审核'],//权限列表
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,

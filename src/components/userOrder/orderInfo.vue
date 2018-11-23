@@ -6,13 +6,13 @@
 		  	<el-breadcrumb-item class="fontWeight">订单详情</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
+
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
 				<span>订单详情</span>
 			</div>
 			<div class="line"></div>
-			
+
 			<!--筛选条件-->
 			<div class="filter">
 				<div class="inlineBlock">
@@ -70,7 +70,7 @@
 					</template>
 				</el-table-column>
 			</el-table>
-			
+
 			<!--分页-->
 			<div class="curPageCss">
 			    <el-pagination
@@ -105,7 +105,7 @@
 		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        state:0,//状态
 			}
-		}, 
+		},
 		mounted(){
 			if(this.roleAuthList.indexOf('1')>-1){
 				this.addBtnShow=true;
@@ -116,7 +116,7 @@
 			if(this.roleAuthList.indexOf('3')>-1){
 				this.editBtnShow=true;
 			}
-			//console.log(this.$route)
+			// console.log(this.$route)
 			this.orderNum=Base64.decode(this.$route.params.code);
 			this.state=parseInt(Base64.decode(this.$route.query.state));
 			orderList(this);
@@ -225,5 +225,5 @@
 	}
 	.filter .left{
 		float: left;
-	}	
+	}
 </style>
