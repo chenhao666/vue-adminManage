@@ -23,10 +23,10 @@
             <span>电话：</span>
             <span>{{listData.linkMobileNum}}</span>
           </div>
-          <div class="form_item">
-            <span>账号：</span>
-            <span>{{listData.empName}}</span>
-          </div>
+          <!--<div class="form_item">-->
+            <!--<span>账号：</span>-->
+            <!--<span>{{listData.empName}}</span>-->
+          <!--</div>-->
           <div class="form_item">
             <span>省：</span>
             <span>{{listData.province}}</span>
@@ -51,10 +51,10 @@
             <span>风格：</span>
             <span>{{listData.styleName}}</span>
           </div>
-          <div class="form_item">
-            <span>备注：</span>
-            <span>{{listData.salesRemark}}</span>
-          </div>
+          <!--<div class="form_item">-->
+            <!--<span>备注：</span>-->
+            <!--<span>{{listData.salesRemark}}</span>-->
+          <!--</div>-->
           <div class="form_item">
             <span>期望交付时间：</span>
             <span>{{listData.shipmenTime}}</span>
@@ -108,7 +108,8 @@
               <span class="time_detail" @click="handleSubmitCheck">明细</span>
             </div>
           </div>
-          <div class="form_time_list form_item">
+          <div class="form_time_list form_item"
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&!checkBtnShow">
             <div class="time_item">
               <span>付款审核时间：</span>
               <span>{{listData.paymentTime}}</span>
@@ -121,19 +122,22 @@
               <!--<span>{{form.exp}}</span>-->
             <!--</div>-->
           <!--</div>-->
-          <div class="form_time_list form_item">
+          <div class="form_time_list form_item"
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==11">
             <div class="time_item">
               <span>发货时间：</span>
               <span>{{listData.deliveryTime}}</span>
             </div>
           </div>
-          <div class="form_time_list form_item">
+          <div class="form_time_list form_item"
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==2&&listData.orderStatus!==11">
             <div class="time_item">
               <span>签收时间：</span>
               <span>{{listData.receivedTime}}</span>
             </div>
           </div>
-          <div class="form_time_list form_item">
+          <div class="form_time_list form_item"
+               v-if="listData.orderStatus==8||listData.orderStatus==9">
             <div class="time_item">
               <span>完成时间：</span>
               <span>{{listData.completeTime}}</span>
@@ -227,20 +231,20 @@
             <span>销售备注:</span>
             <span>{{payListData.salesRemark}}</span>
           </div>
-          <div class="pay_mark">
+          <div class="pay_mark"v-if="listData.orderStatus==11">
             <span>未通过原因:</span>
             <span style="color: red">{{payListData.financialRemark}}</span>
           </div>
-          <div class="pay_mark">
+          <div class="pay_mark"v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==11">
             <span>通过原因:</span>
             <span style="color: red">{{payListData.financialRemark}}</span>
           </div>
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="payVisible = false">通 过</el-button>
-          <el-button type="primary" @click="payVisible = false">拒 绝</el-button>
-          <el-button type="primary" @click="payVisible = false">取 消</el-button>
+          <el-button type="primary" @click="payVisible = false">确 定</el-button>
+          <!--<el-button type="primary" @click="payVisible = false">拒 绝</el-button>-->
+          <!--<el-button type="primary" @click="payVisible = false">取 消</el-button>-->
         </span>
       </el-dialog>
     </div>
@@ -251,6 +255,15 @@
         name: "orderDetail",
         data(){
           return{
+            showBtnShow:false,
+            addBtnShow:false,
+            delBtnShow:false,
+            editBtnShow:false,
+            purchaseBtnShow:false,
+            detailBtnShow:false,
+            submitBtnShow:false,
+            checkBtnShow:false,
+            roleAuthList:sessionStorage.getItem('roleAuthList'),
             value1:'',
             form:{
               exp:'测试数据'
@@ -280,6 +293,30 @@
           }
         },
         mounted(){
+          if(this.roleAuthList.indexOf('0')>-1){
+            this.showBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('1')>-1){
+            this.addBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('2')>-1){
+            this.delBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('3')>-1){
+            this.editBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('4')>-1){
+            this.purchaseBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('5')>-1){
+            this.detailBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('6')>-1){
+            this.submitBtnShow=true;
+          }
+          if(this.roleAuthList.indexOf('7')>-1){
+            this.checkBtnShow=true;
+          }
           //接受线上订单页传过来的参数,0是线上订单详情,1是手工订单，目前手工订单详情不做
           // console.log(this.$route.query.detailType);
           this.getData();

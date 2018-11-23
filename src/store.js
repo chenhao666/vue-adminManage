@@ -50,8 +50,8 @@ const state={
 	cityName:'',
 	appuid:'',//设计师
 	accessToken:'',
-	localIP:'http://192.168.1.122:8080/ourHouse/',
-	//localIP:'http://192.168.1.62:8080/ourHouse/',
+	// localIP:'http://192.168.1.122:8080/ourHouse/',
+	localIP:'http://192.168.1.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
 	status:1,
 	//及时聊天对象数组
@@ -91,7 +91,7 @@ const mutations={
 		}else{
 			list=[];
 		}
-		
+
 		//console.log(list)
 		if(list.length>0){
 			for(let i=0;i<list.length;i++){
@@ -229,7 +229,7 @@ const mutations={
 }
 
 const actives={
-	
+
 }
 
 export default new Vuex.Store({

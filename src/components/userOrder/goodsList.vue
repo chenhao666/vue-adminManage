@@ -2,17 +2,17 @@
 	<div class="editPackage">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  <el-breadcrumb-item :to="{ path: '/userOrder/userOrder' }">订单管理</el-breadcrumb-item>
+		  <el-breadcrumb-item :to="{ path: '/userOrder/handleOrder'}">订单管理</el-breadcrumb-item>
 		  <el-breadcrumb-item class="fontWeight">商品列表</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
+
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
 				<span>商品列表</span>
 			</div>
 			<div class="line"></div>
-			
+
 			<div class="orderInfo">
 				<el-form>
 					<el-row :gutter="20">
@@ -21,7 +21,7 @@
 								{{ goodsOrder.houseName }}
 							</el-form-item>
 						</el-col>
-					
+
 						<el-col :span="12">
 							<el-form-item label="地址：">
 								{{ goodsOrder.address }}
@@ -34,7 +34,7 @@
 								{{ goodsOrder.houseModel }}
 							</el-form-item>
 						</el-col>
-					
+
 						<el-col :span="12">
 							<el-form-item label="风格：">
 								{{ goodsOrder.styleName }}
@@ -43,7 +43,7 @@
 					</el-row>
 				</el-form>
 			</div>
-			
+
 			<div class="text item addPackageForm">
 				<!--组合编辑-->
 				<div class="edit_btn">
@@ -54,7 +54,7 @@
 					<el-button  type="primary" @click="changeGoods" v-if="editBtnShow">替换</el-button>
 					<el-button  type="danger" @click="deleteGoods" v-if="editBtnShow">删除</el-button>
 				</div>
-				
+
 				<div class="packageList">
 					<el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="handleTabsRemove" :before-leave="handleTabsEdit">
 						<el-tab-pane
@@ -67,12 +67,12 @@
 					</el-tabs>
 				</div>
 				<div class="goodsList">
-					<el-table border 
-						ref="multipleTable" 
-						:data="tableData" 
-						:stripe="true" 
-						tooltip-effect="dark" 
-						style="width: 100%;" 
+					<el-table border
+						ref="multipleTable"
+						:data="tableData"
+						:stripe="true"
+						tooltip-effect="dark"
+						style="width: 100%;"
 						@selection-change="handleSelectionChange">
 						<el-table-column type="selection" width="55" :resizable="resizable" >
 						</el-table-column>
@@ -104,16 +104,16 @@
 						</el-table-column>
 					</el-table>
 				</div>
-				
+
 				<div style="text-align: center;padding: 30px 0px;">
 					<el-button  @click="goBack">返回</el-button>
-					<el-button type="primary" @click="submitForm('ruleForm')">发布</el-button>
-					<el-button type="primary" @click="saveForm('ruleForm')">存草稿</el-button>
+					<el-button type="primary" @click="submitForm('ruleForm')" v-if="editBtnShow">发布</el-button>
+					<el-button type="primary" @click="saveForm('ruleForm')" v-if="editBtnShow">存草稿</el-button>
 				</div>
 			</div>
 		</el-card>
-		
-		
+
+
 		<!--新增商品-->
 		<!--dialog弹窗-->
 		<div class="edit_dialog">
@@ -131,11 +131,11 @@
 							<el-form-item label="套餐包：" prop="selectPackage">
 								<el-select v-model="addGoods.selectPackage" placeholder="请选择套餐包" v-show="this.selectGoodsType==0?'true':false" :disabled="(selectGoods.species=='商品' || selectGoods.species=='替换') ? true :false ">
 									<el-option v-for="(item,key) in addGoods.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName+','+item.packageOrder"></el-option>
-								</el-select>  
+								</el-select>
 								<span v-show="selectGoodsType==1?'true':false">{{ multipleSelection.length>0 ? multipleSelection[0].packageName :'' }}</span>
 							</el-form-item>
 						</el-col>
-						
+
 						<el-col :span="12">
 							<el-form-item label="位置：" prop="selectLocation">
 								<el-select v-model="addGoods.selectLocation" placeholder="请选择位置" v-show="this.selectGoodsType==0?'true':false" :disabled="(selectGoods.species=='商品' || selectGoods.species=='替换') ? true :false ">
@@ -145,56 +145,56 @@
 							</el-form-item>
 						</el-col>
 			  		</el-row>
-			  		
+
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="类型：">
 								单品
 							</el-form-item>
 						</el-col>
-						
+
 						<el-col :span="12">
 							<el-form-item label="编号：">
 								{{ selectGoods.goodsCode }}
 							</el-form-item>
 						</el-col>
 			  		</el-row>
-			  		
+
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="名称：">
 								{{ selectGoods.goodsName }}
 							</el-form-item>
 						</el-col>
-						
+
 						<el-col :span="12">
 							<el-form-item label="材质：">
 								{{ selectGoods.material }}
 							</el-form-item>
 						</el-col>
 			  		</el-row>
-			  		
+
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="规格：">
 								{{ selectGoods.specifications }}
 							</el-form-item>
 						</el-col>
-						
+
 						<el-col :span="12">
 							<el-form-item label="型号：">
 								{{ selectGoods.model }}
 							</el-form-item>
 						</el-col>
 			  		</el-row>
-			  		
+
 			  		<el-row :gutter="20">
 				  		<el-col :span="12">
 							<el-form-item label="单价：">
 								{{ selectGoods.unitPrice }}
 							</el-form-item>
 						</el-col>
-						
+
 						<el-col :span="12">
 							<el-form-item label="数量：" prop="num">
 								<el-input v-model="addGoods.num" :disabled="selectGoodsType==0 ? false : true"></el-input>
@@ -208,7 +208,7 @@
 			   		 <el-button @click="goGoodsList" v-show="editGoodsFloag==0 ? true : false">返回</el-button>
 				</span>
 			</el-dialog>
-			
+
 		</div>
 		<!--dialog弹窗-->
 		<div class="edit_dialog">
@@ -225,12 +225,12 @@
 			  		<el-input v-model="goodsSearch" placeholder="请输入商品名称"></el-input>
 			  		<el-button type="primary" @click="searchGoods">搜索</el-button>
 			  	</div>
-			  	
-			  	
-				<el-table border 
-					:data="goodsData" 
-					:stripe="true" 
-					tooltip-effect="dark" 
+
+
+				<el-table border
+					:data="goodsData"
+					:stripe="true"
+					tooltip-effect="dark"
 					style="width: 100%;">
 					<el-table-column prop="goodsSrc" label="图片" min-width="75" show-overflow-tooltip>
 						<template slot-scope="props">
@@ -251,7 +251,7 @@
 					<el-table-column prop="unitPrice" label="价格" width="80">
 					</el-table-column>
 				</el-table>
-				
+
 				<!--分页-->
 				<div class="curPageCss">
 				    <el-pagination
@@ -266,7 +266,7 @@
 				</div>
 				<div class="clear"></div>
 			</el-dialog>
-			
+
 		</div>
 		<!--组合-->
 		<!--dialog弹窗-->
@@ -312,7 +312,7 @@
 			   		 <el-button type="primary" @click="goodsSubmitForm('goods')">确 定</el-button>
 				</span>
 			</el-dialog>
-			
+
 		</div>
 
 		<!--商品套餐列表-->
@@ -362,14 +362,14 @@
 			  			<el-col :span="12">
 			  				<el-button type="primary" @click="searchPackage">搜索</el-button>
 			  			</el-col>
-			  		</el-row>			  		
+			  		</el-row>
 			  	</div>
-			  	
-			  	
-				<el-table border 
-					:data="packageListData" 
-					:stripe="true" 
-					tooltip-effect="dark" 
+
+
+				<el-table border
+					:data="packageListData"
+					:stripe="true"
+					tooltip-effect="dark"
 					style="width: 100%;">
 					<el-table-column prop="designName" label="方案名称" min-width="100" show-overflow-tooltip>
 					</el-table-column>
@@ -388,7 +388,7 @@
 						</template>
 					</el-table-column>
 				</el-table>
-				
+
 				<!--分页-->
 				<!--<div class="curPageCss">
 				    <el-pagination
@@ -402,7 +402,7 @@
 				    </el-pagination>
 				</div>-->
 				<div class="clear"></div>
-			</el-dialog>	
+			</el-dialog>
 		</div>
 	</div>
 </template>
@@ -550,7 +550,7 @@ export default {
 	mounted(){
 		let obj=this;
 		//let Base64=new Base64();
-		if(this.$route.params.code){			
+		if(this.$route.params.code){
 			this.orderNo=Base64.decode(this.$route.params.code);
 		}else{
 			window.history.go(-1);
@@ -596,7 +596,7 @@ export default {
 				"styleName":this.searchData.styleName,
 				"houseModel":this.searchData.houseName,
 				"houseName":this.searchData.floorName
-			}	
+			}
 			const loading =openLoad(this);
 			this.$ajax.post(this.$store.state.localIP+'queryDesignInfoList',data)
 			.then(res=>{
@@ -644,7 +644,7 @@ export default {
 				console.log(error);
 				this.$message.error("网络连接错误~~");
 			})
-			
+
 		},
 		//tabs
 		handleTabsEdit(activeName, oldActiveName) {
@@ -713,7 +713,7 @@ export default {
 	        }
 	    },
 	    handleSelectionChange(val) {
-	    	//console.log(val)	
+	    	//console.log(val)
 	        this.multipleSelection = val;
 	    },
 		uploadError(err, file, fileList){
@@ -826,10 +826,10 @@ export default {
 					   	message: '请选择组合的商品！',
 					   	type: 'warning'
 					});
-					return;	
+					return;
       			}
 			}
-			
+
 			this.$confirm('确定拆分所选组合吗?', '提示', {
 		      confirmButtonText: '确定',
 		      cancelButtonText: '取消',
@@ -861,14 +861,14 @@ export default {
 		      	this.$message({
 		        	type: 'info',
 		        	message: '已取消操作'
-		      	});          
+		      	});
 		    });
-			
+
       	},
       	//去组合
       	goGroup(){
       		var list=this.multipleSelection;
-      		
+
       		if(list.length<=1){
       			this.$message({
 				    showClose: true,
@@ -929,7 +929,7 @@ export default {
 					return;
 	      		}
       		}
-      		
+
       		var speciesNum=0;
       		var speciesGroupId=0;
       		for(var i=0;i<list.length;i++){
@@ -990,7 +990,7 @@ export default {
 			this.goods.picNum=0;
 		},
 		//图片上传
-		uploadSuccess(response, file, fileList){		
+		uploadSuccess(response, file, fileList){
 			var list=this.goods.fileList;
 			var num=this.goods.picNum;
 			list[num].url=this.$store.state.qiniuUrl+response.key;
@@ -1036,7 +1036,7 @@ export default {
 		    		this.tableData=sortData(this.tableData);
 		    		//console.log(this.tableData)
 		    	}else{
-					var index=this.selectGroupNum;	
+					var index=this.selectGroupNum;
 					this.tableData[index].unitPrice=this.goods.price;
 					this.tableData[index].goodsName=this.goods.name;
 					this.tableData[index].goodsNum=this.goods.num;
@@ -1077,7 +1077,7 @@ export default {
 					    		loading.close();
 					    		this.$message.error('获取token失败！');
 					    	}
-					    	
+
 					    })
 					    .catch((error)=>{
 					    	console.log(error)
@@ -1086,7 +1086,7 @@ export default {
 						})
 					}else{
 						loading.close();
-						var index=this.selectGroupNum;	
+						var index=this.selectGroupNum;
 						this.tableData[index].unitPrice=this.goods.price;
 						this.tableData[index].goodsName=this.goods.name;
 						this.tableData[index].goodsNum=this.goods.num;
@@ -1114,14 +1114,14 @@ export default {
 			this.addGoods=initAddGoods();
 			this.goodsListVisible=false;
 			this.addGoodsVisible=true;
-			//console.log(val)	
+			//console.log(val)
 			this.selectGoods=val;
 			//console.log(this.selectGoods)
 			if(this.selectGoodsType==1){
 				var list=this.multipleSelection;
 				this.addGoods.num=list[0].goodsNum || '1';
 			}
-			if(val.packageId){				
+			if(val.packageId){
 				this.addGoods.selectPackage=val.packageId+','+val.packageName+','+val.packageOrder
 			}
 		},
@@ -1169,7 +1169,7 @@ export default {
       		done();
       	},
       	handleClosePackage(done){
-      		this	
+      		this
       	},
 		//返回
 		goGoodsList(){
@@ -1200,7 +1200,7 @@ export default {
 						}
 					}
 				}
-				
+
 				for(var i=0;i<list.length;i++){
 					for(var j=0;j<listAll.length;j++){
 						if(list[i].indexId==listAll[j].indexId){
@@ -1208,7 +1208,7 @@ export default {
 						}
 					}
 				}
-				
+
 				this.tableData=sortData(this.tableData);
 				var tabs=this.editableTabs
 				for(let i=0;i<tabs.length;i++){
@@ -1221,7 +1221,7 @@ export default {
 		      	this.$message({
 		        	type: 'info',
 		        	message: '已取消删除'
-		      	});          
+		      	});
 		    });
 		},
 		//添加商品
@@ -1293,7 +1293,7 @@ export default {
 											}
 										}
 									}
-								}	
+								}
 							}
 							var locationFlag=[];
 							var locationGroup='';
@@ -1388,12 +1388,12 @@ export default {
 							}
 						}
 				   		//console.log(this.tableData)
-				   		
+
 				   		this.editGoodsFloag=0;
 				   	}
 				   	this.tableData=sortData(this.tableData);
-				   	
-				   	
+
+
 				   	for(let i=0;i<tabs.length;i++){
 				 		if(tabs[i].packageId==this.editableTabsValue){
 				 			tabs[i].goodsInfos=this.tableData;
@@ -1536,7 +1536,7 @@ function homeInfo(obj){
 
 //获取商品列表
 function goodsList(obj){
-	
+
 	let loading=obj.$loading({
        	lock: true,
       	text: '获取商品列表',
@@ -1567,7 +1567,7 @@ function goodsList(obj){
 			obj.tableData=list[0].goodsInfos;
 			obj.editableTabsValue=list[0].packageId.toString();
 		}
-		
+
 	})
 	.catch((error)=>{
 		loading.close();
@@ -1609,7 +1609,7 @@ function goodsListAll(obj){
 					list[i].goodsSrc=arr[0];
 				}else{
 					list[i].goodsSrc=list[i].goodsImages;
-				}	
+				}
 			}
 			obj.goodsData=list;
 		}else{
@@ -1731,7 +1731,7 @@ function sortData(list){
 			arr.push(list[i]);
 		}
 	}
-	
+
 	for(var i=0;i<arrRe.length;i++){
 		for(var j=0;j<arr.length;j++){
 			if(arrRe[i].replaceId==arr[j].indexId){
@@ -1749,14 +1749,14 @@ function sortData(list){
 		newArr.push(arr[x].indexId)
 		arr[x].indexId=x;
 	}
-	
+
 	for(var i=0;i<arr.length;i++){
 		if(arr[i].groupId || arr[i].groupId==0){
 			var index=newArr.indexOf(arr[i].groupId);
 			arr[i].groupId = index;
 		}
 	}
-	
+
 	arr=groupSort(arr);
 	var newArr=[];
 	for(var x=0;x<arr.length;x++){
@@ -1764,7 +1764,7 @@ function sortData(list){
 		newArr.push(arr[x].indexId)
 		arr[x].indexId=x;
 	}
-	
+
 	for(var i=0;i<arr.length;i++){
 		if(arr[i].groupId || arr[i].groupId==0){
 			var index=newArr.indexOf(arr[i].groupId);
@@ -1784,7 +1784,7 @@ function sortData(list){
 }
 //套餐包  排序
 function packageSort(arr){
-	
+
 	var newArr=[];
 	var sortArr=[];
 	for(var i=0;i<arr.length;i++){
@@ -1841,7 +1841,7 @@ function groupSort(arr){
 	var sortArr=[];
 	var flagArr=[];
 	for(var i=0;i<arr.length;i++){
-		if(arr[i].groupId || arr[i].groupId==0){			
+		if(arr[i].groupId || arr[i].groupId==0){
 			newArr.push(arr[i].groupId);
 		}
 	}
@@ -1871,10 +1871,10 @@ function groupSort(arr){
 							sortArr.push(arr[x]);
 						}
 					}
-					flagArr.push(arr[i].groupId);	
+					flagArr.push(arr[i].groupId);
 				}else{
 					sortArr.push(arr[i]);
-				} 
+				}
 			}
 		}
 	}
@@ -2016,7 +2016,7 @@ function duplicate(arr){
 		font-size: 20px;
 		cursor: pointer;
 	}
-	
+
 	.addPackageForm .edit_btn .el-button{
 		width: 100px;
 	}

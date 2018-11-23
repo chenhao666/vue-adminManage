@@ -93,9 +93,14 @@
             <div v-if="props.row.orderStatus == 8">订单完成</div>
             <div v-if="props.row.orderStatus == 9">关闭订单</div>
             <div v-if="props.row.orderStatus == 10">待审核</div>
-            <div v-if="props.row.orderStatus == 11">未通过</div>
-
-
+            <div v-if="props.row.orderStatus == 11" style="color: red">
+              <el-popover trigger="hover" placement="top">
+                <p>不通过原因：{{props.row.financialRemark}}</p>
+                <div slot="reference" class="name-wrapper">
+                  未通过
+                </div>
+              </el-popover>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="empName" label="销售" show-overflow-tooltip>
@@ -555,7 +560,6 @@
           }
         },
         mounted(){
-          console.log(this.roleAuthList)
           if(this.roleAuthList.indexOf('0')>-1){
             this.showBtnShow=true;
           }
@@ -700,7 +704,8 @@
             }
           },
           //审批拒绝事件
-          refuseForm(val){
+          refuseForm(val,data){
+            // console.log(this.checkWayList);
             this.refuseVisible = true;
             this.checkTitle = val;
             if(val=="审核通过"){
@@ -723,16 +728,31 @@
           //   // this.editVisible = true;
           // },
           jumpProjectList(row){
-            var num=Base64.encode(row.orderNo);
-           /* console.log("跳转到商品列表事件");*/
-          	this.$router.push({path:'/userOrder/goodsList/'+num})
+            if(row.orderStatus ==0 || row.orderStatus==11|| row.orderStatus==10){
+              var num=Base64.encode(row.orderNo);
+              /* console.log("跳转到商品列表事件");*/
+              this.$router.push({path:'/userOrder/goodsList/'+num})
+            }else{
+              var num = Base64.encode(row.orderNo);
+              var state=Base64.encode(row.orderStatus);
+              this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state}})
+            }
+
           },
           //审核，提交审核原因
           handleResult(){
+            var arr = [];
+            for(let i=0;i<this.checkWayList.length;i++){
+              arr.push({
+                orderNo:this.checkWayList[i].orderNo,
+                payTime:this.checkWayList[i].payTime
+              })
+            }
             let data={
               financialRemark:this.financialRemark,
               orderNo:this.checkid,
-              orderStatus:this.orderStatusType
+              orderStatus:this.orderStatusType,
+              paymentList:arr
             }
             const loading =openLoad(this,"Loading...");
             this.refuseVisible = false;
