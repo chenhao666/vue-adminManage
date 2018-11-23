@@ -47,12 +47,12 @@
 			<div class="text item addPackageForm">
 				<!--组合编辑-->
 				<div class="edit_btn">
-					<el-button  type="primary" @click="importGoods">导入套餐商品</el-button>
-					<el-button  type="primary" @click="addGoodsFun">新增</el-button>
-					<el-button  type="primary" @click="goGroup">组合</el-button>
-					<el-button  type="primary" @click="removeGroup">拆分</el-button>
-					<el-button  type="primary" @click="changeGoods">替换</el-button>
-					<el-button  type="danger" @click="deleteGoods">删除</el-button>
+					<el-button  type="primary" @click="importGoods" v-if="editBtnShow">导入套餐商品</el-button>
+					<el-button  type="primary" @click="addGoodsFun" v-if="editBtnShow">新增</el-button>
+					<el-button  type="primary" @click="goGroup" v-if="editBtnShow">组合</el-button>
+					<el-button  type="primary" @click="removeGroup" v-if="editBtnShow">拆分</el-button>
+					<el-button  type="primary" @click="changeGoods" v-if="editBtnShow">替换</el-button>
+					<el-button  type="danger" @click="deleteGoods" v-if="editBtnShow">删除</el-button>
 				</div>
 				
 				<div class="packageList">
@@ -477,6 +477,7 @@ export default {
 		};
 		return{
 			orderNo:'',
+			editBtnShow:true,
 			editGoodsFloag:0,
 			resizable:false,
 			selectGroupNum:-1,
@@ -1667,9 +1668,13 @@ function goodsOrderInfo(obj,callback){
 	obj.$ajax.post(obj.$store.state.localIP+'queryManualOrderGoods',{orderNo:obj.orderNo})
 	.then(response=>{
 		loading.close();
-		console.log(response);
+		//console.log(response);
 		obj.goodsOrder=response.data.goodsOrder || {};
-		
+		if(response.data.goodsOrder){
+			if(response.data.goodsOrder.orderStatus==1 || response.data.goodsOrder.orderStatus==10){
+				obj.editBtnShow=false;
+			}
+		}
 		obj.editableTabs=response.data.orderGoodsList;
 		var list=response.data.orderGoodsList;
 		loading.close();
