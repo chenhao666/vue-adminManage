@@ -49,7 +49,7 @@
             </el-select>
           </div>
           <div class="left">
-            <el-input v-model="searchParams.empName" placeholder="销售"></el-input>
+            <el-input v-model="saleName" placeholder="销售"></el-input>
           </div>
           <div class="left">
             <el-button type="success" @click="getData"><span class="iconfont icon-search"></span>搜索</el-button>
@@ -438,6 +438,7 @@
         name: "handleOrder",
         data(){
           return{
+            saleName:'',//销售名字
             showBtnShow:false,
             addBtnShow:false,
             delBtnShow:false,
@@ -637,8 +638,8 @@
               this.messageTitle="新增成功";
               this.addParams = {};
               //获取登录用户的id以及name
-              this.addParams.empName = this.$store.state.roleName;
-              this.addParams.empId = this.$store.state.roleID;
+              this.addParams.empName = this.$store.state.userName;
+              this.addParams.empId = this.$store.state.userCode;
               this.orderNoShow = true;
             }
           },
@@ -878,14 +879,20 @@
             const loading =openLoad(this,"Loading...");
             this.searchParams.beginTime = this.timeValue[0];
             this.searchParams.endTime = this.timeValue[1];
-            this.searchParams.userCode = this.$store.state.userCode;
-            this.searchParams.userName = this.$store.state.userName;
+            // this.searchParams.userCode = this.$store.state.userCode;
+            // this.searchParams.userName = this.$store.state.userName;
             this.searchParams.start = (this.currentPage-1)*this.pageSize;
             this.searchParams.length = this.pageSize;
-            if(this.searchParams.empId){
-              this.searchParams.empId = this.$store.state.roleID;
+            // if(this.searchParams.empId){
+              this.searchParams.empId = this.$store.state.userCode;//用户登录的id
+            // }
+            // if(this.searchParams.empName){
+              this.searchParams.empName = this.$store.state.userName;//用户登录人的名称
+            // }
+            if(this.saleName){
+              this.searchParams.userName = this.saleName;
             }
-            this.searchParams.empName = this.$store.state.roleName;
+
             this.$ajax.post(this.$store.state.localIP+'queryManualOrders',this.searchParams)
               .then(response=>{
                 loading.close();
