@@ -284,7 +284,95 @@
 			   		 <el-button type="primary" @click="goodsSubmitForm('goods')">确 定</el-button>
 				</span>
 			</el-dialog>
-			
+		</div>
+		<!--商品套餐列表-->
+		<div class="edit_dialog">
+			<el-dialog
+			  title="套餐方案列表"
+			  :visible.sync="packageListVisible"
+			  width="600px"
+			  :append-to-body="true"
+			  :close-on-click-modal="false"
+			  >
+			  <!--表单开始-->
+			  	<div class="dialogFilter">
+			  		<el-row :gutter="20">
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.floorName" placeholder="楼盘">
+							    <el-option
+							      v-for="(item,key) in searchData.floorList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.houseName" placeholder="户型">
+							    <el-option
+							      v-for="(item,key) in searchData.houseList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  		</el-row>
+			  		<el-row :gutter="20" style="margin-top: 20px;">
+			  			<el-col :span="12">
+			  				<el-select v-model="searchData.styleName" placeholder="风格">
+							    <el-option
+							      v-for="(item,key) in searchData.styleList"
+							      :key="key"
+							      :label="item"
+							      :value="item">
+							    </el-option>
+							</el-select>
+			  			</el-col>
+			  			<el-col :span="12">
+			  				<el-button type="primary" @click="searchPackage">搜索</el-button>
+			  			</el-col>
+			  		</el-row>			  		
+			  	</div>
+			  	
+			  	
+				<el-table border 
+					:data="packageListData" 
+					:stripe="true" 
+					tooltip-effect="dark" 
+					style="width: 100%;">
+					<el-table-column prop="designName" label="方案名称" min-width="100" show-overflow-tooltip>
+					</el-table-column>
+					<el-table-column prop="houseName" label="楼盘">
+					</el-table-column>
+					<el-table-column prop="houseModel" label="户型">
+					</el-table-column>
+					<el-table-column prop="styleName" label="风格">
+					</el-table-column>
+					<el-table-column label="操作">
+						<template slot-scope="scope">
+					        <el-button
+					          size="mini"
+					          style="margin: 5px;"
+					          @click="handlePackageEdit(scope.$index, scope.row)">选择</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+				
+				<!--分页-->
+				<!--<div class="curPageCss">
+				    <el-pagination
+				      @size-change="handleSizeChange"
+				      @current-change="handleCurrentChange"
+				      :current-page="currentPage"
+				      :page-sizes="[5, 10, 15, 20]"
+				      :page-size="pageSize"
+				      layout="total,prev, pager, next, jumper"
+				      :total="pageTotal">
+				    </el-pagination>
+				</div>-->
+				<div class="clear"></div>
+			</el-dialog>	
 		</div>
 	</div>
 </template>
