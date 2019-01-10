@@ -101,7 +101,7 @@
 				</el-table-column>
 				<el-table-column prop="actualAmount" label="金额" min-width="80">
 					<template slot-scope="props">
-						<div>￥{{ props.row.actualAmount }}</div>
+						<div>￥{{ props.row.saleUpdAmout ? props.row.saleUpdAmout : props.row.actualAmount }}</div>
 					</template>
 				</el-table-column>
 				<el-table-column prop="alreadyAmount" label="已付" min-width="80">
@@ -119,11 +119,12 @@
 						<div><a href="javascript:void(0)" class="lookInfo" @click="descInfo(props.row)">{{ props.row.remark ? props.row.remark : '备注' }}</a></div>
 					</template>
 				</el-table-column>
-				<el-table-column  label="操作">
+				<el-table-column  label="操作" v-if="editBtnShow || purchaseBtnShow">
 					<template slot-scope="scope">
 						<!--<div class="lookInfo" @click="handleShow(scope.$index, scope.row)">详情</div>-->
 						<div class="lookInfo" @click="handleEdit(scope.$index, scope.row)" v-if="editBtnShow">商品</div>
 						<div class="purchase" @click="handlePurchase(scope.$index, scope.row)" v-if="purchaseBtnShow">采购</div>
+						<div class="purchase" v-if="submitBtnShow && scope.row.orderStatus == 0" @click="editPrice(scope.$index, scope.row)">改价</div>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -166,6 +167,36 @@
 			  </span>
 			</el-dialog>
 		</div>
+
+    <!--dialog弹窗-->
+    <div class="edit_dialog">
+      <el-dialog
+        title="订单改价"
+        :visible.sync="editPricedVisible"
+        width="450px"
+        :append-to-body="true"
+        :close-on-click-modal="false"
+        :before-close="handleClose"
+      >
+        <!--表单开始-->
+        <el-form label-width="85px" ref="priceForm" :model="priceForm" :rules="rules">
+          <el-form-item label="订单金额">
+            <span>￥{{priceForm.actualAmount}}</span>
+          </el-form-item>
+          <el-form-item label="修改价格" prop="updAmount" id="editPrice">
+            <span>￥</span>
+            <el-input v-model="priceForm.updAmount" :maxlength="255"
+                      :placeholder="saleUpdAmout"
+                      @change="priceFlag=1"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+        <!--表单结束-->
+        <span slot="footer" class="dialog-footer">
+			    <el-button type="primary" @click="submitPrice('priceForm')">确 定</el-button>
+			  </span>
+      </el-dialog>
+    </div>
 	</div>
 </template>
 
@@ -173,13 +204,31 @@
 	export default {
 		name:'userPrder',
 		data () {
-			return {
+      		var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+      		var validatePrice = (rule, value, callback) => {
+        	if (!value) {
+          	return callback(new Error('金额不能为空'))
+        	}
+         	 if (!reg.test(value)) {
+            	callback(new Error('请输入正确的金额'))
+          	} else {
+            	callback()
+          	}
+      	}
+		return {
+        	rules: {
+	          	updAmount: [
+	            	{ required: true, validator: validatePrice, trigger: 'blur'}
+	          	]
+       		},
 				addBtnShow:false,
 				delBtnShow:false,
+        submitBtnShow:false,
 				editBtnShow:false,
         purchaseBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				roleAuthList:this.$store.state.roleAuthList,
 				dialogVisible:false,
+        editPricedVisible:false,
 				selectOrderNum:'',
 				tableData:[],
 				searchName:'',//搜索客户
@@ -196,12 +245,23 @@
 		        pageTotal:0,//页数总数
 		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        ruleForm:{
-		        	desc:''
+		        	desc:'测试'
 		        },
         // showDetailType:0,//0是线上订单,1是手工订单
+        priceForm:{
+          actualAmount:'',//订单金额
+          updAmount:'',//修改金额
+          orderNo:'',//订单号
+          empId:'',//销售id
+          empName:''//销售名称
+        },
+        totalPriceShow:0,//默认显示的总价
+        priceFlag:0,//改价的标识
+        saleUpdAmout:'',//上一次修改价格的信息
 			}
 		},
 		mounted(){
+		  console.log(this.roleAuthList)
 			if(this.roleAuthList.indexOf('1')>-1){
 				this.addBtnShow=true;
 			}
@@ -213,6 +273,9 @@
 			}
       if(this.roleAuthList.indexOf('4')>-1){
         this.purchaseBtnShow=true;
+      }
+      if(this.roleAuthList.indexOf('6')>-1){
+        this.submitBtnShow=true;
       }
 			//获取订单列表
 			orderList(this);
@@ -238,6 +301,28 @@
           }
           orderList(this);
         },
+        handleClose(done){
+          if(this.priceFlag){
+            this.$confirm('当前有未保存内容,确认关闭?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            })
+              .then(_ => {
+                this.resetForm('priceForm');
+                done();
+                this.priceFlag=0;
+              })
+              .catch(_ => {});
+          }else{
+            done();
+            this.priceFlag=0;
+          }
+        },
+      //表单重置
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
 		    //时间格式化
 		    timeFomit(timeDate){
 		    	//console.log(timeDate)
@@ -245,12 +330,56 @@
 		    	let timeArr=time.split(' ');
 		    	return timeArr;
 		    },
+      //修改价格提交
+      submitPrice(formName){
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.editPricedVisible = false;
+            this.$ajax.post(this.$store.state.localIP+'addGoodsOrderLog',this.priceForm)
+              .then(response=>{
+                if(response.data.retCode==0){
+                  this.$message({
+                    message: '修改成功',
+                    type: 'success'
+                  });
+                  orderList(this);
+                  //重置表单
+                  this.resetForm('priceForm');
+                }else if(response.data.retCode==-1){
+                  this.$message({
+                    message: response.data.retMsg,
+                    type: 'warning'
+                  });
+                }else{
+                  this.$message.error('操作失败！');
+                }
+              })
+              .catch((error)=>{
+                this.$message.error('网络连接错误~~');
+              })
+          } else {
+            return false;
+          }
+        });
+      },
+      //修改价格
+        editPrice(index,row){
+		      this.editPricedVisible = true;
+		      this.saleUpdAmout = (row.saleUpdAmout ? row.saleUpdAmout : row.actualAmount)
+		      this.priceForm={
+		        actualAmount:row.actualAmount,//默认显示的价格
+            updAmount:'',//修改金额
+            orderNo:row.orderNo,//订单号
+            empId:this.$store.state.userCode,//销售id
+            empName:this.$store.state.userName//销售名称
+          };
+        },
 		    //查看详情
 		    handleEdit(index, row){
 		    	//console.log(row)
 		    	var num = Base64.encode(row.orderNo);
 		    	var state=Base64.encode(row.orderStatus);
-		    	this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state}})
+		    	this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state,type:1}})
 		    },
 		    //采购
 		    handlePurchase(index,row){
@@ -398,4 +527,7 @@
 		width: 100%;
 		box-sizing: border-box;
 	}
+  #editPrice .el-input{
+    width: 75%;
+  }
 </style>

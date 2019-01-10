@@ -17,11 +17,11 @@ a{
 li{ list-style: none outside none;}
 .clear{ clear:both;}
 @font-face {font-family: "iconfont";
-  src: url('../fonts/iconfont.eot?t=1493098109966'); 
-  src: url('../fonts/iconfont.eot?t=1493098109966#iefix') format('embedded-opentype'), 
-  url('../fonts/iconfont.woff?t=1493098109966') format('woff'), 
-  url('../fonts/iconfont.ttf?t=1493098109966') format('truetype'), 
-  url('../fonts/iconfont.svg?t=1493098109966#iconfont') format('svg'); 
+  src: url('../fonts/iconfont.eot?t=1493098109966');
+  src: url('../fonts/iconfont.eot?t=1493098109966#iefix') format('embedded-opentype'),
+  url('../fonts/iconfont.woff?t=1493098109966') format('woff'),
+  url('../fonts/iconfont.ttf?t=1493098109966') format('truetype'),
+  url('../fonts/iconfont.svg?t=1493098109966#iconfont') format('svg');
 }
 
 .iconfont {
@@ -107,6 +107,8 @@ li{ list-style: none outside none;}
 .icon-tupian:before { content: "\e650"; }
 
 .icon-uparrow-bottom:before { content: "\e6cb"; }
+
+.icon-storeManage:before { content: "\e610"; }
 
 .iconfont{
 	vertical-align: middle;
@@ -270,7 +272,7 @@ table,table td,table th{
 	border: none;
 }
 .dialogHide .el-dialog__headerbtn .el-dialog__close{
-	
+
 	color: #ffffff;
 }
 .dialogHide .el-dialog__headerbtn{
@@ -367,7 +369,7 @@ table,table td,table th{
 #list .el-card__body{
 		padding: 0px !important;
 	}
-	
+
 /*全屏*/
 .fullscreen{
 	position: absolute;
@@ -389,9 +391,13 @@ table,table td,table th{
 	line-height: 30px;
 }
 .childTableBg{
-	background: #E4E4E4 !important;	
+	background: #E4E4E4 !important;
 }
 
-.packageList .el-tabs--card>.el-tabs__header{
-	border: none;
+.price_form{
+    padding: 0 !important;
+}
+/*tip提示*/
+.el-tooltip__popper.is-dark{
+	max-width: 80%;
 }

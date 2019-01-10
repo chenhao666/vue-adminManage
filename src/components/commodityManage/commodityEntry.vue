@@ -358,7 +358,7 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				roleAuthList:this.$store.state.roleAuthList,
 				fileUpload:this.$store.state.localIP+'goodsBatchImport',//文件上传地址
 				fileListExcel:[],
 				tableData:[],

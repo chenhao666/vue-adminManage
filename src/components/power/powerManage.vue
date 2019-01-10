@@ -37,11 +37,13 @@
 					        <el-button
 					          size="mini"
 					          v-if="editBtnShow"
+					           style="margin: 5px 5px;"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
 					          v-if="delBtnShow"
+					           style="margin: 5px 5px;"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					      </template> 
 					    </el-table-column>
@@ -109,7 +111,7 @@ export default {
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: this.$store.state.userPower,
 	        multipleSelection: [],
 	        multipleFlag:false,//全选状态

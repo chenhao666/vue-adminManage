@@ -244,7 +244,7 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				roleAuthList:this.$store.state.roleAuthList,
 				tableData:[],
 				currentPage:1,//当前页数
 				pageTotal:0,//总数

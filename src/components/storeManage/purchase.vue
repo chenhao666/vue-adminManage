@@ -2,7 +2,7 @@
 	<div class="userPrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/userOrder/packageOrder' }">订单管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="{ path: '/storeManage/storeList' }">门店管理</el-breadcrumb-item>
 		  	<el-breadcrumb-item class="fontWeight">采购</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
@@ -23,60 +23,56 @@
 							</el-form-item>
 						</el-col>
 						<el-col :span="6">
-							<el-form-item label="姓名：">
-								{{ userName }}
+							<el-form-item label="提交时间：">
+								{{ submitTime }}
 							</el-form-item>
 						</el-col>
 						<el-col :span="6">
-							<el-form-item label="电话：">
-								{{ mobile }}
+							<el-form-item label="门店：">
+								{{ storeName }}
 							</el-form-item>
 						</el-col>
 						<el-col :span="6">
-							<el-form-item label="付款时间：">
-								{{ payTime }}
+							<el-form-item label="订单金额：">
+								{{ totalAmount }}
 							</el-form-item>
 						</el-col>
 					</el-row>
 
 					<el-row :gutter="20">
 						<el-col :span="6">
-							<el-form-item label="订单金额：">
-								{{ orderPrice }}
+							<el-form-item label="件数：">
+								{{ unit }}
 							</el-form-item>
 						</el-col>
 						<el-col :span="6">
-							<el-form-item label="城市：">
-								{{ city }}
+							<el-form-item label="状态：">
+								{{ status }}
 							</el-form-item>
 						</el-col>
-						<el-col :span="12">
-							<el-form-item label="备注：">
-								{{ remark }}
+						<el-col :span="6">
+							<el-form-item label="进货员：">
+								{{ buyer }}
 							</el-form-item>
 						</el-col>
 					</el-row>
 				</el-form>
+
 				<el-form label-width="130px" :rules="rules" ref="ruleForm" :model="ruleForm" style="margin-top: 20px;">
 					<el-row :gutter="20">
-						<el-col :span="12">
-							<el-form-item label="房号：" prop='roomNum'>
-								<el-input v-model="ruleForm.roomNum" placeholder="请输入内容"></el-input>
-							</el-form-item>
-						</el-col>
 						<el-col :span="12">
 							<el-form-item label="收货人：" prop='reciveName'>
 								<el-input v-model="ruleForm.reciveName" placeholder="请输入内容"></el-input>
 							</el-form-item>
 						</el-col>
-					</el-row>
-
-					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="收货人联系电话：" prop='telphone'>
 								<el-input v-model="ruleForm.telphone" placeholder="请输入内容"></el-input>
 							</el-form-item>
 						</el-col>
+					</el-row>
+
+					<el-row :gutter="20">
 						<el-col :span="12">
 							<el-form-item label="收货地址：" prop='address'>
 								<el-input v-model="ruleForm.address" placeholder="请输入内容"></el-input>
@@ -101,8 +97,8 @@
 					</el-table-column>
 					<el-table-column prop="goodsType" label="类型" min-width="60">
 					</el-table-column>
-					<el-table-column prop="typeName" label="区域" min-width="60">
-					</el-table-column>
+					<!--<el-table-column prop="typeName" label="区域" min-width="60">
+					</el-table-column>-->
 					<el-table-column prop="goodsCode" label="产品编号" min-width="80">
 					</el-table-column>
 					<el-table-column prop="goodsName" label="名称" min-width="80">
@@ -152,19 +148,9 @@
 				</el-form>
 			</div>
 
-			<div class="right_footer">
-				<el-form>
-					<el-form-item label="期望出货时间：" style="width:320px;">
-						<el-date-picker
-					      v-model="sendTime"
-					      type="date"
-					      placeholder="选择日期">
-					    </el-date-picker>
-					</el-form-item>
-				</el-form>
-			</div>
 
 			<div class="btn_group">
+				<el-button type="success" @click="purchaseBtn" v-if="purchaseBtnShow">已采购</el-button>
 				<el-button type="success" @click="exportExcel">导出采购清单</el-button>
 				<el-button type="primary" @click="saveOrder('ruleForm')">保存</el-button>
 			</div>
@@ -215,28 +201,24 @@
 				orderNum:'',//订单编号
 				tableData:[],
 				dialogVisible:false,
+				purchaseBtnShow:false,
 				goodsList:[],//商品列表
 				brandSelect:'',//选择品牌
 				selectBrandIndex:0,//选中品牌下标
 				ruleForm:{
-					roomNum:'',//房号
 					reciveName:'',//收货人
 					telphone:'',//联系电话
 					address:'',//地址
 				},
-				userName:'',//姓名
-				mobile:'',//电话
-				payTime:'',//付款时间
-				orderPrice:'',//订单金额
-				city:'',//城市
-				remark:'',//备注
-				desc:'',//输入备注
+				unit:'',//件数
+				submitTime:'',//提交时间
+				storeName:'',//门店
+				totalAmount:'',//订单金额
+				status:'',//状态
+				buyer:'',//进货员
 				taxation:'',//税费
-				sendTime:'',//出货时间
+				desc:'',//备注
 				rules:{
-					roomNum:[
-						{ required: true, message: '请输入房号', trigger: 'blur' }
-					],
 					reciveName:[
 						{ required: true, message: '请输入收货人', trigger: 'blur' }
 					],
@@ -268,13 +250,11 @@
 		        var list=this.tableData;
 		        var len=list.length;
 		        list[len-1].taxation=this.taxation;
-		        list[len-1].shipmentTime=this.sendTime;
 
 		        this.goodsList[this.selectBrandIndex].goodsInfoList=list;
 		        this.tableData=totalPrice(this.goodsList[index].goodsInfoList || []);
 		       	var len=this.tableData.length;
 		       	this.taxation=this.tableData[len-1].taxation;
-		       	this.sendTime=this.tableData[len-1].shipmentTime;
 		        this.selectBrandIndex=index;
 		    },
 		    //监听输入框变化
@@ -338,28 +318,18 @@
 							list[i].goodsInfoList=arr;
 						}
 						list[this.selectBrandIndex].taxation=this.taxation;
-						if(this.sendTime){
-							list[this.selectBrandIndex].shipmentTime=this.timeFomit(this.sendTime);
-						}
+
 						var data={
 							"purchaseAddress":{
-								"houseNo":this.ruleForm.roomNum,
 								"consignee":this.ruleForm.reciveName,
 								"consMobileNum":this.ruleForm.telphone,
 								"consAddress":this.ruleForm.address,
 
 							},
-							/*"purchasecost":{
-								"brandId":this.brandSelect,
-								"brandName":this.goodsList[this.selectBrandIndex].brandName,
-								"taxation":parseFloat(this.taxation || 0).toFixed(2),
-								"purchaseNum":list[len-1].goodsNum,
-								"purchaseTotal":list[len-1].purchaseTotal
-							},*/
 							"purchaseinfoList":list,
 							"orderNo":this.orderNum
 						}
-						this.$ajax.post(this.$store.state.localIP+"savePurchaseInfo",data)
+						this.$ajax.post(this.$store.state.localIP+"saveStorePurcharse",data)
 						.then(response=>{
 							loading.close();
 							//console.log(response)
@@ -384,6 +354,34 @@
 			        }
 				});
 		    },
+		    //采购
+		    purchaseBtn(){
+		    	this.saveOrder('ruleForm');
+		    	const loading =openLoad(this,"loading...");
+				var data={
+					"orderNo":this.orderNum,
+					"status":7
+				}
+				this.$ajax.post(this.$store.state.localIP+"updateStoreStock",data)
+				.then(response=>{
+					loading.close();
+					//console.log(response)
+					if(response.data.retCode==0){
+						this.$message({
+						  	message: '操作成功!',
+						  	type: 'success'
+						});
+						this.$router.push({path:'/storeManage/inGoods'})
+					}else{
+						this.$message.error(response.data.retMsg);
+					}
+				})
+				.catch((error)=>{
+					loading.close();
+			        console.log(error)
+					this.$message.error('网络连接错误~~');
+				})
+		    },
 		    //导出清单
 		    exportExcel(){
 		    	const loading =openLoad(this,"loading...");
@@ -400,7 +398,7 @@
 					"orderNo":this.orderNum,
 					"brandName":brandName
 				}
-				this.$ajax.post(this.$store.state.localIP+"downLoadPurchase",data)
+				this.$ajax.post(this.$store.state.localIP+"downLoadStockPurchase",data)
 				.then(response=>{
 					loading.close();
 					//console.log(response)
@@ -435,27 +433,33 @@
 		var data={
 			"orderNo":obj.orderNum
 		}
-		obj.$ajax.post(obj.$store.state.localIP+"queryPurchaseList",data)
+		obj.$ajax.post(obj.$store.state.localIP+"queryStockPurchaseList",data)
 		.then(response=>{
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.ruleForm.roomNum=response.data.goodsOrder.address || '';
-				obj.ruleForm.reciveName=response.data.goodsOrder.consignee || '';
-				obj.ruleForm.telphone=response.data.goodsOrder.consMobileNum || '';
-				obj.ruleForm.address=response.data.goodsOrder.consAddress || '';
-
-				obj.userName=response.data.goodsOrder.linkman || '';
-				obj.mobile=response.data.goodsOrder.linkMobileNum || '';
-				obj.payTime=response.data.goodsOrder.updateTime.split('.')[0];
-				obj.orderPrice=response.data.goodsOrder.actualAmount ? '￥'+response.data.goodsOrder.actualAmount : '';
-				obj.city=response.data.goodsOrder.city || '';
-				obj.remark=response.data.goodsOrder.remark || '';
-
-				/*obj.taxation=response.data.goodsOrder.taxation || '';
-				obj.sendTime=response.data.goodsOrder.shipmentTime || '';*/
-
-				var list=response.data.purchaseList;
+				var statusArr=['草稿','删除','进货一审','进货二审','进货三审','进货未通过','待采购','待收货','已完成'];
+				obj.ruleForm.reciveName=response.data.data.snd.consignee || '';
+				obj.ruleForm.telphone=response.data.data.snd.consMobileNum || '';
+				obj.ruleForm.address=response.data.data.snd.consAddress || '';
+				if(response.data.data.snd.submitTime){
+					var time=response.data.data.snd.submitTime;
+					if(time.indexOf('.')>-1){
+						var timeArr=time.split('.');
+						obj.submitTime=timeArr[0];
+					}else{
+						obj.submitTime=time;
+					}
+				}
+				obj.unit=response.data.data.snd.unit || '';
+				obj.storeName=response.data.data.snd.storeName || '';
+				obj.totalAmount=response.data.data.snd.totalAmount ? '￥'+response.data.data.snd.totalAmount : '';
+				obj.status=statusArr[response.data.data.snd.status] || '';
+				if(response.data.data.snd.status==6){
+					obj.purchaseBtnShow=true;
+				}
+				obj.buyer=response.data.data.snd.buyer || '';
+				var list=response.data.data.fst;
 				if(list.length>0){
 					for(var i=0;i<list.length;i++){
 						for(var j=0;j<list[i].goodsInfoList.length;j++){
@@ -467,33 +471,40 @@
 							}
 						}
 					}
-
-					if(list.length>0){
-						for(var i=0;i<list.length;i++){
-							var taxation=0;
-							if(list[i].taxation){
-								taxation=list[i].taxation;
-							}
-							var info={
-								goodsFlag:1,
-								purchaseTotal:0,
-								goodsNum:0,
-								taxation:taxation.toFixed(2),
-								shipmentTime:list[i].shipmentTime || "",
-								descreption:''
-							}
-							list[i].goodsInfoList.push(info);
-							list[i].goodsInfoList=totalPrice(list[i].goodsInfoList);
+					for(var i=0;i<list.length;i++){
+						var taxation=0;
+						if(list[i].taxation){
+							taxation=list[i].taxation || 0;
 						}
-						obj.goodsList=list;//商品列表
-						obj.brandSelect=list[obj.selectBrandIndex].brandId.toString();
-						obj.taxation=list[obj.selectBrandIndex].taxation.toFixed(2);
-						obj.sendTime=list[obj.selectBrandIndex].shipmentTime;
+						var info={
+							goodsFlag:1,
+							purchaseTotal:0,
+							goodsNum:0,
+							taxation:taxation.toFixed(2),
+							shipmentTime:list[i].shipmentTime || "",
+							descreption:''
+						}
+						list[i].goodsInfoList.push(info);
+						list[i].goodsInfoList=totalPrice(list[i].goodsInfoList);
 					}
+					obj.goodsList=list;//商品列表
+					obj.brandSelect=list[obj.selectBrandIndex].brandId.toString();
+					if(list[obj.selectBrandIndex].taxation){
+						obj.taxation=list[obj.selectBrandIndex].taxation.toFixed(2);
+					}else{
+						obj.taxation="0.00";
+					}
+
 					obj.tableData=list[obj.selectBrandIndex].goodsInfoList || [];
+					//判断是否存在
+					var empty=response.data.data.snd.purchasecost || [];
+					if(empty.length==0){
+						obj.saveOrder('ruleForm');
+						return;
+					}
 				}
 			}else{
-				obj.$message.error('获取订单列表失败！');
+				obj.$message.error(response.data.retMsg);
 			}
 		})
 		.catch((error)=>{

@@ -42,17 +42,21 @@
             <el-select v-model="searchParams.orderStatus" placeholder="全部状态">
               <el-option label="全部" value=""></el-option>
               <el-option label="草稿" value="0"></el-option>
-              <el-option label="已付" value="1"></el-option>
+              <el-option label="已付款" value="1"></el-option>
               <el-option label="取消订单" value="7"></el-option>
               <el-option label="待审核" value="10"></el-option>
               <el-option label="未通过" value="11"></el-option>
+              <el-option label="已发货" value="2"></el-option>
+              <el-option label="已签收" value="3"></el-option>
+              <el-option label="已完成" value="8"></el-option>
+              <el-option label="已退货" value="6"></el-option>
             </el-select>
           </div>
           <div class="left">
             <el-input v-model="saleName" placeholder="销售"></el-input>
           </div>
           <div class="left">
-            <el-button type="success" @click="getData"><span class="iconfont icon-search"></span>搜索</el-button>
+            <el-button type="success" @click="searchListData"><span class="iconfont icon-search"></span>搜索</el-button>
           </div>
           <div class="clear"></div>
         </div>
@@ -65,7 +69,7 @@
       <el-table border :data="tableData" :stripe="true" tooltip-effect="dark" >
         <el-table-column prop="orderNo" label="订单编号" min-width="180" show-overflow-tooltip>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" min-width="100" show-overflow-tooltip>
+        <el-table-column prop="createTime" label="创建时间" min-width="100">
         </el-table-column>
         <el-table-column prop="houseName" label="楼盘" min-width="100">
         </el-table-column>
@@ -76,9 +80,9 @@
         <el-table-column prop="linkMobileNum" label="电话" min-width="60" show-overflow-tooltip>
         </el-table-column>
         <el-table-column prop="totalAmout" label="金额" min-width="80">
-          <!--<template slot-scope="props">-->
-            <!--<div>￥{{ props.row.totalAmout }}</div>-->
-          <!--</template>-->
+          <template slot-scope="props">
+            <div>￥{{ props.row.totalAmout }}</div>
+          </template>
         </el-table-column>
         <el-table-column prop="orderStatus" label="状态" min-width="80" show-overflow-tooltip>
           <template slot-scope="props">
@@ -95,7 +99,7 @@
             <div v-if="props.row.orderStatus == 10">待审核</div>
             <div v-if="props.row.orderStatus == 11" style="color: red">
               <el-popover trigger="hover" placement="top">
-                <p>不通过原因：{{props.row.financialRemark}}</p>
+                <p style="max-width:390px;word-break: break-all">不通过原因：{{props.row.financialRemark}}</p>
                 <div slot="reference" class="name-wrapper">
                   未通过
                 </div>
@@ -109,7 +113,7 @@
           <template slot-scope="scope">
             <el-button class="buttonStyle" size="mini"
                        @click="showDetail(scope.row.orderNo)"
-                       v-if="(scope.row.orderStatus !== 0 && scope.row.orderStatus !== 11)&&detailBtnShow">详情</el-button>
+                       v-if="(scope.row.orderStatus !== 0)&&detailBtnShow">详情</el-button>
             <el-button class="buttonStyle" size="mini" @click="handleAdd(scope.row,'编辑订单')"
                         v-if="(scope.row.orderStatus==0||scope.row.orderStatus == 11)&&editBtnShow">编辑</el-button>
             <el-button class="buttonStyle" size="mini" @click="jumpProjectList(scope.row)">商品</el-button>
@@ -118,7 +122,7 @@
             <el-button class="buttonStyle" size="mini" @click="handleCheck(scope.row.orderNo)"
                        v-if="(scope.row.orderStatus == 10||scope.row.orderStatus == 11)&&checkBtnShow">审核</el-button>
             <el-button class="buttonStyle" size="mini" @click="handleBack(scope.row)"
-                       v-if="(scope.row.orderStatus == 10)&&submitShowData">撤回</el-button>
+                       v-if="(scope.row.orderStatus == 10)&&submitBtnShow">撤回</el-button>
             <el-button class="buttonStyle" size="mini" @click="handlePurchase(scope.row)"
                       v-if="(scope.row.orderStatus !== 0&&scope.row.orderStatus !== 10&&scope.row.orderStatus !== 11)&&purchaseBtnShow">采购</el-button>
             <el-button class="buttonStyle" size="mini" type="danger" @click="handleCancel(scope.row)"
@@ -156,11 +160,11 @@
           <el-row :gutter="20">
             <el-col :span="14">
               <el-form-item label="提交审核时间：">
-                {{ checkListData.createTime }}
+                {{ checkListData.submitAuditTime }}
               </el-form-item>
             </el-col>
             <el-col :span="10">
-              <el-form-item label="状态：">
+              <el-form-item label="状态：" style="color: red">
                 <span v-if="checkListData.orderStatus==0">草稿</span>
                 <span v-if="checkListData.orderStatus==10">待审核</span>
                 <span v-if="checkListData.orderStatus==11">未通过</span>
@@ -195,7 +199,7 @@
           </el-row>
           <div class="line"></div>
           <div class="order_title">
-            <span>订单信息</span>
+            <span>支付明细</span>
           </div>
           <el-table
             :data="checkWayList"
@@ -210,6 +214,7 @@
                   type="date"
                   :maxlength="255"
                   style="width: 100%"
+                  :disabled="checkListData.orderStatus!==11 ? false : true"
                   value-format="yyyy-MM-dd HH:mm">
                 </el-date-picker>
               </template>
@@ -218,6 +223,9 @@
               prop="alreadyAmount"
               label="付款金额"
               width="180">
+              <template slot-scope="props">
+                <div>￥{{ props.row.alreadyAmount }}</div>
+              </template>
             </el-table-column>
             <el-table-column
               prop="payType"
@@ -233,13 +241,17 @@
           <div class="line"></div>
           <div class="desc order_title">
             <span>销售备注：</span>
-            <span>{{checkListData.salesRemark}}</span>
+            <span style="word-break:break-all">{{checkListData.salesRemark}}</span>
+          </div>
+          <div class="desc order_title" v-if="checkListData.orderStatus==11">
+            <span>财务备注：</span>
+            <span style="word-break:break-all;color: red">{{checkListData.financialRemark}}</span>
           </div>
         </el-form>
         <!--表单结束-->
         <span slot="footer" class="dialog-footer">
-			    <el-button type="primary" @click="refuseForm('审核通过')">确 定</el-button>
-			    <el-button @click="refuseForm('审核失败')">拒 绝</el-button>
+			    <el-button type="primary" @click="refuseForm('审核通过')" v-if="checkListData.orderStatus!==11">通 过</el-button>
+			    <el-button @click="refuseForm('审核失败')" v-if="checkListData.orderStatus!==11">拒 绝</el-button>
 			    <el-button @click="dialogVisible = false">取 消</el-button>
 			  </span>
       </el-dialog>
@@ -249,7 +261,7 @@
         :visible.sync="refuseVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
-        width="30%">
+        width="390px">
         <el-input
           type="textarea"
           :rows="4"
@@ -258,7 +270,7 @@
         </el-input>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="handleResult">确 定</el-button>
-          <el-button @click="refuseVisible = false">取 消</el-button>
+          <el-button @click="refuseCancel">取 消</el-button>
         </span>
       </el-dialog>
 
@@ -268,15 +280,20 @@
         :visible.sync="editVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
-        width="40%">
+        :before-close="closeDialog"
+        width="520px">
         <!--表单开始-->
-        <el-form label-width="110px">
-
-          <el-form-item label="订单编号" v-if="!orderNoShow">
+        <el-form label-width="110px" :model="addParams" ref="addParams"  class="demo-ruleForm" :rules="rules">
+          <el-form-item
+            label="订单编号"
+            v-if="!orderNoShow"
+            prop="orderNo">
             <el-input v-model="addParams.orderNo" :maxlength="255" :disabled="true"></el-input>
           </el-form-item>
-          <el-form-item label="省">
-            <el-select v-model="addParams.province" placeholder="请选择" @change="getCity($event)" :maxlength="255">
+          <el-form-item
+            label="省"
+            prop="province">
+            <el-select v-model="addParams.province" placeholder="请选择" @change="getCity($event,1)" :maxlength="255">
               <el-option
                 v-for="item in provinceList"
                 :key="item.province"
@@ -285,8 +302,10 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="市">
-            <el-select v-model="addParams.city" placeholder="请选择" @change="getHouse($event)" :maxlength="255">
+          <el-form-item
+            label="市"
+            prop="city">
+            <el-select v-model="addParams.city" placeholder="请选择" @change="getHouse($event,1)" :maxlength="255">
               <el-option
                 v-for="item in cityList"
                 :key="item.city"
@@ -295,8 +314,10 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="楼盘">
-            <el-select v-model="addParams.houseName" placeholder="请选择" @change="getHouseType($event)" :maxlength="255">
+          <el-form-item
+            label="楼盘"
+            prop="houseName">
+            <el-select v-model="addParams.houseName" placeholder="请选择" @change="getHouseType($event,1)" :maxlength="255">
               <el-option
                 v-for="item in houseList"
                 :key="item.houseName"
@@ -305,11 +326,15 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="地址">
-            <el-input v-model="addParams.address" :maxlength="255"></el-input>
+          <el-form-item
+            label="地址"
+            prop="address">
+            <el-input v-model="addParams.address" :maxlength="255" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="户型">
-            <el-select v-model="addParams.houseModel" placeholder="请选择" :maxlength="255">
+          <el-form-item
+            label="户型"
+            prop="houseModel">
+            <el-select v-model="addParams.houseModel" placeholder="请选择" :maxlength="255" @change="getHouseStyle($event)">
               <el-option
                 v-for="item in houseTypeList"
                 :key="item.houseModel"
@@ -318,8 +343,10 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="风格">
-            <el-select v-model="addParams.styleName" placeholder="请选择" :maxlength="255" @change="showVal()">
+          <el-form-item
+            label="风格"
+            prop="styleName">
+            <el-select v-model="addParams.styleName" placeholder="请选择" :maxlength="255">
               <el-option
                 v-for="item in houseStyleList"
                 :key="item.styleName"
@@ -328,16 +355,24 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="姓名">
-            <el-input v-model="addParams.linkman" :maxlength="255"></el-input>
+          <el-form-item
+            label="姓名"
+            prop="linkman">
+            <el-input v-model="addParams.linkman" :maxlength="255" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="电话">
-            <el-input v-model="addParams.linkMobileNum" :maxlength="255"></el-input>
+          <el-form-item
+            label="电话"
+            prop="linkMobileNum">
+            <el-input v-model="addParams.linkMobileNum" :maxlength="255" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="金额">
-            <el-input v-model="addParams.totalAmout" :maxlength="255"></el-input>
+          <el-form-item
+            label="金额"
+            prop="totalAmout">
+            <el-input v-model="addParams.totalAmout" :maxlength="255" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="期望交付时间">
+          <el-form-item
+            label="期望交付时间"
+            prop="shipmenTime">
               <el-date-picker
                 v-model="addParams.shipmenTime"
                 type="date"
@@ -347,14 +382,16 @@
                 value-format="yyyy-MM-dd HH:mm">
               </el-date-picker>
           </el-form-item>
-          <el-form-item label="销售">
-            <el-input v-model="addParams.empName" :maxlength="255" :disabled="disabled"></el-input>
+          <el-form-item
+            label="销售"
+            prop="empName">
+            <el-input v-model="addParams.empName" :maxlength="255" :disabled="disabled" autocomplete="off"></el-input>
           </el-form-item>
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="handleEditSubmit">确 定</el-button>
-          <el-button @click="editVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleEditSubmit('addParams')">确 定</el-button>
+          <el-button @click="handleEditCancel">取 消</el-button>
         </span>
       </el-dialog>
 
@@ -364,7 +401,7 @@
         :visible.sync="payVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
-        width="45%">
+        width="585px">
         <!--表单开始-->
         <el-form label-width="110px" style="padding:0 30px">
           <div class="form_time_list form_item">
@@ -376,7 +413,7 @@
           <div class="form_time_list form_item">
             <div class="time_item">
               <span>地址：</span>
-              <span>{{submitShowData.address}}</span>
+              <span style="word-break: break-all">{{submitShowData.address}}</span>
             </div>
           </div>
           <div class="form_time_list form_item">
@@ -388,7 +425,7 @@
           <div class="form_time_list form_item">
             <div class="time_item">
               <span>订单金额：</span>
-              <span>{{submitShowData.totalAmout}}</span>
+              <span>￥{{submitShowData.totalAmout}}</span>
             </div>
           </div>
           <div class="pay_message">
@@ -437,7 +474,72 @@
     export default {
         name: "handleOrder",
         data(){
+          //验证手机号
+          var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+          var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+          var validatePhone = (rule, value, callback) => {
+            if (!value) {
+              return callback(new Error('号码不能为空'))
+            }
+            setTimeout(() => {
+              if (!myreg.test(value)) {
+                callback(new Error('格式有误'))
+              } else {
+                callback()
+              }
+            }, 1000)
+          }
+          var validatePrice = (rule, value, callback) => {
+            if (!value) {
+              return callback(new Error('金额不能为空'))
+            }
+            setTimeout(() => {
+              if (!reg.test(value)) {
+                callback(new Error('请输入正确的金额'))
+              } else {
+                callback()
+              }
+            }, 1000)
+          }
           return{
+
+            rules:{
+              province:[
+                { required: true, message: '省份不能为空', trigger: 'change'}
+              ],
+              city:[
+                {required: true,message: '市不能为空',trigger: 'change'}
+              ],
+              houseName:[
+                {required: true,message: '楼盘不能为空',trigger: 'change'}
+              ],
+              address:[
+                {required: true,message: '地址不能为空',trigger: 'blur'},
+                {min: 1, max: 100,  message: '长度在 1 到 100 个字符',trigger: 'blur'}
+              ],
+              houseModel:[
+                {required: true,message: '户型不能为空',trigger: 'change'}
+              ],
+              styleName:[
+                {required: true,message: '风格不能为空',trigger: 'change'}
+              ],
+              linkman:[
+                {required: true,message: '姓名不能为空',trigger: 'blur'}
+              ],
+              linkMobileNum:[
+                // {required: true,message: '电话不能为空',trigger: 'blur'},
+                { required: true, validator: validatePhone, trigger: 'blur' }
+              ],
+              totalAmout:[
+                {required: true,validator: validatePrice,trigger: 'blur'}
+              ],
+              shipmenTime:[
+                {required: true,message: '期望交付时间不能为空',trigger: 'blur'}
+              ],
+              empName:[
+                {required: true,message: '销售不能为空',trigger: 'blur'}
+              ]
+            },
             saleName:'',//销售名字
             showBtnShow:false,
             addBtnShow:false,
@@ -447,7 +549,7 @@
             detailBtnShow:false,
             submitBtnShow:false,
             checkBtnShow:false,
-            roleAuthList:sessionStorage.getItem('roleAuthList'),
+            roleAuthList:this.$store.state.roleAuthList,
             value1:'',
             payType:[
               {
@@ -624,8 +726,36 @@
           removePayList(data,index){
             this.submitOrderData.orderPayInfo.splice(index,1)
           },
+          //编辑时，刷新列表数据
+          handleEditCancel(){
+            this.editVisible = false;
+            this.getData();
+          },
+          closeDialog(){
+            this.$confirm('确认关闭？')
+              .then(_ => {
+                this.editVisible = false;
+                this.getData()
+              })
+          },
+          refuseCancel(){
+            this.refuseVisible = false;
+            this.financialRemark = '';
+          },
           //新增、编辑事件
           handleAdd(data,type){
+            if(data.province){
+              this.getCity(data.province,0)
+            }
+            if(data.city){
+              this.getHouse(data.city,0)
+            }
+            if(data.houseName){
+              this.getHouseType(data.houseName,0)
+            }
+            if(data.houseModel){
+              this.getHouseStyle(data.houseModel,0)
+            }
             this.title = type;
             this.editVisible = true;
             this.disabled = true;
@@ -635,6 +765,9 @@
               this.addParams.orderNo = data.orderNo;
               this.orderNoShow = false;
             }else if(type == "新增订单"){
+              if(this.messageTitle == "编辑成功"){
+                this.resetForm('addParams');
+              }
               this.messageTitle="新增成功";
               this.addParams = {};
               //获取登录用户的id以及name
@@ -644,82 +777,125 @@
             }
           },
           //手工订单提交功能
-          handleSubmitBtn(){
-            this.payVisible = false;
-            let submitData = {
-              orderNo:this.submitShowData.orderNo,
-              orderPayInfo:this.submitOrderData.orderPayInfo,
-              salesRemark:this.salesRemark
-            }
-            // console.log(submitData)
-            this.$ajax.post(this.$store.state.localIP+'submitManualOrders',submitData)
-              .then(response=>{
-                if(response.data.retCode==0){
-                  // this.handleBackBtn = true;//显示撤回按钮
-                  this.$message({
-                    message: "提交成功",
-                    type: 'success'
-                  });
-                  this.getData();
-                }else{
-                  this.$message.error('操作失败！');
+          handleSubmitBtn(formName){
+            // this.$refs[formName].validate((valid) => {
+            //   if (valid) {
+                let submitData = {
+                  orderNo:this.submitShowData.orderNo,
+                  orderPayInfo:this.submitOrderData.orderPayInfo,
+                  salesRemark:this.salesRemark
                 }
-              })
-              .catch((error)=>{
-                this.$message.error('网络连接错误~~');
-              })
+                var submitType = 1;
+                for(let i=0;i<submitData.orderPayInfo.length;i++){
+                  if(submitData.orderPayInfo[i].payTime==''){
+                    submitType = 0;
+                    this.$message({
+                      message:'支付时间不能为空',
+                      type:'warning'
+                    })
+                  }else if(submitData.orderPayInfo[i].alreadyAmount==''){
+                    submitType = 0;
+                    this.$message({
+                      message:'支付金额不能为空',
+                      type:'warning'
+                    })
+                  }else if(submitData.orderPayInfo[i].payType===''){
+                    submitType = 0;
+                    this.$message({
+                      message:'支付类型不能为空',
+                      type:'warning'
+                    })
+                  }
+                }
+                if(submitType == 1){
+                  this.payVisible = false;
+                  this.$ajax.post(this.$store.state.localIP+'submitManualOrders',submitData)
+                    .then(response=>{
+                      if(response.data.retCode==0){
+                        // this.handleBackBtn = true;//显示撤回按钮
+                        this.$message({
+                          message: "提交成功",
+                          type: 'success'
+                        });
+                        this.getData();
+                      }else{
+                        this.$message.error('操作失败！');
+                      }
+                    })
+                    .catch((error)=>{
+                      this.$message.error('网络连接错误~~');
+                    })
+                }
+
+
           },
           //新增，编辑提交
-          handleEditSubmit(){
-            // if(sessionStorage.getItem('chat')){
-            //   list=JSON.parse(sessionStorage.getItem('chat'));
-            // }
-            var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
-            if(this.addParams.linkMobileNum==''){
-              this.$message({
-                message:'手机号不能为空',
-                type:'warning'
-              })
-            }else if(!(myreg.test(this.addParams.linkMobileNum))){
-              this.$message({
-                message:'手机号格式不正确',
-                type:'warning'
-              })
-            }else{
-              this.editVisible = false;
-              this.$ajax.post(this.$store.state.localIP+'addManualOrders',this.addParams)
-                .then(response=>{
-                  if(response.data.retCode==0){
-                    this.$message({
-                      message: this.messageTitle,
-                      type: 'success'
-                    });
-                    this.getData();
-                  }else{
-                    this.$message.error('操作失败！');
-                  }
-                })
-                .catch((error)=>{
-                  this.$message.error('网络连接错误~~');
-                })
-            }
+          handleEditSubmit(formName){
+            this.$refs[formName].validate((valid) => {
+              if (valid) {
+                // var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+                // var reg = /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/;
+                // if(!(myreg.test(this.addParams.linkMobileNum))){
+                //   this.$message({
+                //     message:'手机号格式不正确',
+                //     type:'warning'
+                //   })
+                // }else
+                  this.editVisible = false;
+                  this.$ajax.post(this.$store.state.localIP+'addManualOrders',this.addParams)
+                    .then(response=>{
+                      if(response.data.retCode==0){
+                        this.$message({
+                          message: this.messageTitle,
+                          type: 'success'
+                        });
+                        this.getData();
+                        //重置表单
+                        this.resetForm('addParams');
+                      }else{
+                        this.$message.error('操作失败！');
+                      }
+                    })
+                    .catch((error)=>{
+                      this.$message.error('网络连接错误~~');
+                    })
+              } else {
+                return false;
+              }
+            });
+
+          },
+          //表单重置
+          resetForm(formName) {
+            this.$refs[formName].resetFields();
           },
           //审批拒绝事件
           refuseForm(val,data){
             // console.log(this.checkWayList);
-            this.refuseVisible = true;
-            this.checkTitle = val;
-            if(val=="审核通过"){
-              this.checkReason = "通过原因";
-              this.orderStatusType=1;
-            }else if(val=="审核失败"){
-              this.checkReason = "不通过原因"
-              this.orderStatusType=11;
+            var payTimeType = 1
+            for(let i=0;i<this.checkWayList.length;i++){
+              if(this.checkWayList[i].payTime == null){
+                payTimeType = 0;
+                this.$message({
+                  type: 'warning',
+                  message:'付款日期不能为空'
+                });
+              }
             }
-
+            if(payTimeType == 1){
+              this.refuseVisible = true;
+              this.checkTitle = val;
+              if(val=="审核通过"){
+                this.checkReason = "通过原因";
+                this.orderStatusType=1;
+              }else if(val=="审核失败"){
+                this.checkReason = "不通过原因"
+                this.orderStatusType=11;
+              }
+            }
           },
           showDetail(id){
-            console.log(id)
+            // console.log(id)
             // this.$router.push({path:'/userOrder/orderDetail',query:{detailType:1}})
             this.$router.push({path:'/userOrder/orderDetail',query:{id:id}})
           },
@@ -729,19 +905,33 @@
           //   // this.editVisible = true;
           // },
           jumpProjectList(row){
-            if(row.orderStatus ==0 || row.orderStatus==11|| row.orderStatus==10){
-              var num=Base64.encode(row.orderNo);
-              /* console.log("跳转到商品列表事件");*/
-              this.$router.push({path:'/userOrder/goodsList/'+num})
+            var roleId = this.$store.state.roleID;
+            if(roleId == 1){
+              if(row.orderStatus==0 || row.orderStatus==10|| row.orderStatus==11|| row.orderStatus==7){
+                var num=Base64.encode(row.orderNo);
+                /* console.log("跳转到商品列表事件");*/
+                this.$router.push({path:'/userOrder/goodsList/'+num})
+              }else{
+                var num = Base64.encode(row.orderNo);
+                var state=Base64.encode(row.orderStatus);
+                this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state,type:2}})
+              }
             }else{
-              var num = Base64.encode(row.orderNo);
-              var state=Base64.encode(row.orderStatus);
-              this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state}})
+              if(this.purchaseBtnShow&&(row.orderStatus!==0&&row.orderStatus!==10&&row.orderStatus!==11)){
+                //修改状态页
+                var num = Base64.encode(row.orderNo);
+                var state=Base64.encode(row.orderStatus);
+                this.$router.push({path:'/userOrder/orderInfo/'+num,query:{state:state,type:2}})
+              }else{
+                var num=Base64.encode(row.orderNo);
+                /* console.log("跳转到商品列表事件");*/
+                this.$router.push({path:'/userOrder/goodsList/'+num})
+              }
             }
-
           },
           //审核，提交审核原因
           handleResult(){
+            console.log(this.checkReason)
             var arr = [];
             for(let i=0;i<this.checkWayList.length;i++){
               arr.push({
@@ -749,35 +939,48 @@
                 payTime:this.checkWayList[i].payTime
               })
             }
-            let data={
-              financialRemark:this.financialRemark,
-              orderNo:this.checkid,
-              orderStatus:this.orderStatusType,
-              paymentList:arr
+            if(this.financialRemark == ''&& this.checkReason == "不通过原因"){
+              this.$message({
+                type: 'warning',
+                message:"拒绝原因不能为空"
+              });
+            }else{
+              let data={
+                financialRemark:this.financialRemark,
+                orderNo:this.checkid,
+                orderStatus:this.orderStatusType,
+                paymentList:arr
+              }
+              const loading =openLoad(this,"Loading...");
+              this.refuseVisible = false;
+              this.dialogVisible = false;
+              this.$ajax.post(this.$store.state.localIP+'updateManualOrders',data)
+                .then(response=>{
+                  loading.close();
+                  if(response.data.retCode==0){
+                    this.$message({
+                      type: 'success',
+                      message: response.data.retMsg
+                    });
+                    //初始化数据
+                    this.financialRemark='';
+                    this.orderStatus='';
+                    this.checkid='';
+                    this.getData();
+                  }else{
+                    this.$message({
+                      type: 'warning',
+                      message:response.data.retMsg
+                    });
+                  }
+                  loading.close();
+                })
+                .catch((error)=>{
+                  loading.close();
+                  this.$message.error('网络连接错误~~');
+                })
             }
-            const loading =openLoad(this,"Loading...");
-            this.refuseVisible = false;
-            this.dialogVisible = false;
-            this.$ajax.post(this.$store.state.localIP+'updateManualOrders',data)
-              .then(response=>{
-                loading.close();
-                if(response.data.retCode==0){
-                  this.$message({
-                    type: 'success',
-                    message: '审核成功'
-                  });
-                  //初始化数据
-                  this.financialRemark='';
-                  this.orderStatus='';
-                  this.checkid='';
-                  this.getData();
-                }
-                loading.close();
-              })
-              .catch((error)=>{
-                loading.close();
-                this.$message.error('网络连接错误~~');
-              })
+
           },
           handleSubmit(data){
             //重置数据
@@ -788,12 +991,18 @@
             }];
             this.salesRemark = '';
             this.submitShowData = data;
-            console.log(this.submitShowData)
+            // console.log(this.submitShowData)
             this.payVisible = true;
           },
           handlePurchase(row){
             var num = Base64.encode(row.orderNo);
-            this.$router.push({path:'/userOrder/purchase/'+num})
+            this.$router.push({path:'/userOrder/handlePurchase/'+num})
+          },
+          //表单提交取消
+          handleFormCancel(){
+            this.getData();
+            this.refuseVisible = false;
+
           },
           handleCheck(id){
             const loading =openLoad(this,"Loading...");
@@ -805,6 +1014,7 @@
                 if(response.data.retCode==0){
                   this.checkListData = response.data.manualOrderDetail;
                   this.checkListData.createTime = this.checkListData.createTime.split('.')[0];
+                  this.checkListData.submitAuditTime = this.checkListData.submitAuditTime.split('.')[0];
                   if(response.data.manualOrderDetail.auditDetail.payMentList){
                     this.checkWayList = response.data.manualOrderDetail.auditDetail.payMentList
                     for(let i=0;i<this.checkWayList.length;i++){
@@ -840,7 +1050,6 @@
                     this.getData();
                   }
                 })
-
             }).catch(() => {
               this.$message({
                 type: 'info',
@@ -875,20 +1084,54 @@
               });
             });
           },
+          searchListData(){
+            const loading =openLoad(this,"Loading...");
+            this.searchParams.beginTime = '';
+            this.searchParams.endTime = '';
+            if(this.timeValue){
+              this.searchParams.beginTime = this.timeValue[0];
+              this.searchParams.endTime = this.timeValue[1];
+            }
+            this.searchParams.start = 0;
+            this.searchParams.length = this.pageSize;
+            this.searchParams.empId = this.$store.state.userCode;//用户登录的id
+            this.searchParams.empName = this.$store.state.userName;//用户登录人的名称
+            // console.log(this.searchParams.start)
+            if(this.saleName){
+              this.searchParams.userName = this.saleName;
+            }
+            this.$ajax.post(this.$store.state.localIP+'queryManualOrders',this.searchParams)
+              .then(response=>{
+                loading.close();
+                if(response.data.retCode==0){
+                  this.tableData = response.data.goodsOrders;
+                  for(let i=0;i<this.tableData.length;i++){
+                    if(this.tableData[i].createTime){
+                      this.tableData[i].createTime = this.tableData[i].createTime.split('.')[0];
+                    }
+                  }
+                  this.pageTotal = response.data.countNum;
+                }
+                loading.close();
+              })
+              .catch((error)=>{
+                loading.close();
+                this.$message.error('网络连接错误~~');
+              })
+          },
           getData(){
             const loading =openLoad(this,"Loading...");
-            this.searchParams.beginTime = this.timeValue[0];
-            this.searchParams.endTime = this.timeValue[1];
-            // this.searchParams.userCode = this.$store.state.userCode;
-            // this.searchParams.userName = this.$store.state.userName;
+            this.searchParams.beginTime = '';
+            this.searchParams.endTime = '';
+            if(this.timeValue){
+              this.searchParams.beginTime = this.timeValue[0];
+              this.searchParams.endTime = this.timeValue[1];
+            }
             this.searchParams.start = (this.currentPage-1)*this.pageSize;
             this.searchParams.length = this.pageSize;
-            // if(this.searchParams.empId){
-              this.searchParams.empId = this.$store.state.userCode;//用户登录的id
-            // }
-            // if(this.searchParams.empName){
-              this.searchParams.empName = this.$store.state.userName;//用户登录人的名称
-            // }
+            this.searchParams.empId = this.$store.state.userCode;//用户登录的id
+            this.searchParams.empName = this.$store.state.userName;//用户登录人的名称
+            // console.log(this.searchParams.start)
             if(this.saleName){
               this.searchParams.userName = this.saleName;
             }
@@ -898,13 +1141,17 @@
                 loading.close();
                 if(response.data.retCode==0){
                   this.tableData = response.data.goodsOrders;
+                    for(let i=0;i<this.tableData.length;i++){
+                      if(this.tableData[i].createTime){
+                      this.tableData[i].createTime = this.tableData[i].createTime.split('.')[0];
+                    }
+                  }
                   this.pageTotal = response.data.countNum;
                 }
                 loading.close();
               })
               .catch((error)=>{
                 loading.close();
-                console.log(error)
                 this.$message.error('网络连接错误~~');
               })
           },
@@ -926,16 +1173,25 @@
               })
           },
           //获取市
-          getCity(e){
+          getCity(e,val){
             const loading =openLoad(this,"Loading...");
-            this.addParams.city='';
-            this.addParams.houseName='';
-            this.addParams.styleName='';
+            // this.addParams.city='';
+            // this.addParams.houseName='';
+            // this.addParams.houseModel='';
             this.$ajax.post(this.$store.state.localIP+'selectProCityHouse',{province:e})
               .then(response=>{
                 loading.close();
                 if(response.data.retCode==0){
                   this.cityList = response.data.provinceList;
+                  if(this.cityList.length > 0){
+                    if(val == 1){
+                      this.addParams.city = this.cityList[0].city;
+                      this.getHouse(this.addParams.city,1);
+                    }
+
+                  }else{
+                    this.addParams.city = "";
+                  }
                 }
                 loading.close();
               })
@@ -946,15 +1202,24 @@
               })
           },
           //获取楼盘
-          getHouse(e){
-            this.addParams.houseName = '';
-            this.addParams.styleName='';
+          getHouse(e,val){
+            // this.addParams.houseModel = '';
+            // this.addParams.houseName = '';
+            // this.addParams.styleName = '';
             const loading =openLoad(this,"Loading...");
                   this.$ajax.post(this.$store.state.localIP+'selectProCityHouse',{city:e})
                     .then(response=>{
                       loading.close();
                       if(response.data.retCode==0){
                         this.houseList = response.data.provinceList;
+                        if(this.houseList.length > 0){
+                          // console.log(this.addParams)
+                          if(val == 1){
+                            this.addParams.houseName = this.houseList[0].houseName;
+                            this.getHouseType(this.addParams.houseName,1)
+                          }
+
+                        }
                       }
                       loading.close();
                     })
@@ -965,13 +1230,26 @@
               })
           },
           //获取户型
-          getHouseType(e){
+          getHouseType(e,val){
+            // this.addParams.houseModel = '';
+            // this.addParams.styleName = '';
             const loading =openLoad(this,"Loading...");
             this.$ajax.post(this.$store.state.localIP+'selectProCityHouse',{houseName:e})
               .then(response=>{
                 loading.close();
                 if(response.data.retCode==0){
                   this.houseTypeList = response.data.provinceList;
+                  // console.log(this.houseTypeList)
+                  if(this.houseTypeList.length > 0){
+                    // console.log(this.addParams.houseModel)
+                    if(val == 1){
+                      this.addParams.houseModel = this.houseTypeList[0].houseModel;
+                    }
+                    this.getHouseStyle();
+                  }else{
+                    this.addParams.houseModel = '';
+                  }
+
                 }
                 loading.close();
               })
@@ -983,6 +1261,7 @@
           },
           //获取风格
           getHouseStyle(){
+            // this.addParams.styleName='';
             const loading =openLoad(this,"Loading...");
             this.$ajax.post(this.$store.state.localIP+'selectStyleInfo')
               .then(response=>{
@@ -994,7 +1273,6 @@
               })
               .catch((error)=>{
                 loading.close();
-                console.log(error)
                 this.$message.error('网络连接错误~~');
               })
           }
@@ -1076,7 +1354,7 @@
   }
   .message_item{
     border: 1px solid #DDDDDD;
-    padding: 30px 30px;
+    padding: 30px 30px !important;
     position: relative;
     margin-top: 30px;
   }
@@ -1084,7 +1362,7 @@
     position: absolute;
     top: 30px;
     right: 30px;
-    font-size: 20px;
+    font-size: 26px;
     width: 40px;
     height: 40px;
     line-height: 40px;
@@ -1101,4 +1379,5 @@
   .el-form-item__content{
     display: inline-block;
   }
+
 </style>

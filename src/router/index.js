@@ -102,7 +102,27 @@ import GoodsList from '@/components/userOrder/goodsList'
 //订单管理-手工订单
 import HandleOrder from '@/components/userOrder/handleOrder'
 //订单管理-订单明细
-import OrderDetail from '@/components/userOrder/orderDetail'						   
+import OrderDetail from '@/components/userOrder/orderDetail'
+//订单管理-手工订单
+import HandlePurchase from '@/components/userOrder/handlePurchase'
+
+//门店管理-进货管理
+import InGoods from '@/components/storeManage/inGoods'
+//门店管理-商品列表
+import StoreList from '@/components/storeManage/goodsList'
+//门店管理-门店列表
+import StoreManage from '@/components/storeManage/storeList'
+//门店管理-采购
+import storePurchase from '@/components/storeManage/purchase'
+//门店管理-确认收货
+import ConfirmGoods from '@/components/storeManage/confirmGoods'
+//门店管理-库存管理
+import Inventory from '@/components/storeManage/inventory'
+//门店管理-卖出
+import SaleManage from '@/components/storeManage/saleManage'
+//门店管理-新增卖出
+import AddSaleOrder from '@/components/storeManage/addSaleOrder'
+
 //404页面
 import Page404 from '@/components/error/page404'
 
@@ -118,7 +138,7 @@ export default new Router({
       component: IndexP,
       beforeEnter:(to,from,next)=>{
       	//console.log(to.path)
-      	if(!sessionStorage.getItem('nav') || to.path=="/index"){      		
+      	if(!sessionStorage.getItem('nav') || to.path=="/index"){
       		sessionStorage.setItem('nav','1')
       	}
       	//判断是否登录  未登录则跳转到登录页面
@@ -187,11 +207,11 @@ export default new Router({
       	},{
       		path:'customer/customerInfo/:code',
       		name:'客户管理-客户 -客户资料',
-      		component:CustomerInfo		
+      		component:CustomerInfo
       	},{
       		path:'customer/noteBook/:code',
       		name:'客户管理-客户 -记事本',
-      		component:NoteBook		
+      		component:NoteBook
       	},{
       		path:'orderManage',
       		name:'订单管理',
@@ -199,119 +219,119 @@ export default new Router({
       	},{
       		path:'orderManage/orderList',
       		name:'订单管理-订单列表',
-      		component:OrderList		
+      		component:OrderList
       	},{
       		path:'orderManage/construction/:code',
       		name:'订单管理-订单列表-施工',
-      		component:Construction		
+      		component:Construction
       	},{
       		path:'orderManage/orderInfo/:code',
       		name:'订单管理—订单列表-施工',
-      		component:OrderInfo		
+      		component:OrderInfo
       	},{
       		path:'orderManage/programme/:code',
       		name:'订单管理-订单列表-方案',
-      		component:Programme		
+      		component:Programme
       	},{
       		path:'orderManage/orderCustomer',
       		name:'订单管理-订单列表-客户',
-      		component:OrderCustomer		
+      		component:OrderCustomer
       	},{
       		path:'orderManage/orderCustomerInfo/:code',
       		name:'订单管理-订单列表-客户详细',
-      		component:OrderCustomerInfo		
+      		component:OrderCustomerInfo
       	},{
       		path:'designer/homeDesign',
       		name:'设计师-添加方案',
-      		component:HomeDesign		
+      		component:HomeDesign
       	},{
       		path:'designer/editHomeDesign/:code',
       		name:'设计师-编辑方案',
-      		component:EditHomeDesign		
+      		component:EditHomeDesign
       	},{
       		path:'designer/programme',
       		name:'设计师-设计方案',
-      		component:DesignProgramme		
+      		component:DesignProgramme
       	},{
       		path:'designer/editGoods/:code',
       		name:'设计师-商品编辑',
-      		component:EditGoods		
+      		component:EditGoods
       	},{
       		path:'designer/chat',
       		name:'设计师-及时通讯',
-      		component:CustomerService		
+      		component:CustomerService
       	},{
       		path:'delivery/raiders',
       		name:'信息发布-装修攻略',
-      		component:Raiders		
+      		component:Raiders
       	},{
       		path:'delivery/addRaiders',
       		name:'信息发布-新增攻略',
-      		component:AddRaiders		
+      		component:AddRaiders
       	},{
       		path:'delivery/editRaiders/:code',
       		name:'信息发布-编辑攻略',
-      		component:EditRaiders		
+      		component:EditRaiders
       	},{
       		path:'delivery/package',
       		name:'信息发布-套餐',
-      		component:DeliveryPackage		
+      		component:DeliveryPackage
       	},{
       		path:'delivery/addPackage/:code',
       		name:'信息发布-新增套餐',
-      		component:AddDeliveryPackage		
+      		component:AddDeliveryPackage
       	},{
       		path:'delivery/homeDesign',
       		name:'信息发布-套餐设计',
-      		component:DeliveryHomeDesign		
+      		component:DeliveryHomeDesign
       	},{
       		path:'delivery/editHomeDesign/:code',
       		name:'信息发布-编辑设计',
-      		component:DeliveryEditHomeDesign		
+      		component:DeliveryEditHomeDesign
       	},{
       		path:'delivery/editPackage/:code',
       		name:'信息发布-编辑套餐',
-      		component:EditDeliveryPackage		
+      		component:EditDeliveryPackage
       	},{
       		path:'customerService/servicePersonal',
       		name:'客服',
-      		component:CustomerService		
+      		component:CustomerService
       	},{
       		path:'userManage/bannerManage',
       		name:'用户管理-轮播图',
-      		component:BannerManage		
+      		component:BannerManage
       	},{
       		path:'userManage/floorRegister',
       		name:'用户管理-楼盘登记',
-      		component:FloorRegister		
+      		component:FloorRegister
       	},{
       		path:'userManage/brandManage',
       		name:'用户管理-品牌管理',
-      		component:BrandManage		
+      		component:BrandManage
       	},{
       		path:'userManage/styleManage',
       		name:'用户管理-品牌管理',
-      		component:StyleManage		
+      		component:StyleManage
       	},{
       		path:'userManage/discountManage',
       		name:'用户管理-折扣管理',
-      		component:DiscountManage		
+      		component:DiscountManage
       	},{
       		path:'userOrder/packageOrder',
       		name:'订单-订单管理',
-      		component:PackageOrder		
+      		component:PackageOrder
       	},{
       		path:'userOrder/orderInfo/:code',
       		name:'订单-订单详情',
-      		component:userOrderInfo		
+      		component:userOrderInfo
       	},{
       		path:'userOrder/purchase/:code',
       		name:'订单-采购',
-      		component:Purchase		
+      		component:Purchase
       	},{
       		path:'userOrder/goodsList/:code',
       		name:'手工订单-商品列表',
-      		component:GoodsList		
+      		component:GoodsList
       	},{
           path:'userOrder/handleOrder',
           name:'订单-手工订单',
@@ -321,22 +341,58 @@ export default new Router({
           name:'订单-订单明细',
           component:OrderDetail
         },{
+          path:'userOrder/handlePurchase/:code',
+          name:'订单-手工订单采购',
+          component:HandlePurchase
+        },{
       		path:'commodityManage/commodityEntry',
       		name:'商品管理-商品录入',
-      		component:CommodityEntry		
+      		component:CommodityEntry
       	},{
       		path:'commodityManage/commodityPackage',
       		name:'商品管理-商品套餐包管理',
-      		component:CommodityPackage		
+      		component:CommodityPackage
       	},{
       		path:'commodityManage/locationManage',
       		name:'商品管理-位置管理',
-      		component:LocationManage		
+      		component:LocationManage
       	},{
       		path:'commodityManage/commodityType',
       		name:'商品管理-商品类型管理',
-      		component:CommodityType		
-      	}
+      		component:CommodityType
+      	},{
+          path:'storeManage/inGoods',
+          name:'门店管理-进货管理',
+          component:InGoods
+        },{
+          path:'storeManage/goodsList',
+          name:'门店管理-商品列表管理',
+          component:StoreList
+        },{
+          path:'storeManage/storeList',
+          name:'门店管理-门店列表',
+          component:StoreManage
+        },{
+          path:'storeManage/purchase/:code',
+          name:'门店管理-采购',
+          component:storePurchase
+        },{
+          path:'storeManage/confirmGoods',
+          name:'门店管理-确认收货',
+          component:ConfirmGoods
+        },{
+          path:'storeManage/inventory',
+          name:'门店管理-库存管理',
+          component:Inventory
+        },{
+          path:'storeManage/saleManage',
+          name:'门店管理-卖出管理',
+          component:SaleManage
+        },{
+          path:'storeManage/addSaleOrder',
+          name:'门店管理-新增订单',
+          component:AddSaleOrder
+        }
       ]
     },
     {

@@ -27,7 +27,7 @@
 						</el-select>
 					</div>
 					<div class="left" style="margin-left: 10px;">
-						<el-button v-if="editBtnShow" type="primary" @click="updateState"><span class="iconfont icon-search"></span>修改</el-button>
+						<el-button v-if="purchasePowerBtn" type="primary" @click="updateState"><span class="iconfont icon-search"></span>修改</el-button>
 					</div>
 					<div class="clear"></div>
 				</div>
@@ -70,7 +70,9 @@
 					</template>
 				</el-table-column>
 			</el-table>
-
+      <div class="priceSums">
+        总计：{{goodsOrder.totalPrice}}
+      </div>
 			<!--分页-->
 			<div class="curPageCss">
 			    <el-pagination
@@ -96,14 +98,17 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				purchasePowerBtn:false,
+				roleAuthList:this.$store.state.roleAuthList,
 				tableData:[],
+        goodsOrder:{},
 				orderNum:'',//订单编号
 				currentPage: 1,//分页当前页数
 		        pageSize:10,//分页默认每页条数
 		        pageTotal:0,//页数总数
 		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭','待审核','未通过'],
 		        state:0,//状态
+		        type:0
 			}
 		},
 		mounted(){
@@ -116,10 +121,15 @@
 			if(this.roleAuthList.indexOf('3')>-1){
 				this.editBtnShow=true;
 			}
+			if(this.roleAuthList.indexOf('4')>-1){
+				this.purchasePowerBtn=true;
+			}
 			// console.log(this.$route)
 			this.orderNum=Base64.decode(this.$route.params.code);
 			this.state=parseInt(Base64.decode(this.$route.query.state));
+			this.type=this.$route.query.type;
 			orderList(this);
+      goodsOrderInfo(this);
 		},
 		methods:{
 			//分页方法
@@ -180,10 +190,23 @@
 	    });
 	    return loading;
 	}
+	//获取订单金额
+  function goodsOrderInfo(obj) {
+    obj.$ajax.post(obj.$store.state.localIP+'queryManualOrderGoods',{orderNo:obj.orderNum})
+      .then(res=>{
+        //console.log(res)
+        obj.goodsOrder=res.data.goodsOrder || {};
+      })
+      .catch((error)=>{
+        console.log(error);
+        obj.$message.error("网络连接错误~~");
+      })
+  }
 	//获取订单详情
 	function orderList(obj){
 		const loading =openLoad(obj,"获取列表中...");
 		obj.$ajax.post(obj.$store.state.localIP+"queryOrderDetailByNoForWeb",{
+			"orderType":obj.type,
 			"orderNo":obj.orderNum,
 			"start":(obj.currentPage-1)*obj.pageSize,
 			"length":obj.pageSize
@@ -194,11 +217,27 @@
 			if(response.data.retCode==0){
 				var list=response.data.goodsOrderDetailList;
 				for(var i=0;i<list.length;i++){
-					if(list[i].imageUrl.indexOf(',')>-1){
-						var arr=list[i].imageUrl.split(',');
-						list[i].goodsImg=arr[0];
-					}else{
-						list[i].goodsImg=list[i].imageUrl;
+					if(list[i].imageUrl){
+						if(list[i].imageUrl.indexOf(',')>-1){
+							var arr=list[i].imageUrl.split(',');
+							list[i].goodsImg=arr[0];
+						}else{
+							list[i].goodsImg=list[i].imageUrl;
+						}
+					}
+					if(list[i].goodsImages){
+						if(list[i].goodsImages.indexOf(',')>-1){
+							var arr=list[i].goodsImages.split(',');
+							list[i].goodsImg=arr[0];
+						}else{
+							list[i].goodsImg=list[i].goodsImages;
+						}
+					}
+					if(list[i].goodsName){
+						list[i].name=list[i].goodsName;
+					}
+					if(list[i].goodsNum){
+						list[i].number=list[i].goodsNum;
 					}
 				}
 				obj.tableData=list;
@@ -226,4 +265,8 @@
 	.filter .left{
 		float: left;
 	}
+  .priceSums{
+    text-align: right;
+    margin-top: 20px;
+  }
 </style>

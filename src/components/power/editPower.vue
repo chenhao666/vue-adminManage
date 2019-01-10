@@ -40,10 +40,12 @@
 					        <el-button
 					          size="mini"
 					          v-if="editBtnShow"
+					          style="margin: 5px 5px;"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
+					          style="margin: 5px 5px;"
 					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					      </template>
@@ -118,11 +120,11 @@ export default {
 	name:'editPower',
 	data(){
 		return{
-			options:['查看','添加','删除','编辑','采购','详情','提交','审核'],//权限列表
+			options:['查看','添加','删除','编辑','采购','详情','提交','审核','一审(门店经理)','二审(采购)','三审(采购经理)'],//权限列表
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: [],
 	        multipleSelection: [],
 	        multipleFlag:false,//全选状态

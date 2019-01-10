@@ -143,7 +143,7 @@ export default {
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: [],
 			pickerOptions2: {
 	          shortcuts: [{

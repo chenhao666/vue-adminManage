@@ -85,7 +85,7 @@ export default {
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: [],
 			currentPage: 1,//分页当前页数
 	        pageSize:10,//分页默认每页条数

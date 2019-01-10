@@ -55,7 +55,7 @@
 						</el-table-column>-->
 						<el-table-column prop="personName" label="登录名" min-width="150">
 						</el-table-column>
-						<el-table-column prop="department" label="部门" min-width="150" show-overflow-tooltip>
+						<el-table-column prop="storeName" label="门店" min-width="150" show-overflow-tooltip>
 						</el-table-column>
 						<el-table-column prop="roleName" label="角色" min-width="150" show-overflow-tooltip>
 						</el-table-column>
@@ -128,10 +128,10 @@
 						</el-cascader>
 				</el-form-item>
 			  	<!--部门选择-->
-			  	<el-form-item label="选择部门">
-				  	<template v-model="ruleForm.departments">
-						<el-select v-model="ruleForm.department" placeholder="请选择"  @change="inputFlag=1">
-							<el-option v-for="item in ruleForm.departments" :key="item.id" :label="item.deptName" :value="item.id+','+item.deptName">
+			  	<el-form-item label="选择门店">
+				  	<template v-model="ruleForm.store" prop="store">
+						<el-select v-model="ruleForm.store" placeholder="请选择"  @change="inputFlag=1">
+							<el-option v-for="item in ruleForm.storeList" :key="item.storeId" :label="item.storeName" :value="item.storeId+','+item.storeName">
 							</el-option>
 						</el-select>
 					</template>
@@ -201,7 +201,7 @@ export default {
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: [],
 	        //加载
 	        multipleSelection: [],//多选
@@ -233,6 +233,9 @@ export default {
 	        	],
 	        	selectedOptions:[
 	        		{ required: true, message: '请选择城市', trigger: 'blur' }
+	        	],
+	        	store:[
+	        		{ required: true, message: '请选择门店', trigger: 'blur' }
 	        	]
 	        },
 	        //筛选条件
@@ -320,6 +323,7 @@ export default {
 		
 		//获取角色信息
 		 roleList(this);
+		 storeList(this);
       	/*let ele=this;
       	//获取部门信息
       	this.$ajax.post('http://192.168.2.164:8080/department', {
@@ -352,8 +356,8 @@ export default {
       	let editData=this.tableData;
       	this.ruleForm.name=editData[index].personName;
       	this.ruleForm.mobile=editData[index].mobileNum;
-      	if(editData[index].departmentID){
-      		this.ruleForm.department=editData[index].departmentID+','+editData[index].departmentName;
+      	if(editData[index].storeId){
+      		this.ruleForm.store=editData[index].storeId+','+editData[index].storeName;
       	}
       	this.ruleForm.checkedRole=editData[index].roleID+','+editData[index].roleName;
       	//获取ID
@@ -366,6 +370,7 @@ export default {
       	}
       	//获取角色信息
 		 roleList(this);
+		 storeList(this);
       },
       //删除
       handleDelete(index, row) {
@@ -468,8 +473,8 @@ export default {
           	this.ruleForm.addDisabled=true;
           	//提交表单
           	let data={};
-		    //部门
-		    let departmentArr=this.ruleForm.department.split(',');
+		    //门店
+		    let storeArr=this.ruleForm.store.split(',');
 		    //角色
 			let roleArr=this.ruleForm.checkedRole.split(',');
 			 //获取城市ID信息
@@ -480,8 +485,9 @@ export default {
             let cityArr=resultStr.split('/');
           	data={
           		"personName":this.ruleForm.name,
-          		"departmentID":departmentArr[0],
-          		"departmentName":departmentArr[1],
+          		"parentId":this.$store.state.userCode,
+          		"storeId":storeArr[0],
+          		"storeName":storeArr[1],
           		"roleID":roleArr[0],
           		"roleName":roleArr[1],
           		"status":0,
@@ -517,8 +523,8 @@ function formInit(){
 		        mobile:'',
 		        checkPass:'',
 		        sex:1,
-				departments: [],
-			    department:'',
+				storeList: [],
+			    store:'',
 		        //角色选择
 		        checkAll: false,
 		        checkedRole: "",
@@ -538,6 +544,7 @@ function axiosUserList(obj){
 	let data={
 		"start":(obj.currentPage-1)*obj.pageSize,
 		"length":obj.pageSize,
+		"parentId":obj.$store.state.userCode,
 		"personName":obj.search
 	}
 	if(obj.fiterTime){
@@ -646,7 +653,7 @@ function delUser(obj,data){
 function roleList(obj){
 	obj.formLoading=true;
 	obj.ruleForm.addDisabled=true;
-	obj.$ajax.post(obj.$store.state.localIP+'queryAllRole')
+	obj.$ajax.post(obj.$store.state.localIP+'queryAllRole',{"empId":obj.$store.state.userCode})
 	.then((response) => {
 	  	if(response.status==200){
 	  		//console.log(response)
@@ -665,6 +672,28 @@ function roleList(obj){
 	  			}else{	  				
 	  				obj.ruleForm.roles=response.data.roleList;
 	  			}
+	  			obj.formLoading=false;
+	  			obj.ruleForm.addDisabled=false;
+	  		}else{
+	  			obj.$message.error(response.data.retMsg);
+	  		}
+	  	}	
+	  })
+	  .catch((error) => {
+	    console.log(error);
+	    obj.$message.error('网络连接错误~~');
+	});
+}
+//获取部门信息
+function storeList(obj){
+	obj.formLoading=true;
+	obj.ruleForm.addDisabled=true;
+	obj.$ajax.post(obj.$store.state.localIP+'selectStore')
+	.then((response) => {
+	  	if(response.status==200){
+	  		//console.log(response)
+	  		if(response.data.retCode==0){
+	  			obj.ruleForm.storeList=response.data.data;
 	  			obj.formLoading=false;
 	  			obj.ruleForm.addDisabled=false;
 	  		}else{

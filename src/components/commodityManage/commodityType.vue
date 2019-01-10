@@ -108,7 +108,7 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				roleAuthList:this.$store.state.roleAuthList,
 				tableData:[],
 				multipleSelection: [],//多选
 		        multipleFlag:false,//全选状态

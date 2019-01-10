@@ -6,13 +6,13 @@
 		  	<el-breadcrumb-item class="fontWeight">订单详情</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
-		
+
 		<el-card class="box-card">
 			<div slot="header" class="clearfix">
 				<span>订单详情</span>
 			</div>
 			<div class="line"></div>
-			
+
 			<!--筛选条件-->
 			<div class="filter">
 				<div class="inlineBlock">
@@ -70,7 +70,6 @@
 					</template>
 				</el-table-column>
 			</el-table>
-			
 			<!--分页-->
 			<div class="curPageCss">
 			    <el-pagination
@@ -96,7 +95,7 @@
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
-				roleAuthList:sessionStorage.getItem('roleAuthList'),
+				roleAuthList:this.$store.state.roleAuthList,
 				tableData:[],
 				orderNum:'',//订单编号
 				currentPage: 1,//分页当前页数
@@ -105,7 +104,7 @@
 		        stateList:['待付款','已付款','已发货','已签收','退货申请','退货中','已退货','取消交易','订单完成','已关闭'],
 		        state:0,//状态
 			}
-		}, 
+		},
 		mounted(){
 			if(this.roleAuthList.indexOf('1')>-1){
 				this.addBtnShow=true;
@@ -225,5 +224,5 @@
 	}
 	.filter .left{
 		float: left;
-	}	
+	}
 </style>

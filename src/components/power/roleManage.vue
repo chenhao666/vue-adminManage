@@ -37,10 +37,12 @@
 					        <el-button
 					          size="mini"
 					          v-if="editBtnShow"
+					          style="margin: 5px 5px;"
 					          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					        <el-button
 					          size="mini"
 					          type="danger"
+					          style="margin: 5px 5px;"
 					          v-if="delBtnShow"
 					          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
 					      </template>
@@ -111,7 +113,7 @@ export default {
 			addBtnShow:false,
 			delBtnShow:false,
 			editBtnShow:false,
-			roleAuthList:sessionStorage.getItem('roleAuthList'),
+			roleAuthList:this.$store.state.roleAuthList,
 			tableData: [],
 	        multipleSelection: [],
 	        multipleFlag:false,//全选状态
@@ -353,6 +355,7 @@ export default {
           		"roleName":this.form.name,
           		"roleRemark":this.form.desc,
           		"roleStatus":0,
+          		"empId":this.$store.state.userCode,
           		"operation":newPowerArr
           	}
           	if(this.dialogMark){
@@ -397,6 +400,7 @@ function axiosRoleList(obj){
 	const loading =openLoad(obj);
 	let data={
 		"start":(obj.currentPage-1)*obj.pageSize,
+		"empId":obj.$store.state.userCode,
 		"length":obj.pageSize
 	}
 	obj.$ajax.post(obj.$store.state.localIP+"queryRoleInfo",data)
@@ -448,7 +452,7 @@ function formInit(){
 function roleList(obj,callback){
 	obj.formLoading=true;
 	obj.form.addDisabled=true;
-	obj.$ajax.post(obj.$store.state.localIP+"queryAllFunction",{})
+	obj.$ajax.post(obj.$store.state.localIP+"queryFunctionByEmpId",{empId:obj.$store.state.userCode})
 		.then((response)=>{
 			//console.log(response);
 			if(response.status==200){
@@ -462,7 +466,7 @@ function roleList(obj,callback){
 					let newStr3=newStr2.replace(/\,\"children\"\:\[\]/g,'');
 					let newObj=JSON.parse(newStr3);
 					/*obj.form.powers=newObj;*/
-					let powerArr=['查看','添加','删除','编辑','采购','详情','提交','审核'];//权限列表
+					let powerArr=['查看','添加','删除','编辑','采购','详情','提交','审核','一审(门店经理)','二审(采购)','三审(采购经理)'];//权限列表
 					for(let i=0;i<newObj.length;i++){
 						if(newObj[i].children){
 							for(let j=0;j<newObj[i].children.length;j++){

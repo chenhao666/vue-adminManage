@@ -194,7 +194,7 @@
 			  >
 			  <!--表单开始-->
 			  	<div class="dialogFilter">
-			  		<el-input v-model="goodsSearch" placeholder="请输入商品名称"></el-input>
+			  		<el-input v-model="goodsSearch" placeholder="请输入商品名称或编码"></el-input>
 			  		<el-button type="primary" @click="searchGoods">搜索</el-button>
 			  	</div>
 			  	
@@ -580,7 +580,7 @@ export default {
 				loading.close();
 				for(var i=0;i<list.length;i++){
 					for(var j=0;j<list[i].goodsInfos.length;j++){
-						list[i].goodsInfos[j].indexId=i;
+						list[i].goodsInfos[j].indexId=j;
 						if(list[i].goodsInfos[j].goodsImages){
 							if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
 								var arr=list[i].goodsInfos[j].goodsImages.split(',');
@@ -592,7 +592,7 @@ export default {
 					}
 				}
 				if(list.length>0){
-					this.tableData=list[0].goodsInfos;
+					this.tableData=sortData(list[0].goodsInfos);
 					this.editableTabsValue=list[0].packageId.toString();
 				}
 				this.packageListVisible=false;
@@ -611,8 +611,10 @@ export default {
 		 	for(let i=0;i<list.length;i++){
 		 		if(list[i].packageId==activeName){
 		 			this.tableData=sortData(list[i].goodsInfos);
+		 			this.$refs.multipleTable.clearSelection();
 		 		}
 		 	}
+		 	
 		},
 		//删除tabs
 		handleTabsRemove(name){
@@ -713,10 +715,10 @@ export default {
 					   	message: '请选择组合的商品！',
 					   	type: 'warning'
 					});
-					return;	
+					return;
       			}
 			}
-			
+
 			this.$confirm('确定拆分所选组合吗?', '提示', {
 		      confirmButtonText: '确定',
 		      cancelButtonText: '取消',
@@ -728,61 +730,16 @@ export default {
 					if(listAll[i].indexId==list[0].indexId){
 						this.tableData.splice(i,1);
 					}
-					if(listAll[i].groupId==list[0].indexId){
-						this.tableData[i].groupId=null;
-						this.tableData[i].species='单品';
-					}
 				}
-		    	console.log(this.tableData)
-		    	this.tableData=sortData(this.tableData);
-		    	console.log(this.tableData)
-		    	this.$refs.multipleTable.clearSelection();
-		    }).catch((e) => {
-		    	console.log(e)
-		      	this.$message({
-		        	type: 'info',
-		        	message: '已取消操作'
-		      	});          
-		    });
-			
-      	},
-      	//拆分组合
-      	removeGroup(){
-      		if(this.multipleSelection.length!=1){
-				this.$message({
-				   	showClose: true,
-				   	message: '请选择一个需要拆分的商品！',
-				   	type: 'warning'
-				});
-				return;
-			}
-      		if(this.multipleSelection.length>0){
-      			if(this.multipleSelection[0].species!='组合'){
-      				this.$message({
-					   	showClose: true,
-					   	message: '请选择组合的商品！',
-					   	type: 'warning'
-					});
-					return;	
-      			}
-			}
-			
-			this.$confirm('确定拆分所选组合吗?', '提示', {
-		      confirmButtonText: '确定',
-		      cancelButtonText: '取消',
-		      type: 'warning'
-		    }).then(() => {
-		    	var list=this.multipleSelection;
-				var listAll=this.tableData;
 		    	for(var i=0;i<listAll.length;i++){
-					if(listAll[i].indexId==list[0].indexId){
-						this.tableData.splice(i,1);
-					}
 					if(listAll[i].groupId==list[0].indexId){
-						this.tableData[i].groupId=null;
-						this.tableData[i].species='单品';
+						if(listAll[i].species!='替换'){
+							this.tableData[i].groupId=null;
+							this.tableData[i].species='单品';
+						}
 					}
 				}
+		    	
 		    	//console.log(this.tableData)
 		    	this.tableData=sortData(this.tableData);
 		    	var tabs=this.editableTabs
@@ -798,9 +755,9 @@ export default {
 		      	this.$message({
 		        	type: 'info',
 		        	message: '已取消操作'
-		      	});          
+		      	});
 		    });
-			
+
       	},
       	//去组合
       	goGroup(){
@@ -815,7 +772,7 @@ export default {
 				return;
       		}
       		for(var i=0;i<list.length;i++){
-      			if(list[i].species=="商品"){
+      			if(list[i].species=="商品" || list[i].species=="替换"){
       				this.$message({
 					    showClose: true,
 					    message: '请选择单品进行组合！',
@@ -843,7 +800,7 @@ export default {
       		for(var i=0;i<list.length;i++){
       			if(packageIdArr.indexOf(parseInt(list[i].packageId))==-1){
       				for(var j=0;j<listAll.length;j++){
-	      				if(listAll[j].species!="组合" && listAll[j].packageId==list[i].packageId){
+	      				if(listAll[j].species!="组合" && listAll[j].species!="替换" && listAll[j].packageId==list[i].packageId){
 	      					//console.log(list[i].packageId)
 	      					num++;
 	      				}
@@ -927,7 +884,7 @@ export default {
 			this.goods.picNum=0;
 		},
 		//图片上传
-		uploadSuccess(response, file, fileList){		
+		uploadSuccess(response, file, fileList){
 			var list=this.goods.fileList;
 			var num=this.goods.picNum;
 			list[num].url=this.$store.state.qiniuUrl+response.key;
@@ -959,21 +916,30 @@ export default {
 		    			typeOrder:this.multipleSelection[0].typeOrder
 		    		}
 		    		var list=this.multipleSelection;
-					var listAll=this.tableData;
+					var listAll=this.tableData.concat([]);
 					for(var i=0;i<list.length;i++){
 						for(var j=0;j<listAll.length;j++){
 							if(listAll[j].indexId==list[i].indexId){
-								this.tableData[j].groupId=chirld.indexId;
-								this.tableData[j].species='商品';
+								listAll[j].groupId=chirld.indexId;
+								listAll[j].species='商品';
 							}
 						}
 					}
+					this.tableData=listAll;
 		    		this.tableData.push(chirld);
+
 		    		//console.log(this.tableData)
 		    		this.tableData=sortData(this.tableData);
+					//console.log(this.tableData)
+	      			var tabs=this.editableTabs
+					for(let i=0;i<tabs.length;i++){
+						if(tabs[i].packageId==this.editableTabsValue){
+							tabs[i].goodsInfos=this.tableData;
+						}
+					}
 		    		//console.log(this.tableData)
 		    	}else{
-					var index=this.selectGroupNum;	
+					var index=this.selectGroupNum;
 					this.tableData[index].unitPrice=this.goods.price;
 					this.tableData[index].goodsName=this.goods.name;
 					this.tableData[index].goodsNum=this.goods.num;
@@ -1166,7 +1132,8 @@ export default {
 			this.$refs[formName].validate((valid) => {
 			    if (valid) {
 			    	var tabs=this.editableTabs;
-					var listAll=this.tableData;
+			    	var listAll=[];
+
 					var child=this.selectGoods;
 					var selectList=this.multipleSelection;
 					if(this.editGoodsFloag==0){
@@ -1205,59 +1172,131 @@ export default {
 						}else{
 							child.goodsSrc=child.goodsImages;
 						}
+
+						for(let i=0;i<tabs.length;i++){
+					 		if(tabs[i].packageId==child.packageId){
+					 			listAll=tabs[i].goodsInfos;
+					 		}
+					 	}
 						if(this.selectGoodsType==0){
 							var typeFlag=[];
 							var groupId='';
+							var flagName='';
 							for(var i=0;i<listAll.length;i++){
 								if(listAll[i].packageId==child.packageId){
-									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
+									if(listAll[i].groupId || listAll[i].groupId==0){
 										typeFlag.push(1);
 										groupId=listAll[i].groupId;
+										if(!flagName){
+											flagName=listAll[i].typeName;
+										}else{
+											if(flagName!=listAll[i].typeName){
+												flagName=1;
+											}
+										}
+									}else if(listAll[i].species=="组合"){
+										typeFlag.push(1);
 									}else{
 										typeFlag.push(0);
 									}
 								}
 							}
-							//console.log(listAll)
-							//console.log(typeFlag)
+
 							if(typeFlag.length>0){
 								if(typeFlag.indexOf(0)==-1){
 									for(var i=0;i<listAll.length;i++){
 										if(listAll[i].groupId==groupId){
-											if(listAll[i].typeName!=child.typeName && listAll[i].packageId==child.packageId){
-												child.groupId=groupId;
-												child.species='商品';
+											if(flagName==1){
+												if(listAll[i].typeName!=child.typeName){
+													child.groupId=groupId;
+													child.species='商品';
+												}
 											}
 										}
 									}
-								}	
-							}
-							var locationFlag=[];
-							var locationGroup='';
-							for(var i=0;i<listAll.length;i++){
-								if(listAll[i].typeName==child.typeName){
-									if(listAll[i].groupId || listAll[i].groupId==0 || listAll[i].species=="组合"){
-										locationGroup=listAll[i].groupId;
-										locationFlag.push(1);
-									}else{
-										locationFlag.push(0);
-									}
 								}
 							}
-							if(locationFlag.indexOf(0)==-1 && locationFlag.length>0){
-								child.groupId=locationGroup;
-								child.species='商品';
+							this.selectGoods={};
+						}else{
+							child.species="替换";
+						}
+						var emptyFlag=0;
+						for(let i=0;i<tabs.length;i++){
+							if(tabs[i].packageId==child.packageId){
+								emptyFlag=1;
+								child.indexId=tabs[i].goodsInfos.length;
+								tabs[i].goodsInfos.push(child);
 							}
-							//console.log(child)
-							//this.tableData.push(child);
-							child.indexId=this.tableData.length;
-							var emptyFlag=0;
+						}
+						if(emptyFlag==0){
+							var info={
+								packageName:child.packageName,
+								packageId:child.packageId,
+								goodsInfos:[child]
+							}
+							tabs.push(info);
+						}
+						this.editableTabsValue=child.packageId.toString();
+						this.editableTabs=tabs;
+						for(let i=0;i<tabs.length;i++){
+							if(tabs[i].packageId==this.editableTabsValue){
+								this.tableData=sortData(tabs[i].goodsInfos);
+							}
+						}
+						//console.log(this.tableData)
+				   	}else{
+				   		for(let i=0;i<tabs.length;i++){
+					 		if(tabs[i].packageId==child.packageId){
+					 			listAll=tabs[i].goodsInfos;
+					 		}
+					 	}
+				   		var packageObj={};
+				   		for(var x in child){
+				   			packageObj[x]=child[x];
+				   		}
+				   		var oldPackage=packageObj.packageId;
+				   		var index="";
+				   		for(var i=0;i<listAll.length;i++){
+							if(listAll[i].indexId==selectList[0].indexId){
+								index=i;
+								var arr=this.addGoods.selectPackage.split(',');
+								child.packageId=arr[0];
+								child.packageName=arr[1];
+								child.packageOrder=arr[2];
+								if(this.addGoods.selectLocation){
+									var selectLocationArr=this.addGoods.selectLocation.split(',');
+									child.typeName=selectLocationArr[0];
+									child.typeOrder=selectLocationArr[1]
+								}
+								child.goodsNum=this.addGoods.num;
+								//this.$refs.multipleTable.toggleRowSelection(child,true);
+								break;
+							}
+						}
+				   		//console.log(oldPackage,child.packageId)
+				   		//console.log(this.tableData)
+						if(parseInt(child.packageId)==parseInt(oldPackage)){
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
-						 			emptyFlag=1;
-						 			tabs[i].goodsInfos.push(child);
+						 			tabs[i].goodsInfos[i]=child;
 						 		}
 						 	}
+							this.editableTabs=tabs;
+						}else{
+							for(let i=0;i<tabs.length;i++){
+						 		if(tabs[i].packageId==oldPackage){
+						 			tabs[i].goodsInfos.splice(index,1);
+						 			break;
+						 		}
+						 	}
+							var emptyFlag=0;
+							for(let i=0;i<tabs.length;i++){
+								if(tabs[i].packageId==child.packageId){
+									emptyFlag=1;
+									child.indexId=tabs[i].goodsInfos.length;
+									tabs[i].goodsInfos.push(child);
+								}
+							}
 							if(emptyFlag==0){
 								var info={
 									packageName:child.packageName,
@@ -1266,77 +1305,18 @@ export default {
 								}
 								tabs.push(info);
 							}
-							this.editableTabsValue=child.packageId.toString();
 							this.editableTabs=tabs;
+							this.editableTabsValue=child.packageId.toString();
 							for(let i=0;i<tabs.length;i++){
-						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].goodsInfos);
-						 		}
-						 }
-							this.selectGoods={};
-						}else{
-							child.species="替换";
-							/*for(var i=0;i<listAll.length;i++){
-								if(listAll[i].indexId==selectList[0].indexId){
-									//console.log(i,listAll[i].indexId)
-									this.tableData.splice(i+1,0,child);
-									break;
+								if(tabs[i].packageId==this.editableTabsValue){
+									this.tableData=sortData(tabs[i].goodsInfos);
 								}
-							}*/
-							child.indexId=this.tableData.length;
-							var emptyFlag=0;
-							for(let i=0;i<tabs.length;i++){
-						 		if(tabs[i].packageId==child.packageId){
-						 			emptyFlag=1;
-						 			tabs[i].goodsInfos.push(child);
-						 		}
-						 	}
-							if(emptyFlag==0){
-								var info={
-									packageName:child.packageName,
-									packageId:child.packageId,
-									goodsInfos:child
-								}
-								tabs.push(info);
-							}
-							for(let i=0;i<tabs.length;i++){
-						 		if(tabs[i].packageId==this.editableTabsValue){
-						 			this.tableData=sortData(tabs[i].goodsInfos);
-						 		}
-						 	}
-						}
-						this.editableTabs=tabs;
-						//console.log(child)
-				   	}else{
-				   		for(var i=0;i<listAll.length;i++){
-							if(listAll[i].indexId==selectList[0].indexId){
-								var arr=this.addGoods.selectPackage.split(',');
-								this.tableData[i].packageId=arr[0];
-								this.tableData[i].packageName=arr[1];
-								this.tableData[i].packageOrder=arr[2];
-								if(this.addGoods.selectLocation){
-									var selectLocationArr=this.addGoods.selectLocation.split(',');
-									this.tableData[i].typeName=selectLocationArr[0];
-									this.tableData[i].typeOrder=selectLocationArr[1]
-								}
-								this.tableData[i].goodsNum=this.addGoods.num;
-								this.$refs.multipleTable.toggleRowSelection(this.tableData[i],true);
-								break;
 							}
 						}
-				   		//console.log(this.tableData)
-				   		
 				   		this.editGoodsFloag=0;
 				   	}
-				   	this.tableData=sortData(this.tableData);
 				   	
-				   	
-				   	for(let i=0;i<tabs.length;i++){
-				 		if(tabs[i].packageId==this.editableTabsValue){
-				 			tabs[i].goodsInfos=this.tableData;
-				 		}
-				 	}
-				   	this.editableTabs=tabs;
+				   
 				   	//console.log(this.tableData)
 				   	this.$refs.multipleTable.clearSelection();
 					this.addGoodsVisible=false;
@@ -1434,7 +1414,7 @@ function goodsList(obj){
 		loading.close();
 		for(var i=0;i<list.length;i++){
 			for(var j=0;j<list[i].goodsInfos.length;j++){
-				list[i].goodsInfos[j].indexId=i;
+				list[i].goodsInfos[j].indexId=j;
 				if(list[i].goodsInfos[j].goodsImages){
 					if(list[i].goodsInfos[j].goodsImages.indexOf(',')>-1){
 						var arr=list[i].goodsInfos[j].goodsImages.split(',');
@@ -1446,7 +1426,7 @@ function goodsList(obj){
 			}
 		}
 		if(list.length>0){
-			obj.tableData=list[0].goodsInfos;
+			obj.tableData=sortData(list[0].goodsInfos);
 			obj.editableTabsValue=list[0].packageId.toString();
 		}
 		
@@ -1476,7 +1456,7 @@ function goodsListAll(obj){
 	obj.$ajax.post(obj.$store.state.localIP+"queryGoodsInfomation",{
 		"start":(obj.currentPage-1)*obj.pageSize,
 		"length":obj.pageSize,
-		"goodsName":obj.goodsSearch
+		"search":obj.goodsSearch
 	})
 	.then(response=>{
 		loading.close();
@@ -1557,17 +1537,18 @@ function querySpaceInfo(obj,callback){
 }
 //排序
 function sortData(list){
-	//console.log(list)
 	var arr=[];
 	var arrRe=[];
 	for(var i=0;i<list.length;i++){
-		if(list[i].replaceId || list[i].replaceId ==0){
+		if(list[i].replaceId || list[i].replaceId==0){
 			arrRe.push(list[i]);
 		}else{
 			arr.push(list[i]);
 		}
 	}
-	
+	//arr=packageSort(arr);
+	arr=locationSort(arr);
+	arr=groupSort(arr);
 	for(var i=0;i<arrRe.length;i++){
 		for(var j=0;j<arr.length;j++){
 			if(arrRe[i].replaceId==arr[j].indexId){
@@ -1577,30 +1558,13 @@ function sortData(list){
 			}
 		}
 	}
-	arr=packageSort(arr);
-	arr=locationSort(arr);
 	var newArr=[];
 	for(var x=0;x<arr.length;x++){
 		arr[x].lastIndex=arr[x].indexId;
 		newArr.push(arr[x].indexId)
 		arr[x].indexId=x;
 	}
-	
-	for(var i=0;i<arr.length;i++){
-		if(arr[i].groupId || arr[i].groupId==0){
-			var index=newArr.indexOf(arr[i].groupId);
-			arr[i].groupId = index;
-		}
-	}
-	
-	arr=groupSort(arr);
-	var newArr=[];
-	for(var x=0;x<arr.length;x++){
-		arr[x].lastIndex=arr[x].indexId;
-		newArr.push(arr[x].indexId)
-		arr[x].indexId=x;
-	}
-	
+
 	for(var i=0;i<arr.length;i++){
 		if(arr[i].groupId || arr[i].groupId==0){
 			var index=newArr.indexOf(arr[i].groupId);
@@ -1608,8 +1572,8 @@ function sortData(list){
 		}
 	}
 	for(var i=1;i<arr.length;i++){
-		if(arr[i].replaceId){
-			if(arr[i-1].replaceId){
+		if(arr[i].replaceId || arr[i].replaceId==0){
+			if(arr[i-1].replaceId || arr[i-1].replaceId==0){
 				arr[i].replaceId=arr[i-1].replaceId;
 			}else{
 				arr[i].replaceId=i-1;
@@ -1671,7 +1635,6 @@ function locationSort(arr){
 }
 //组合排序
 function groupSort(arr){
-	var saaa=arr;
 	//console.log(saaa)
 	var newArr=[];
 	var sortArr=[];
@@ -1871,5 +1834,9 @@ function duplicate(arr){
 	}
 	.el-dialog .el-form{
 		padding: 0px;
+	}
+	.goodsList{
+		max-height: 400px;
+		overflow-y: auto;
 	}
 </style>

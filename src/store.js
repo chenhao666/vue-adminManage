@@ -37,6 +37,10 @@ function stateValue(state){
 	if(sessionStorage.getItem(Base64.encode('appuid'))){
 		state.appuid=JSON.parse(Base64.decode(sessionStorage.getItem(Base64.encode('appuid'))));
 	}
+	//权限
+	if(sessionStorage.getItem('roleAuthList')){
+		state.roleAuthList=sessionStorage.getItem('roleAuthList').split(',');
+	}
 }
 
 //全局数据
@@ -50,12 +54,13 @@ const state={
 	cityName:'',
 	appuid:'',//设计师
 	accessToken:'',
-	// localIP:'http://192.168.1.122:8080/ourHouse/',
-	localIP:'http://192.168.1.62:8080/ourHouse/',
+	localIP:'http://192.168.1.103:8080/ourHouse/',
+	//localIP:'http://192.168.1.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
 	status:1,
 	//及时聊天对象数组
 	friendList:sessionStorage.getItem('chat') || [],
+	roleAuthList:[],
 	qiniuUrl:'http://images.wojiali.cn/'
 }
 stateValue(state);
@@ -225,6 +230,11 @@ const mutations={
 		list[index].num=0;
 		sessionStorage.setItem('chat',JSON.stringify(list));
 		state.friendList=sessionStorage.getItem('chat');
+	},
+	//存储权限信息
+	powerFlag(state){
+		var list=sessionStorage.getItem('roleAuthList').split(',');
+		state.roleAuthList=list;
 	}
 }
 

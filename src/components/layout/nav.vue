@@ -1,15 +1,15 @@
 <template>
 	<div>
-		<el-menu  
-			:default-active="activaNav" 
-			:unique-opened="true" 
-			class="el-menu-vertical-demo" 
-			@open="handleOpen" 
-			@close="handleClose" 
-			:collapse="isCollapse" 
-			:router="true" 
-			background-color="#657576" 
-			text-color="#fff" 
+		<el-menu
+			:default-active="activaNav"
+			:unique-opened="true"
+			class="el-menu-vertical-demo"
+			@open="handleOpen"
+			@close="handleClose"
+			:collapse="isCollapse"
+			:router="true"
+			background-color="#657576"
+			text-color="#fff"
 			@select="menuSelect"
 			active-text-color="#ffd04b">
 			<el-menu-item  @click="collapse()" index="0" :route="{path:'#'}">
@@ -61,10 +61,11 @@
 				if(response.data.retCode==0){
 					var power=response.data.roleauthorities[0].roleOperation;
 					if(power.indexOf('0')==-1){
-						this.$message.error("暂无权限！");
+						this.$message.error("！");
 						this.$router.go(-1);
-					}else{						
+					}else{
 						sessionStorage.setItem('roleAuthList',power);
+						this.$store.commit("powerFlag");
 					}
 				}else{
 					this.$message.error("获取用户权限失败！");
@@ -94,7 +95,7 @@
       	this.$emit('collapseP',this.isCollapse);
       }
     }
-  }	
+  }
 </script>
 
 <style scoped>

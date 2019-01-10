@@ -8,7 +8,7 @@
       <div class="clear"></div>
       <el-card class="box-card">
         <div slot="header" class="clearfix">
-          <span>订单信息</span>
+          <span>订单详情</span>
         </div>
         <div class="line"></div>
         <div class="header_second">
@@ -91,7 +91,7 @@
           <div class="form_time_list form_item">
             <div class="time_item">
               <span>订单金额：</span>
-              <span class="order_price">{{listData.totalAmout }}</span>
+              <span class="order_price">￥{{listData.totalAmout }}</span>
               <span class="time_detail" @click="showPriceDetail">明细</span>
             </div>
           </div>
@@ -101,19 +101,19 @@
               <span>{{listData.createTime}}</span>
             </div>
           </div>
-          <div class="form_time_list form_item">
+          <div class="form_time_list form_item" v-if="listData.submitAuditTime">
             <div class="time_item">
               <span>提交审核时间：</span>
               <span>{{listData.submitAuditTime}}</span>
-              <span class="time_detail" @click="handleSubmitCheck">明细</span>
+              <span class="time_detail" @click="handleSubmitCheck" v-if="listData.orderStatus == 0||listData.orderStatus == 11||listData.orderStatus == 10">明细</span>
             </div>
           </div>
           <div class="form_time_list form_item"
-               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&!checkBtnShow">
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==11&&listData.orderStatus!==7">
             <div class="time_item">
               <span>付款审核时间：</span>
               <span>{{listData.paymentTime}}</span>
-              <span class="time_detail" @click="handleSubmitCheck">明细</span>
+              <span class="time_detail" @click="handleSubmitCheck" v-if="listData.orderStatus !== 0&&listData.orderStatus !== 11">明细</span>
             </div>
           </div>
           <!--<div class="form_time_list form_item">-->
@@ -123,14 +123,14 @@
             <!--</div>-->
           <!--</div>-->
           <div class="form_time_list form_item"
-               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==11">
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==11&&listData.orderStatus!==7">
             <div class="time_item">
               <span>发货时间：</span>
               <span>{{listData.deliveryTime}}</span>
             </div>
           </div>
           <div class="form_time_list form_item"
-               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==2&&listData.orderStatus!==11">
+               v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==1&&listData.orderStatus!==2&&listData.orderStatus!==11&&listData.orderStatus!==7">
             <div class="time_item">
               <span>签收时间：</span>
               <span>{{listData.receivedTime}}</span>
@@ -152,7 +152,7 @@
         :visible.sync="priceVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
-        width="30%"
+        width="390px"
         class="price_detail">
         <!--表单开始-->
         <el-form label-width="110px" class="price_form">
@@ -188,7 +188,7 @@
         :visible.sync="payVisible"
         :append-to-body="true"
         :close-on-click-modal="false"
-        width="30%"
+        width="390px"
         class="price_detail">
         <!--表单开始-->
         <el-form label-width="110px" class="price_form">
@@ -229,15 +229,15 @@
 
           <div class="pay_mark">
             <span>销售备注:</span>
-            <span>{{payListData.salesRemark}}</span>
+            <span style="word-break:break-all">{{payListData.salesRemark}}</span>
           </div>
           <div class="pay_mark"v-if="listData.orderStatus==11">
             <span>未通过原因:</span>
-            <span style="color: red">{{payListData.financialRemark}}</span>
+            <span style="color: red;word-break:break-all">{{payListData.financialRemark}}</span>
           </div>
           <div class="pay_mark"v-if="listData.orderStatus!==0&&listData.orderStatus!==10&&listData.orderStatus!==11">
             <span>通过原因:</span>
-            <span style="color: red">{{payListData.financialRemark}}</span>
+            <span style="word-break:break-all">{{payListData.financialRemark}}</span>
           </div>
         </el-form>
 
@@ -263,7 +263,7 @@
             detailBtnShow:false,
             submitBtnShow:false,
             checkBtnShow:false,
-            roleAuthList:sessionStorage.getItem('roleAuthList'),
+            roleAuthList:this.$store.state.roleAuthList,
             value1:'',
             form:{
               exp:'测试数据'
@@ -344,10 +344,19 @@
                     this.listData.submitAuditTime = this.listData.submitAuditTime.split('.')[0];
                   }
                   if(this.listData.shipmenTime){
-                    this.listData.shipmenTime = this.listData.shipmenTime.split('.')[0];
+                    this.listData.shipmenTime = this.listData.shipmenTime.split(' ')[0];
                   }
                   if(this.listData.paymentTime){
                     this.listData.paymentTime = this.listData.paymentTime.split('.')[0];
+                  }
+                  if(this.listData.deliveryTime){
+                    this.listData.deliveryTime = this.listData.deliveryTime.split('.')[0];
+                  }
+                  if(this.listData.receivedTime){
+                    this.listData.receivedTime = this.listData.receivedTime.split('.')[0];
+                  }
+                  if(this.listData.completeTime){
+                    this.listData.completeTime = this.listData.completeTime.split('.')[0];
                   }
                   // if(listData.amountDetail.totalAmout){
                   //   listData.totalAmout = listData.amountDetail.totalAmout;
@@ -398,9 +407,6 @@
  form{
    font-size: 14px;
  }
-  .price_form{
-    padding: 0;
-  }
   .price_form .form_item:first-child{
     margin-top: 10px;
   }
