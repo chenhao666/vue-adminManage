@@ -71,7 +71,7 @@
 				</el-table-column>
 			</el-table>
       <div class="priceSums">
-        总计：{{goodsOrder.totalPrice}}
+        总计：￥{{goodsOrder.totalPrice}}
       </div>
 			<!--分页-->
 			<div class="curPageCss">

@@ -2,7 +2,7 @@
   	<div class="saleManage">
 	    <el-breadcrumb separator-class="el-icon-arrow-right">
 	      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-	      <el-breadcrumb-item :to="{ path: '/storeManage/saleManage' }">卖出管理</el-breadcrumb-item>
+	      <el-breadcrumb-item>门店</el-breadcrumb-item>
 	      <el-breadcrumb-item class="fontWeight">卖出管理</el-breadcrumb-item>
 	    </el-breadcrumb>
 		<div class="clear"></div>
@@ -204,7 +204,11 @@ export default {
       	},
       	//编辑
       	editOrder(index,row){
-      		this.$router.push({path:'/storeManage/addSaleOrder',query:{num:Base64.encode(row.orderNo)}})
+      		if(this.storeId){      			
+      			this.$router.push({path:'/storeManage/addSaleOrder',query:{num:Base64.encode(row.orderNo),store:Base64.encode(this.storeId)}})
+      		}else{
+      			this.$router.push({path:'/storeManage/addSaleOrder',query:{num:Base64.encode(row.orderNo)}})
+      		}
       	},
       	//时间格式化
 	    timeFomit(timeDate){

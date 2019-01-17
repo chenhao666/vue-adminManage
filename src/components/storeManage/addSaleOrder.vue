@@ -2,8 +2,8 @@
 	<div class="addSaleOrder">
 		<el-breadcrumb separator-class="el-icon-arrow-right">
 		  	<el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-		  	<el-breadcrumb-item :to="{ path: '/storeManage/saleManage' }">卖出管理</el-breadcrumb-item>
-		  	<el-breadcrumb-item class="fontWeight">订单</el-breadcrumb-item>
+		  	<el-breadcrumb-item :to="goback">卖出管理</el-breadcrumb-item>
+		  	<el-breadcrumb-item class="fontWeight">卖出订单</el-breadcrumb-item>
 		</el-breadcrumb>
 		<div class="clear"></div>
 
@@ -178,6 +178,7 @@
 		name:'addSaleOrder',
 		data () {
 			return {
+				goback:{ path: '/storeManage/saleManage' },
 				orderNum:'',
 				tableData:[],
 				goodsListVisible:false,
@@ -206,6 +207,9 @@
 			}
 		},
 		mounted(){
+			if(this.$route.query.store){	
+				this.goback={ path: '/storeManage/saleManage',query:{num:this.$route.query.store}};
+			}
 			//当前时间
 	        var date = new Date();
 	        var year = date.getFullYear();
@@ -246,10 +250,7 @@
 		    inputChange(index,row){
 		    	var num=0;
 		    	if(row.remainNum){
-		    		num=row.remainNum;
-		    	}
-		    	if(row.totalNum){
-		    		num=row.totalNum
+		    		num=row.remainNum
 		    	}
 		    	if(row.goodsNum>num){
 		    		this.$message({
@@ -344,7 +345,7 @@
 					this.tableData.push(tableTotal);
 				}
 				row.sellUnitPrice=row.unitPrice;
-				row.totalNum=row.goodsNum;
+				row.remainNum=row.goodsNum;
 				row.goodsNum=1;
 				row.totalPrice=row.unitPrice;
 				//数据字段修改
@@ -369,10 +370,7 @@
 		          		for(var i=0;i<list.length;i++){
 		          			var num=0;
 					    	if(list[i].remainNum){
-					    		num=list[i].remainNum;
-					    	}
-					    	if(list[i].totalNum){
-					    		num=list[i].totalNum
+					    		num=list[i].remainNum
 					    	}
 		          			if(list[i].goodsNum>num){
 		          				this.$message({
@@ -470,7 +468,7 @@
 				if(response.data.data.dataList){
 					var list=response.data.data.dataList.concat(obj.tableData);
 					for(var i=0;i<list.length;i++){
-						list[i].remainNum=list[i].remainNum+list[i].goodsNum;
+						list[i].remainNum=parseInt(list[i].remainNum)+parseInt(list[i].goodsNum);
 					}
 					obj.tableData=list;
 				}
@@ -491,12 +489,13 @@
 		var price=0;
 		//console.log(list)
 		for(var i=0;i<list.length-1;i++){
+			var sellUnitPrice=parseInt(list[i].sellUnitPrice.toFixed(2)*100);
 			num+=parseInt(list[i].goodsNum);
-			price+=(parseFloat(list[i].sellUnitPrice)*100*parseInt(list[i].goodsNum))/100;
-			list[i].totalPrice=(parseFloat(list[i].sellUnitPrice)*100*parseInt(list[i].goodsNum))/100;
+			price+=sellUnitPrice*parseInt(list[i].goodsNum);
+			list[i].totalPrice=(sellUnitPrice*parseInt(list[i].goodsNum))/100;
 		}
 		list[len-1].goodsNum=num;
-		list[len-1].totalPrice=price;
+		list[len-1].totalPrice=price/100;
 		return list;
 	}
 	//获取商品列表
@@ -506,6 +505,7 @@
 		obj.$ajax.post(obj.$store.state.localIP+"queryInventoryGoods",{
 			"start":(obj.currentPage-1)*obj.pageSize,
 			"length":obj.pageSize,
+			"type":1,
 			"empId":obj.$store.state.userCode,
 			"search":obj.goodsSearch
 		})
@@ -689,7 +689,7 @@
 	.el-dialog .el-form{
 		padding: 0px;
 	}
-	.goodsList{
+	.box{
 		max-height: 400px;
 		overflow-y: auto;
 	}

@@ -53,7 +53,7 @@
 				</el-table-column>
 				<el-table-column type="expand" label="展开" width="80">
       				<template slot-scope="props">
-      					<el-table ref="multipleTable" border  :data="props.row.childInfomations"  tooltip-effect="dark" :row-class-name="childTable" :header-row-class-name="childTable">
+      					<el-table v-if="!props.row.isMade" ref="multipleTable" border  :data="props.row.childInfomations"  tooltip-effect="dark" :row-class-name="childTable" :header-row-class-name="childTable">
       						<el-table-column prop="goodsName" label="商品名称" min-width="150" show-overflow-tooltip>
 							</el-table-column>
 							<el-table-column prop="goodsCode" label="商品编码">
@@ -119,7 +119,7 @@
 			        <el-button
 			          size="mini"
 			          style="margin: 5px 5px;"
-			          v-if="editBtnShow"
+			          v-if="editBtnShow && !scope.row.isMade"
 			          @click="childListBtn(scope.$index, scope.row)">添加子商品</el-button>
 			      </template>
 			    </el-table-column>
@@ -157,8 +157,15 @@
 			  	</el-form-item>
 				
 				<el-form-item label="类型选择" prop="goodsType" v-show="addGoodsFlag ? false : true">
-			  		<el-select v-model="ruleForm.goodsType" placeholder="请选择类型"  @change="inputFlag=1">
+			  		<el-select v-model="ruleForm.goodsType" placeholder="请选择类型"  @change="styleChange">
 						<el-option v-for="(item,key) in ruleForm.goodsTypeList" :key="key" :label="item.goodsType" :value="item.goodsType"></el-option>
+					</el-select>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="样式" prop="isMadeNum" v-show="isMade">
+			  		<el-select v-model="ruleForm.isMadeNum" placeholder="请选择">
+						<el-option  key="1" label="定制" value="1"></el-option>
+						<el-option  key="0" label="非定制" value="0"></el-option>
 					</el-select>
 			  	</el-form-item>
 				
@@ -203,15 +210,15 @@
 			  		<el-input v-model="ruleForm.unitPrice"  @change="inputFlag=1" ></el-input>
 			  	</el-form-item>
 			  	
-			  	<el-form-item label="商品规格" prop="specifications">
+			  	<el-form-item label="商品规格" prop="specifications" v-show="!isMade">
 			  		<el-input v-model="ruleForm.specifications"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
-			  	<el-form-item label="商品材质" prop="material">
+			  	<el-form-item label="商品材质" prop="material" v-show="!isMade">
 			  		<el-input v-model="ruleForm.material"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
-			  	<el-form-item label="商品颜色" prop="goodsColor">
+			  	<el-form-item label="商品颜色" prop="goodsColor" v-show="!isMade">
 			  		<el-input v-model="ruleForm.goodsColor"  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
 			  	
@@ -224,7 +231,54 @@
 						<el-option v-for="(item,key) in ruleForm.packageList" :key="key" :label="item.packgeName" :value="item.packageId+','+item.packgeName"></el-option>
 					</el-select>
 			  	</el-form-item>-->
+			  	<el-form-item label="商品规格" prop="speList" v-show="isMade">
+			  		<div class="tagList"  v-for="(item,key) in ruleForm.speList">
+			  			规格{{ key+1 }}：
+			  			<span @click="handleTag(key,1)">
+				  			<el-tag
+							  :key="key"
+							  closable
+							  :disable-transitions="false"
+							  @close="handleCloseTag(key,1)">
+							  {{item.materialName}}
+							</el-tag>
+						</span>
+			  		</div>
+			  		
+					<el-button  class="button-new-tag" size="small" @click="inputInfo(1)">+</el-button>
+			  	</el-form-item>
 			  	
+			  	<el-form-item label="商品材质" prop="matList" v-show="isMade">
+			  		<div class="tagList"  v-for="(item,key) in ruleForm.matList">
+			  			材质{{ key+1 }}：
+			  			<span @click="handleTag(key,2)">
+				  			<el-tag
+							  :key="key"
+							  closable
+							  :disable-transitions="false"
+							  @close="handleCloseTag(key,2)">
+							  {{item.materialName}}
+							</el-tag>
+						</span>
+			  		</div>
+					<el-button  class="button-new-tag" size="small" @click="inputInfo(2)">+</el-button>
+			  	</el-form-item>
+			  	
+			  	<el-form-item label="商品颜色" prop="colorList" v-show="isMade">
+			  		<div class="tagList"  v-for="(item,key) in ruleForm.colorList">
+			  			颜色{{ key+1 }}：
+			  			<span @click="handleTag(key,3)">
+				  			<el-tag
+							  :key="key"
+							  closable
+							  :disable-transitions="false"
+							  @close="handleCloseTag(key,3)">
+							  {{item.materialName}}
+							</el-tag>
+						</span>
+			  		</div>
+					<el-button  class="button-new-tag" size="small" @click="inputInfo(3)">+</el-button>
+			  	</el-form-item>
 			  	<el-form-item label="图片上传" prop='pic'>
 					<el-upload
 					  action="https://up.qbox.me/"
@@ -246,6 +300,33 @@
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
 			    <el-button type="primary" @click="submitForm('ruleForm')" :disabled="ruleForm.disabled">确 定</el-button>
+			  </span>
+			</el-dialog>
+		</div>
+		
+		<!--dialog弹窗-->
+		<div class="edit_dialog">
+			<el-dialog
+			  :title="inputTitle"
+			  :visible.sync="inputVisible"
+			  width="600px"
+			  :append-to-body="true"
+			  :close-on-click-modal="false">
+			  <!--表单开始-->
+			  <el-form ref="inputObj" :rules="rules2" :model="inputObj" label-width="85px">
+				<el-form-item label="类别名称" prop="materialName">
+			  		<el-input v-model="inputObj.materialName"></el-input>
+			  	</el-form-item>
+				<el-form-item label="零售溢价" prop="retailPremium">
+			  		<el-input v-model="inputObj.retailPremium" :disabled='disabledInput'></el-input>
+			  	</el-form-item>
+			  	<el-form-item label="指导溢价" prop="guidePremium">
+			  		<el-input v-model="inputObj.guidePremium" :disabled='disabledInput'></el-input>
+			  	</el-form-item>
+			  </el-form>
+			  <!--表单结束-->
+			  <span slot="footer" class="dialog-footer">
+			    <el-button type="primary" @click="submitForm2('inputObj')" :disabled="ruleForm.disabled">确 定</el-button>
 			  </span>
 			</el-dialog>
 		</div>
@@ -354,10 +435,111 @@
 					callback();
 				}
 			};
+			//定制
+			let checkIsMade=(rule, value, callback)=>{
+				if(value==""){
+					if(this.isMade){						
+						callback(new Error('请选择是否定制！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//规格
+			let checkSpe=(rule, value, callback)=>{
+				if(value==""){
+					if(!this.isMade){						
+						callback(new Error('请输入商品规格！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//材质
+			let checkMater=(rule, value, callback)=>{
+				if(value==""){
+					if(!this.isMade){						
+						callback(new Error('请输入商品材质！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//颜色
+			let checkColor=(rule, value, callback)=>{
+				if(value==""){
+					if(!this.isMade){						
+						callback(new Error('请输入商品颜色！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			
+			let speListValidator=(rule, value, callback)=>{
+				if(this.ruleForm.speList.length==0){
+					if(this.isMade){						
+						callback(new Error('请新增规格参数！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			let matListValidator=(rule, value, callback)=>{
+				if(this.ruleForm.matList.length==0){
+					if(this.isMade){						
+						callback(new Error('请新增材质参数！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			let colorListValidator=(rule, value, callback)=>{
+				if(this.ruleForm.colorList.length==0){
+					if(this.isMade){						
+						callback(new Error('请新增颜色参数！'))
+					}else{
+						callback();
+					}
+				}else{
+					callback();
+				}
+			};
+			//零售溢价
+			let retailValidator=(rule, value, callback)=>{
+				var unitPrice=value;
+				if(unitPrice!=parseFloat(unitPrice) || unitPrice.toString().indexOf('-')>-1){						
+					callback(new Error('请输入正确的价格！'))
+				}else{
+					callback();
+				}
+			};
+			//指导溢价
+			let guideValidator=(rule, value, callback)=>{
+				var unitPrice=value;
+				if(unitPrice!=parseFloat(unitPrice) || unitPrice.toString().indexOf('-')>-1){						
+					callback(new Error('请输入正确的价格！'))
+				}else{
+					callback();
+				}
+			};
 			return {
 				addBtnShow:false,
 				delBtnShow:false,
 				editBtnShow:false,
+				isMade:false,//是否定制
 				roleAuthList:this.$store.state.roleAuthList,
 				fileUpload:this.$store.state.localIP+'goodsBatchImport',//文件上传地址
 				fileListExcel:[],
@@ -379,15 +561,29 @@
 		        goodsModel:'',//搜索型号
 		        goodsBrand:'',//搜索品牌
 		        addGoodsFlag:0,//新增商品标记
+		        inputTitle:'规格',//新增规格等信息标题
+		        inputVisible:false,//新增规格等信息弹窗
+		        disabledInput:false,
+		        inputDialogEdit:-1,
 		        child:{
 		        	goodsName:'',//父商品名称
 		        },//子商品
+		        inputObj:{
+		        	type:0,
+		        	materialName:'',//类别名称
+		        	retailPremium:0,//零售溢价
+		        	guidePremium:0//指导溢价
+		        },
 		        rules:{
 		        	goodsName:[
 		        		{ required: true, message: '请输入商品名称', trigger: 'blur' }
 		        	],
 		        	model:[
 		        		{ required: true, message: '请输入商品型号', trigger: 'blur' }
+		        	],
+		        	//是否定制
+		        	isMadeNum:[
+		        		{ required: true, validator: checkIsMade, trigger: 'blur' }
 		        	],
 		        	unitPrice:[
 		        		{  required: true, validator: checkPrice, trigger: 'blur' }
@@ -401,10 +597,10 @@
 		        		{  required: true, validator: checkGuideUnitPrice, trigger: 'blur' }
 		        	],
 		        	specifications:[
-		        		{ required: true, message: '请输入商品规格', trigger: 'blur' }
+		        		{ required: true, validator: checkSpe, trigger: 'blur' }
 		        	],
 		        	material:[
-		        		{ required: true, message: '请输入颜色材质', trigger: 'blur' }
+		        		{ required: true, validator: checkMater, trigger: 'blur' }
 		        	],
 		        	brand:[
 		        		{ required: true, message: '请选择商品品牌', trigger: 'blur' }
@@ -416,7 +612,7 @@
 		        		{  required: true, validator: checkPic, trigger: 'blur' }
 		        	],
 		        	goodsColor:[
-		        		{ required: true, message: '请输入商品颜色', trigger: 'blur' }
+		        		{ required: true, validator: checkColor, trigger: 'blur' }
 		        	],
 		        	units:[
 		        		{ required: true, message: '请输入商品单位', trigger: 'blur' }
@@ -426,9 +622,29 @@
 		        	],
 		        	styleName:[
 		        		{ required: true, message: '请输入商品风格', trigger: 'blur' }
+		        	],
+		        	speList:[
+		        		{ required: true, validator: speListValidator, trigger: 'blur' }
+		        	],
+		        	matList:[
+		        		{ required: true, validator: matListValidator, trigger: 'blur' }
+		        	],
+		        	colorList:[
+		        		{ required: true, validator:colorListValidator, trigger: 'blur' }
+		        	],
+		        },
+		        rules2:{
+		        	materialName:[
+		        		{ required: true, message: '请输入类别名称', trigger: 'blur' }
+		        	],
+		        	retailPremium:[
+		        		{ required: true, validator:retailValidator, trigger: 'blur' }
+		        	],
+		        	guidePremium:[
+		        		{ required: true, validator:guideValidator, trigger: 'blur' }
 		        	]
 		        },
-		        importVisible:false,
+		        importVisible:false
 			}
 		},
 		mounted(){
@@ -539,6 +755,22 @@
 		      	this.dialogFlag=0;
 		      	brandList(this,function(){});
 		    },
+		    //修改类型
+		    styleChange(val){
+		    	this.inputFlag=1;	
+		    	var list=this.ruleForm.goodsTypeList;
+		    	for(let i=0;i<list.length;i++){
+		    		if(list[i].goodsType==val){
+		    			if(list[i].isMade == 1){
+		    				this.isMade=true;
+		    			}else{
+		    				this.isMade=false;
+		    			}
+		    			break;
+		    		}
+		    	}
+		    	
+		    },
 		    //修改品牌
 		    brandChange(){
 		    	this.inputFlag=1;
@@ -582,15 +814,26 @@
 				    that.ruleForm.model=row.model;//产品型号
 				    that.ruleForm.brand=row.brandId+','+row.brandName;//商品品牌
 				    that.ruleForm.unitPrice=row.unitPrice;//零售单价
-				    that.ruleForm.specifications=row.specifications;//商品规格
-				    that.ruleForm.material=row.material;//颜色材质
-				    that.ruleForm.goodsColor=row.goodsColor;//颜色
+				    //that.ruleForm.specifications=row.specifications;//商品规格
+				    //that.ruleForm.material=row.material;//颜色材质
+				    //that.ruleForm.goodsColor=row.goodsColor;//颜色
 				    that.ruleForm.units=row.units;//单位
 				    that.ruleForm.package=row.packageId+','+row.packageName;//商品包
 				    that.ruleForm.goodsType=row.goodsType;//商品类型
 				    that.ruleForm.styleName=row.styleName.split(',');
 				    that.ruleForm.articleNum=row.articleNum;//货号
 				    that.ruleForm.guideUnitPrice=row.guideUnitPrice;//指导单价
+				    that.isMade=row.isMade;
+				    if(row.isMade){
+				    	that.ruleForm.speList=row.specification || [];
+				    	that.ruleForm.matList=row.materials || [];
+				    	that.ruleForm.colorList=row.goodsColors || [];
+				    }else{
+				    	that.ruleForm.specifications=row.specifications;//商品规格
+				    	that.ruleForm.material=row.material;//颜色材质
+				    	that.ruleForm.goodsColor=row.goodsColor;//颜色
+				    }
+				    
 				    
 				    that.addGoodsFlag=0;
 				    if(row.parentId){
@@ -719,9 +962,9 @@
 				        brandId:brandArr[0],//商品品牌ID
 				        brandName:brandArr[1],//商品品牌名称
 				        unitPrice:this.ruleForm.unitPrice,//零售单价
-				        specifications:this.ruleForm.specifications,//商品规格
-				        material:this.ruleForm.material,//颜色材质
-				        goodsColor:this.ruleForm.goodsColor,//颜色
+				        //specifications:this.ruleForm.specifications,//商品规格
+				        //material:this.ruleForm.material,//颜色材质
+				        //goodsColor:this.ruleForm.goodsColor,//颜色
 				        styleName:this.ruleForm.styleName.join(','),
 				        goodsType:this.ruleForm.goodsType,//颜色材质
 				    	units:this.ruleForm.units,//单位
@@ -740,6 +983,14 @@
 					}
 					if(this.ruleForm.showGuideUnitPrice){
 						data.guideUnitPrice=this.ruleForm.guideUnitPrice;
+					}
+					if(this.isMade){
+						data.isMade=this.ruleForm.isMadeNum;
+						data.goodsMaterials=this.ruleForm.speList.concat(this.ruleForm.matList,this.ruleForm.colorList)
+					}else{
+						data.specifications=this.ruleForm.specifications;
+						data.material=this.ruleForm.material;
+						data.goodsColor=this.ruleForm.goodsColor;
 					}
 					addGoods(this,data,url);	
 	      		}
@@ -814,14 +1065,10 @@
 						        brandName:brandArr[1],//商品品牌名称
 						        styleName:this.ruleForm.styleName.join(','),
 						        unitPrice:this.ruleForm.unitPrice,//零售单价
-						        specifications:this.ruleForm.specifications,//商品规格
-						        material:this.ruleForm.material,//颜色材质
+						        //specifications:this.ruleForm.specifications,//商品规格
+						        //material:this.ruleForm.material,//颜色材质
 						        goodsType:this.ruleForm.goodsType,//颜色材质
-						      /*  packageId:packageArr[0],//商品包ID
-						        packageName:packageArr[1],//包名称*/
-						        goodsColor:this.ruleForm.goodsColor,//颜色
-						       /*	articleNum:this.ruleForm.showArticleNum ? this.ruleForm.articleNum : '',//货号
-				    			guideUnitPrice:this.ruleForm.showGuideUnitPrice ? this.ruleForm.guideUnitPrice : '',//指导单价*/
+						        //goodsColor:this.ruleForm.goodsColor,//颜色
 				    			units:this.ruleForm.units,//单位
 						        goodsImages:coverPic//图片列表
 							}
@@ -836,6 +1083,14 @@
 							if(this.ruleForm.showGuideUnitPrice){
 								data.guideUnitPrice=this.ruleForm.guideUnitPrice;
 							}
+							if(this.isMade){
+								data.isMade=this.ruleForm.isMadeNum;
+								data.goodsMaterials=this.ruleForm.speList.concat(this.ruleForm.matList,this.ruleForm.colorList)
+							}else{
+								data.specifications=this.ruleForm.specifications;
+								data.material=this.ruleForm.material;
+								data.goodsColor=this.ruleForm.goodsColor;
+							}
 							addGoods(this,data,url);	
 			        	}
 			        } else {
@@ -843,6 +1098,38 @@
 			          	return false;
 			        }
 		      	});
+		    },
+		    submitForm2(formName){
+		    	this.$refs[formName].validate((valid) => {
+			        if (valid) {
+			        	if(this.inputDialogEdit!=-1){
+			        		var index=this.inputDialogEdit;
+			        		if(this.inputObj.type==1){
+				        		this.ruleForm.speList[index]=this.inputObj;
+				        	}
+				        	if(this.inputObj.type==2){
+				        		this.ruleForm.matList[index]=this.inputObj;
+				        	}
+				        	if(this.inputObj.type==3){
+				        		this.ruleForm.colorList[index]=this.inputObj;
+				        	}	
+			        	}else{
+				        	if(this.inputObj.type==1){
+				        		this.ruleForm.speList.push(this.inputObj);
+				        	}
+				        	if(this.inputObj.type==2){
+				        		this.ruleForm.matList.push(this.inputObj);
+				        	}
+				        	if(this.inputObj.type==3){
+				        		this.ruleForm.colorList.push(this.inputObj);
+				        	}	
+			        	}
+			        	this.inputVisible=false;
+			        } else {
+			        	this.$message.error('表单提交失败！');
+			        	return false;
+			    	}
+			    });
 		    },
 		    //批量导入
 		    importData(){
@@ -908,10 +1195,101 @@
 		    	}
 		    	this.addGoodsFlag=0;
 		    },
+		    //点击标签
+		    handleTag(index,type){
+		    	if(type==1){
+		    		if(index==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}
+		    		this.inputObj=this.ruleForm.speList[index];
+			    }
+			    if(type==2){	
+			    	if(index==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}
+			    	this.inputObj=this.ruleForm.matList[index];
+			    }
+			    if(type==3){
+			    	if(index==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}	
+			    	this.inputObj=this.ruleForm.colorList[index];
+			    }
+			    this.inputDialogEdit=index;
+			    this.inputVisible=true;
+		    },
+		    //关闭标签
+		    handleCloseTag(index,type){
+		    	this.$confirm('确定删除当前类别吗？', '提示', {
+			      	confirmButtonText: '确定',
+			      	cancelButtonText: '取消',
+		        	type: 'warning'
+		        })
+		    	.then(_ => {
+		    		if(type==1){
+		    			var list=[].concat(this.ruleForm.speList);
+		    			list.splice(index,1)
+			       		this.ruleForm.speList=list;
+			       	}
+			       	if(type==2){		
+			       		var list=[].concat(this.ruleForm.matList);
+			       		list.splice(index,1);
+			       		this.ruleForm.matList=list;
+			       	}
+			       	if(type==3){	
+			       		var list=[].concat(this.ruleForm.colorList);
+			       		list.splice(index,1);
+			       		this.ruleForm.colorList=list;
+			       	}
+			    })
+			    .catch(_ => {});
+		    },
 		    //搜索
 		    searchUser(){
 		    	this.currentPage=1;
 		    	goodsList(this);
+		    },
+		    //新增标签
+		    inputInfo(type){
+		    	this.inputObj={
+		    		type:type,
+		        	materialName:'',//类别名称
+		        	retailPremium:0,//零售溢价
+		        	guidePremium:0//指导溢价
+		       	};
+		       	if(type==1){		       		
+		       		this.inputTitle='规格';
+		       		if(this.ruleForm.speList.length==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}
+		       	}
+		       	if(type==2){		       		
+		       		this.inputTitle='材质';
+		       		if(this.ruleForm.matList.length==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}
+		       	}
+		       	if(type==3){		       		
+		       		this.inputTitle='颜色';
+		       		if(this.ruleForm.colorList.length==0){
+		       			this.disabledInput=true;
+		       		}else{
+		       			this.disabledInput=false;
+		       		}
+		       	}
+		       	this.inputDialogEdit=-1;
+		    	this.inputVisible=true;
+		    	//console.log(type)
 		    }
 		}
 	}
@@ -954,7 +1332,11 @@
 		        articleNum:'',//货号
 		        guideUnitPrice:'',//指导单价
 		        showArticleNum:false,//展示货号
-		        showGuideUnitPrice:false//展示单价
+		        showGuideUnitPrice:false,//展示单价
+		        isMadeNum:"1",//是否定制
+		        speList:[],//规格数组
+		        matList:[],//材质数组
+		        colorList:[]//颜色数组
 	        }
 		return data;
 	}
@@ -975,7 +1357,20 @@
 			loading.close();
 			//console.log(response)
 			if(response.data.retCode==0){
-				obj.tableData=response.data.goodsInfomations;
+				var list=response.data.goodsInfomations;
+				for(var i=0;i<list.length;i++){
+					if(list[i].specification){
+						if(list[i].specification.length>0){
+							list[i].specifications=list[i].specification[0].materialName;
+						}
+					}
+					if(list[i].materials){
+						if(list[i].materials.length>0){
+							list[i].material=list[i].materials[0].materialName;
+						}
+					}
+				}
+				obj.tableData=list;
 				obj.pageTotal=response.data.countNum;
 			}else{
 				obj.$message.error('获取商品列表失败！');
@@ -1160,5 +1555,15 @@
 	.filter{
 		width: 100%;
 		box-sizing: border-box;
+	}
+	.button-new-tag{
+		width: auto;
+		width: auto;
+		padding: 7px 10px;
+		font-size: 16px;
+	}
+	.el-tag{
+		margin: 0px 5px;
+		cursor: pointer;
 	}
 </style>

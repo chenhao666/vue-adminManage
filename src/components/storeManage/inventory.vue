@@ -2,8 +2,8 @@
   	<div class="inventory">
 	    <el-breadcrumb separator-class="el-icon-arrow-right">
 	      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-	      <el-breadcrumb-item :to="{ path: '/storeManage/inventory' }">库存管理</el-breadcrumb-item>
-	      <el-breadcrumb-item class="fontWeight">库存</el-breadcrumb-item>
+	      <el-breadcrumb-item>门店</el-breadcrumb-item>
+	      <el-breadcrumb-item class="fontWeight">库存管理</el-breadcrumb-item>
 	    </el-breadcrumb>
 		<div class="clear"></div>
 		

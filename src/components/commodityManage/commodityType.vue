@@ -90,6 +90,13 @@
 			  	<el-form-item label="前缀" prop="codePrefix">
 			  		<el-input v-model="ruleForm.codePrefix" maxlength='20'  @change="inputFlag=1"></el-input>
 			  	</el-form-item>
+			  	
+			  	<el-form-item label="是否定制" prop="customized">
+			  		<el-select v-model="ruleForm.customized" placeholder="请选择">
+						<el-option key="0" label="否" value="0"></el-option>
+						<el-option key="1" label="是" value="1"></el-option>
+					</el-select>
+			  	</el-form-item>
 			  </el-form>
 			  <!--表单结束-->
 			  <span slot="footer" class="dialog-footer">
@@ -129,6 +136,9 @@
 		        	],
 		        	package:[
 		        		{ required: true, message: '请选择套餐包', trigger: 'blur' }
+		        	],
+		        	customized:[
+		        		{ required: true, message: '请选择属性', trigger: 'blur' }
 		        	]
 		        }
 			}
@@ -217,6 +227,7 @@
 		    },
 		    //编辑
       		handleEdit(index, row) {
+      			console.log(row)
 				this.ruleForm=formInit();
 				packageList(this);
 		      	this.dialogTitle="编辑类型";
@@ -225,6 +236,7 @@
 		      	this.ruleForm.goodsType=row.goodsType;
 		      	this.ruleForm.codePrefix=row.codePrefix;
 		      	this.ruleForm.package=row.packageId+','+row.packageName;
+		      	this.ruleForm.customized=String(row.isMade);
       		},
 	     	//删除
 	      	handleDelete(index, row) {
@@ -252,7 +264,8 @@
 			        		goodsType:this.ruleForm.goodsType,
 			        		codePrefix:this.ruleForm.codePrefix,
 			        		packageId:packageArr[0],
-			        		packageName:packageArr[1]
+			        		packageName:packageArr[1],
+			        		isMade:this.ruleForm.customized
 			        	}
 			        	if(this.dialogFlag!=0){
 			        		this.$confirm('修改后，所有已录入商品的前缀都将进行修改，是否继续?', '提示', {
@@ -353,7 +366,8 @@
 		        goodsType: '',//类型名称
 		        codePrefix:'',
 		        packageList:[],
-		        package:''
+		        package:'',
+		        customized:'0'//是否定制
 	    }
 		return data;
 	}

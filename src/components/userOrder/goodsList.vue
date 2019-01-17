@@ -106,7 +106,7 @@
 					</el-table>
 				</div>
         <div class="priceSums">
-          总计：{{goodsOrder.totalPrice?goodsOrder.totalPrice:totalAmout}}
+          总计：￥{{goodsOrder.totalPrice?goodsOrder.totalPrice:totalAmout}}
         </div>
 
 				<div style="text-align: center;padding: 30px 0px;">
@@ -1257,6 +1257,7 @@ export default {
 		    });
 		},
 		//添加商品
+		//添加商品
 		addGoodsSave(formName){
 			this.$refs[formName].validate((valid) => {
 			    if (valid) {
@@ -1405,9 +1406,12 @@ export default {
 				   		//console.log(oldPackage,child.packageId)
 				   		//console.log(this.tableData)
 						if(parseInt(child.packageId)==parseInt(oldPackage)){
+							//console.log(child)
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
-						 			tabs[i].goodsInfos[i]=child;
+						 			tabs[i].goodsInfos[index]=child;
+						 			this.tableData=sortData(tabs[i].goodsInfos);
+						 			this.editableTabs=sortData(tabs[i]);
 						 		}
 						 	}
 							this.editableTabs=tabs;
@@ -1444,8 +1448,8 @@ export default {
 						}
 				   		this.editGoodsFloag=0;
 				   	}
-				   	
-				   
+
+
 				   	//console.log(this.tableData)
 				   	this.$refs.multipleTable.clearSelection();
 					this.addGoodsVisible=false;

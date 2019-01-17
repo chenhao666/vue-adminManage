@@ -94,7 +94,7 @@
                 message:'实到数量不能大于商品剩余数量',
                 type:'warning'
               })
-            }else if(this.multipleSelection.some(item=> !reg.test(item.actualNum))){
+            }else if(this.multipleSelection.some(item=> !reg.test(item.actualNum)||item.actualNum==0)){
               this.$message({
                 message:'实到数量必须为正整数',
                 type:'warning'

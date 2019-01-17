@@ -1813,9 +1813,11 @@ export default {
 				   		//console.log(oldPackage,child.packageId)
 				   		//console.log(this.tableData)
 						if(parseInt(child.packageId)==parseInt(oldPackage)){
+							//console.log(child)
 							for(let i=0;i<tabs.length;i++){
 						 		if(tabs[i].packageId==child.packageId){
-						 			tabs[i].goodsInfos[i]=child;
+						 			tabs[i].goodsInfos[index]=child;
+						 			this.tableData=sortData(tabs[i].goodsInfos);
 						 		}
 						 	}
 							this.editableTabs=tabs;

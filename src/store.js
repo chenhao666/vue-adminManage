@@ -54,7 +54,7 @@ const state={
 	cityName:'',
 	appuid:'',//设计师
 	accessToken:'',
-	localIP:'http://192.168.1.103:8080/ourHouse/',
+	localIP:'http://192.168.1.120:8080/ourHouse/',
 	//localIP:'http://192.168.1.62:8080/ourHouse/',
 	//localIP:'/ourHouse/',
 	status:1,
